@@ -1,0 +1,20 @@
+{
+  "name": "remote-edit",
+  "main": "./lib/remote-edit",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "activationEvents": ["remote-edit:show-open-files", "remote-edit:browse-sftp", "remote-edit:browse-ftp" ],
+  "repository": "https://github.com/atom/remote-edit",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+    "ssh2-fs": "*",
+    "ssh2-connect": "*",
+    "ftp": "*",
+    "async": "*",
+    "file-size": "*",
+    "moment": "*"
+  }
+}
