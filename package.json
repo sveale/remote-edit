@@ -1,6 +1,6 @@
 {
   "name": "remote-edit",
-  "main": "./lib/remote-edit",
+  "main": "./lib/main",
   "version": "0.0.0",
   "description": "A short description of your package",
   "activationEvents": ["remote-edit:show-open-files", "remote-edit:browse-sftp", "remote-edit:browse-ftp" ],
