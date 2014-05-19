@@ -1,8 +1,7 @@
 {View} = require 'atom'
 
-SftpHostView = require './sftp-host-view'
-FtpHostView = require './ftp-host-view'
-
+HostView = require './view/host-view'
+SftpHost = require './model/sftp-host'
 
 module.exports =
 class MainView extends View
@@ -15,9 +14,8 @@ class MainView extends View
     @div class: 'remote-edit overlay from-top', =>
 
   initialize: (serializeState) ->
-    atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles
-    atom.workspaceView.command "remote-edit:browse-sftp", => @attach('sftp')
-    atom.workspaceView.command "remote-edit:browse-ftp", => @attach('ftp')
+    atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
+    atom.workspaceView.command "remote-edit:browse", => @browse()
 
     @on 'core:confirm', => @confirm()
     @on 'core:cancel', => @detach()
@@ -34,12 +32,8 @@ class MainView extends View
     @previouslyFocusedElement?.focus()
     super
 
-  attach: (@mode) ->
-    if @mode == 'sftp'
-      @sftpHostView = new SftpHostView(['sverre@***REMOVED***:22', 'sverre@***REMOVED***:22'])
-      @sftpHostView.attach()
-    else if @mode == 'ftp'
-      @ftpHostView = new FtpHostView(["sverre@***REMOVED***:21", "sverre@***REMOVED***:21"])
-      @ftpHostView.attach()
-    else
-      throw new Error("#{mode} is not supported!")
+  browse: ->
+    ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
+    ***REMOVED***2 = new SftpHost("***REMOVED***", "/home/sverre/", "sverre", 22, true, false, false, null, null, null)
+    @hostView = new HostView([***REMOVED***, ***REMOVED***2])
+    @hostView.attach()

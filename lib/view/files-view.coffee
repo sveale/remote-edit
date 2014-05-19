@@ -6,7 +6,7 @@ async = require 'async'
 
 module.exports =
   class FilesView extends SelectListView
-    initialize: (@path) ->
+    initialize: (@host) ->
       super
       @addClass('overlay from-top')
 
@@ -42,12 +42,6 @@ module.exports =
 
     getFileData: (callback) ->
       throw new Error("Subclass must implement a getFile(callback) method")
-
-    pathIsFile: (callback)->
-      throw new Error("Subclass must implement a pathIsFile(callback) method")
-
-    pathIsDir: (callback) ->
-      throw new Error("Subclass must implement a pathIsDir(callback) method")
 
     getFiles: (callback) ->
       throw new Error("Subclass must implement a getFiles(callback) method")

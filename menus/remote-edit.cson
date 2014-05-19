@@ -10,8 +10,7 @@
       'label': 'remote-edit'
       'submenu': [
         { 'label': 'Show open files', 'command': 'remote-edit:show-open-files' },
-        { 'label': 'Browse SFTP', 'command': 'remote-edit:browse-sftp'},
-        { 'label': 'Browse FTP', 'command': 'remote-edit:browse-ftp'}
+        { 'label': 'Browse hosts', 'command': 'remote-edit:browse'},
     ]
     ]
   }

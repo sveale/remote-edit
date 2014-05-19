@@ -1,7 +1,7 @@
 {$, $$, SelectListView} = require 'atom'
 
 FilesView = require './files-view'
-RemoteFile = require './remote-file'
+RemoteFile = require '../model/remote-file'
 
 ssh2fs = require 'ssh2-fs'
 ssh2 = require 'ssh2'
@@ -14,7 +14,8 @@ module.exports =
   class SftpFilesView extends FilesView
     connection: null
 
-    initialize: (@path, @connOpts) ->
+    initialize: (@host) ->
+      @path = @host.directory
       super
       @setupConnection(null)
 
@@ -29,9 +30,8 @@ module.exports =
             callback(err)
           @connection.on 'ready', () ->
             callback(null)
-          @connection.connect(@connOpts)
+          @connection.connect(@host.getConnectionString())
         (callback) =>
-          #@setItems(@getFiles(ssh))
           @setLoading("Loading...")
           @getFiles(callback)
         (items, callback) =>
@@ -56,22 +56,12 @@ module.exports =
         return callback(data)
       )
 
-    pathIsFile: (callback) ->
-      ssh2fs.stat(@connection, @path, (err, stat) ->
-        callback(err, stat.isFile())
-      )
-
-
-    pathIsDir: (callback) ->
-      ssh2fs.stat(@connection, @path, callback)
-
     getFiles: (callback) ->
       async.waterfall([
         (callback) =>
           @setLoading("Loading...")
           ssh2fs.readdir(@connection, @path, callback)
         (files, callback) =>
-          #fungerer async.map(files, ((item, callback) => callback(null, item)), callback)
           async.mapLimit(files, @getNumberOfConcurrentSshQueriesInOneConnection(), ((item, callback) => ssh2fs.stat(@connection, @getNewPath(item), (err, stat) => callback(err, @createRemoteFileFromNameAndStat(item, stat)))), callback)
         (objects, callback) =>
           if atom.config.get 'remote-edit.showHiddenFiles'
@@ -79,7 +69,6 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
       ], (err, result) =>
-        #console.debug util.inspect(result)
         @cancelled()
         return callback(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
