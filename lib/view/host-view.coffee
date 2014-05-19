@@ -33,10 +33,5 @@ module.exports =
             @div class: "secondary-line", "Type: UNDEFINED"
 
     confirmed: (item) ->
-      if item instanceof SftpHost
-        filesView = new FilesView(item)
-        filesView.attach()
-      else if item instanceof FtpHost
-        throw new Error("Not implemented!")
-      else
-        throw new Error("Not implemented!")
+      filesView = new FilesView(item)
+      filesView.attach()

@@ -2,6 +2,7 @@
 
 HostView = require './view/host-view'
 SftpHost = require './model/sftp-host'
+FtpHost = require './model/ftp-host'
 
 module.exports =
 class MainView extends View
@@ -35,5 +36,7 @@ class MainView extends View
   browse: ->
     ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
     ***REMOVED***2 = new SftpHost("***REMOVED***", "/home/sverre/", "sverre", 22, true, false, false, null, null, null)
-    @hostView = new HostView([***REMOVED***, ***REMOVED***2])
+    ***REMOVED***Ftp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
+    leetnettFtp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
+    @hostView = new HostView([***REMOVED***, ***REMOVED***2, ***REMOVED***Ftp, leetnettFtp])
     @hostView.attach()

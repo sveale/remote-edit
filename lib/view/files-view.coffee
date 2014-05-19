@@ -62,16 +62,15 @@ module.exports =
       @path = @getNewPath(next)
 
     openFile: (file) =>
-      savePath = os.tmpdir() + @path.split('/').pop()
+      savePath = os.tmpdir() + file.name
       async.waterfall([
-        (callback) ->
+        (callback) =>
           @host.getFileData(file, callback)
-        (data, callback) ->
-          fs.writeFile(savePath, data, (err) =>
-            throw err if err?
-            atom.workspace.open(savePath)
-            )
-        ])
+        (data, callback) =>
+          fs.writeFile(savePath, data, (err) -> callback(err, savePath))
+        ], (err, result) =>
+          atom.workspace.open(savePath)
+        )
 
     confirmed: (item) ->
       if item.isFile

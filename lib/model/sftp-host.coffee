@@ -78,7 +78,7 @@ module.exports =
           @connection.on 'ready', () ->
             callback(null)
           @connection.connect(@getConnectionString())
-      ], (err, result) =>
+      ], (err, result) ->
         callback(err, result)
       )
 
@@ -99,5 +99,5 @@ module.exports =
 
     getFileData: (file, callback) ->
       ssh2fs.readFile(@connection, file.path, (err, data) ->
-        return callback(data)
+        return callback(err, data)
       )
