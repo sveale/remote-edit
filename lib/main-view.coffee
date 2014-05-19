@@ -1,4 +1,4 @@
-{View, EditorView} = require 'atom'
+{$, BufferedProcess, EditorView, View} = require 'atom'
 
 HostView = require './view/host-view'
 SftpHost = require './model/sftp-host'
@@ -11,9 +11,15 @@ class MainView extends View
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
-      @subview 'miniEditor', new EditorView(mini: true)
       @div class: 'error', outlet: 'error'
       @div class: 'message', outlet: 'message'
+      @label 'Hostname'
+      @subview 'hostName', new EditorView(mini: true)
+      @subview 'username', new EditorView(mini: true)
+      @subview 'port', new EditorView(mini: true)
+      @subview 'directory', new EditorView(mini: true)
+
+
 
   initialize: (serializeState) ->
     atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
@@ -46,5 +52,18 @@ class MainView extends View
     @hostView.attach()
 
   newHost: (protocol) ->
-    throw new Error("Not implemented!")
-    @destroy()
+    @previouslyFocusedElement = $(':focus')
+    @message.text("Enter data")
+    atom.workspaceView.append(this)
+    if @protocol == 'sftp'
+      console.debug 'sftp'
+    else if @protocol == 'ftp'
+      console.debug 'ftp'
+    else
+      console.debug 'asdf'
+
+    @hostName.focus()
+
+  confirm: ->
+    @detach()
+    @browse()
