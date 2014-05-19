@@ -23,3 +23,7 @@ module.exports =
 
     addNewItem: ->
       throw new Error("Not implemented!")
+
+    getValuesFromItem: (item) ->
+      regexp = /[@:]+/
+      item.split(regexp)

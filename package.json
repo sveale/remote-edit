@@ -16,6 +16,7 @@
     "async": "*",
     "file-size": "*",
     "moment": "*",
-    "ssh2": "*"
+    "ssh2": "*",
+    "underscore": "*"
   }
 }
