@@ -15,6 +15,7 @@
     "ftp": "*",
     "async": "*",
     "file-size": "*",
-    "moment": "*"
+    "moment": "*",
+    "ssh2": "*"
   }
 }
