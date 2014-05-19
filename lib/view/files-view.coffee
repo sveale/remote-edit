@@ -9,6 +9,14 @@ module.exports =
     initialize: (@host) ->
       super
       @addClass('overlay from-top')
+      @path = @host.directory
+      async.waterfall([
+        (callback) =>
+          @setLoading("Connecting...")
+          @host.connect(callback)
+        (callback) =>
+          @populate(callback)
+        ])
 
     getFilterKey: ->
       return "name"
@@ -32,24 +40,17 @@ module.exports =
             @div class: 'secondary-line no-icon text-subtle', "Size: #{item.size}, Mtime: #{item.lastModified}, Permissions: #{item.permissions}"
           else
 
-    ###############################################################################
-    # Functions regarded as pure virtual
     populate: (callback) ->
-      throw new Error("Subclass must implement a populate(callback) method")
-
-    setupConnection: (callback) ->
-      throw new Error("Subclass must implement a setupConnection(callback) method")
-
-    getFileData: (callback) ->
-      throw new Error("Subclass must implement a getFile(callback) method")
-
-    getFiles: (callback) ->
-      throw new Error("Subclass must implement a getFiles(callback) method")
-    ###############################################################################
-
-
-    getNumberOfConcurrentSshQueriesInOneConnection: ->
-      atom.config.get 'remote-edit.numberOfConcurrentSshConnectionToOneHost'
+      async.waterfall([
+        (callback) =>
+          @setLoading("Loading...")
+          @host.getFilesMetadata(@path, callback)
+        (items, callback) =>
+          @setItems(items)
+          @cancelled()
+        ], (err, result) =>
+            return callback(err, result)
+        )
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
@@ -60,21 +61,22 @@ module.exports =
     updatePath: (next) =>
       @path = @getNewPath(next)
 
-    openFile: (data) =>
+    openFile: (file) =>
       savePath = os.tmpdir() + @path.split('/').pop()
-      console.debug "path = #{@path}, savePath = #{savePath}"
-      fs.writeFile(savePath, data, (err) =>
-        throw err if err?
-        atom.workspace.open(savePath)
-      )
+      async.waterfall([
+        (callback) ->
+          @host.getFileData(file, callback)
+        (data, callback) ->
+          fs.writeFile(savePath, data, (err) =>
+            throw err if err?
+            atom.workspace.open(savePath)
+            )
+        ])
 
     confirmed: (item) ->
-      #@updatePath(item)
-
       if item.isFile
-        @updatePath(item.name)
         #console.debug 'file selected'
-        @getFileData(@openFile)
+        @openFile(item)
       else if item.isDir
         @setItems()
         @updatePath(item.name)

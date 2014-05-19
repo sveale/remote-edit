@@ -1,6 +1,6 @@
 {$$, SelectListView, EditorView} = require 'atom'
 
-SftpFilesView = require './sftp-files-view'
+FilesView = require './files-view'
 SftpHost = require '../model/sftp-host'
 FtpHost = require '../model/ftp-host'
 
@@ -34,8 +34,8 @@ module.exports =
 
     confirmed: (item) ->
       if item instanceof SftpHost
-        sftpFilesView = new SftpFilesView(item)
-        sftpFilesView.attach()
+        filesView = new FilesView(item)
+        filesView.attach()
       else if item instanceof FtpHost
         throw new Error("Not implemented!")
       else
