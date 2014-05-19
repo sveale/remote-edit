@@ -1,7 +1,6 @@
 MainView = require './main-view'
 
 module.exports =
-  mainView: null
   configDefaults:
     showHiddenFiles: false,
     savePasswordInClearText: true,
@@ -13,10 +12,10 @@ module.exports =
 
 
   activate: (state) ->
-    @mainView = new MainView(state.reViewState)
+    @view = new MainView(state.state)
 
   deactivate: ->
-    @mainView?.destroy()
+    @view?.destroy()
 
   serialise: ->
-    mainViewState: @mainView.serialize()
+    viewState: @view.serialize()

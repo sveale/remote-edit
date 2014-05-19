@@ -1,16 +1,14 @@
 # See https://atom.io/docs/latest/creating-a-package#menus for more details
-'context-menu':
-  '.overlayer':
-      'Enable remote-edit': 'remote-edit:toggle'
-
 'menu': [
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'remote-edit'
+      'label': 'Remote edit'
       'submenu': [
-        { 'label': 'Show open files', 'command': 'remote-edit:show-open-files' },
-        { 'label': 'Browse hosts', 'command': 'remote-edit:browse'},
+        { 'label': 'Show open files', 'command': 'remote-edit:show-open-files' }
+        { 'label': 'Browse hosts', 'command': 'remote-edit:browse' }
+        { 'label': 'Add new host (sftp)', 'command': 'remote-edit:new-host-sftp' }
+        { 'label': 'Add new host (ftp)', 'command': 'remote-edit:new-host-ftp' }
     ]
     ]
   }
