@@ -15,9 +15,6 @@ module.exports =
       atom.workspaceView.append(this)
       @focusFilterEditor()
 
-    cancel: ->
-      @hide()
-
     getFilterKey: ->
       return "hostname"
 

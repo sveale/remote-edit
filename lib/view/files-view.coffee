@@ -16,7 +16,9 @@ module.exports =
           @host.connect(callback)
         (callback) =>
           @populate(callback)
-        ])
+        ], (err, result) =>
+          @setError(err) if err?
+        )
 
     getFilterKey: ->
       return "name"
@@ -49,7 +51,8 @@ module.exports =
           @setItems(items)
           @cancelled()
         ], (err, result) =>
-            return callback(err, result)
+          @setError(err) if err?
+          return callback(err, result)
         )
 
     getNewPath: (next) ->
@@ -69,6 +72,7 @@ module.exports =
         (data, callback) =>
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
         ], (err, result) =>
+          @setError(err) if err?
           atom.workspace.open(savePath)
         )
 
