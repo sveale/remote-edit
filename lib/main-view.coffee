@@ -9,6 +9,7 @@ class MainView extends View
   previouslyFocusedElement: null
   hostView: new HostView([]);
   hostList: []
+  mode: null
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
@@ -98,11 +99,11 @@ class MainView extends View
     @hostView.setItems([***REMOVED***, ***REMOVED***2, ***REMOVED***Ftp, leetnettFtp])
     @hostView.attach()
 
-  newHost: (protocol) ->
+  newHost: (@mode) ->
     @previouslyFocusedElement = $(':focus')
 
     atom.workspaceView.append(this)
-    if protocol == 'sftp'
+    if @mode == 'sftp'
       @port.setText("22")
       @authenticationButtonsBlock.show()
       @passwordBlock.hide()
@@ -114,7 +115,7 @@ class MainView extends View
       else
         @passwordButton.click()
 
-    else if protocol == 'ftp'
+    else if @mode == 'ftp'
       @port.setText("21")
       @authenticationButtonsBlock.hide()
       @passwordBlock.show()
@@ -126,5 +127,11 @@ class MainView extends View
 
 
   confirm: ->
+    if @mode == 'sftp'
+      console.debug 'SFTP'
+    else if @mode == 'ftp'
+      console.debug 'FTP'
+    else
+      throw new Error('Selected mode is not supported!')
     @detach()
     @browse()
