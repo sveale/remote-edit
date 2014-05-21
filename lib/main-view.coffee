@@ -8,18 +8,37 @@ module.exports =
 class MainView extends View
   previouslyFocusedElement: null
   hostView: new HostView([]);
+  hostList: []
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
-      @div class: 'error', outlet: 'error'
-      @div class: 'message', outlet: 'message'
       @label 'Hostname'
       @subview 'hostName', new EditorView(mini: true)
-      @subview 'username', new EditorView(mini: true)
-      @subview 'port', new EditorView(mini: true)
+
+      @label 'Default directory'
       @subview 'directory', new EditorView(mini: true)
 
+      @label 'Username'
+      @subview 'username', new EditorView(mini: true)
 
+      @label 'Port'
+      @subview 'port', new EditorView(mini: true)
+
+      @div class: 'block', outlet: 'authenticationButtonsBlock', =>
+        @div class: 'btn-group', =>
+          @button class: 'btn selected', outlet: 'userAgentButton', 'User agent'
+          @button class: 'btn', outlet: 'privateKeyButton', 'Private key'
+          @button class: 'btn', outlet: 'passwordButton', 'Password'
+
+      @div class: 'block', outlet: 'passwordBlock', =>
+        @label 'Password'
+        @subview 'password', new EditorView(mini: true)
+
+      @div class: 'block', outlet: 'privateKeyBlock', =>
+        @label 'Private key path'
+        @subview 'privateKeyPath', new EditorView(mini: true)
+        @label 'Private key passphrase (leave blank if unencrypted)'
+        @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
   initialize: (serializeState) ->
     atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
@@ -29,6 +48,34 @@ class MainView extends View
 
     @on 'core:confirm', => @confirm()
     @on 'core:cancel', => @detach()
+
+    @directory.setText("/")
+    @username.setText(process.env['USER'])
+
+    @privateKeyPath.setText(atom.config.get('remote-edit.sshPrivateKeyPath'))
+    @privateKeyPassphrase.setText(atom.config.get('remote-edit.sshPrivateKeyPassphrase'))
+
+    @userAgentButton.on 'click', =>
+      @privateKeyButton.toggleClass('selected', false)
+      @userAgentButton.toggleClass('selected', true)
+      @passwordButton.toggleClass('selected', false)
+      @passwordBlock.hide()
+      @privateKeyBlock.hide()
+
+    @privateKeyButton.on 'click', =>
+      @privateKeyButton.toggleClass('selected', true)
+      @userAgentButton.toggleClass('selected', false)
+      @passwordButton.toggleClass('selected', false)
+      @passwordBlock.hide()
+      @privateKeyBlock.show()
+
+    @passwordButton.on 'click', =>
+      @privateKeyButton.toggleClass('selected', false)
+      @userAgentButton.toggleClass('selected', false)
+      @passwordButton.toggleClass('selected', true)
+      @privateKeyBlock.hide()
+      @passwordBlock.show()
+
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -44,7 +91,7 @@ class MainView extends View
 
   browse: ->
     ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
-    ***REMOVED***2 = new SftpHost("***REMOVED***", "/home/sverre/", "sverre", 22, true, false, false, null, null, null)
+    ***REMOVED***2 = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
     ***REMOVED***Ftp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
     leetnettFtp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
 
@@ -53,16 +100,30 @@ class MainView extends View
 
   newHost: (protocol) ->
     @previouslyFocusedElement = $(':focus')
-    @message.text("Enter data")
+
     atom.workspaceView.append(this)
-    if @protocol == 'sftp'
-      console.debug 'sftp'
-    else if @protocol == 'ftp'
-      console.debug 'ftp'
+    if protocol == 'sftp'
+      @port.setText("22")
+      @authenticationButtonsBlock.show()
+      @passwordBlock.hide()
+      @privateKeyBlock.hide()
+      if atom.config.get 'remote-edit.sshUseUserAgent'
+        @userAgentButton.click()
+      else if atom.config.get 'remote-edit.sshUsePrivateKey'
+        @privateKeyButton.click()
+      else
+        @passwordButton.click()
+
+    else if protocol == 'ftp'
+      @port.setText("21")
+      @authenticationButtonsBlock.hide()
+      @passwordBlock.show()
+      @privateKeyBlock.hide()
     else
       console.debug 'asdf'
 
     @hostName.focus()
+
 
   confirm: ->
     @detach()

@@ -7,8 +7,8 @@ module.exports =
     numberOfConcurrentSshQueriesInOneConnection: 5,
     sshUseUserAgent: true,
     sshUsePrivateKey: false,
-    sshPrivateKey: "~/.ssh/id_rsa",
-    sshPrivateKeyPassphrase: undefined
+    sshPrivateKeyPath: "~/.ssh/id_rsa",
+    sshPrivateKeyPassphrase: ""
 
 
   activate: (state) ->
