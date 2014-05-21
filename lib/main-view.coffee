@@ -77,6 +77,12 @@ class MainView extends View
       @privateKeyBlock.hide()
       @passwordBlock.show()
 
+    ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
+    ***REMOVED***2 = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
+    ***REMOVED***Ftp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
+    leetnettFtp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
+
+    @hostList = [***REMOVED***, ***REMOVED***2, ***REMOVED***Ftp, leetnettFtp]
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -91,12 +97,7 @@ class MainView extends View
     super
 
   browse: ->
-    ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
-    ***REMOVED***2 = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
-    ***REMOVED***Ftp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
-    leetnettFtp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
-
-    @hostView.setItems([***REMOVED***, ***REMOVED***2, ***REMOVED***Ftp, leetnettFtp])
+    @hostView.setItems(@hostList)
     @hostView.attach()
 
   newHost: (@mode) ->
@@ -131,6 +132,8 @@ class MainView extends View
       console.debug 'SFTP'
     else if @mode == 'ftp'
       console.debug 'FTP'
+      newHost = new FtpHost(@hostName.getText(), @directory.getText(), @port.getText(), @password.getText())
+      @hostList.push(newHost)
     else
       throw new Error('Selected mode is not supported!')
     @detach()
