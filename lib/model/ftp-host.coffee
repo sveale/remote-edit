@@ -87,3 +87,6 @@ module.exports =
           return callback(null, chunk.toString('utf8'))
         )
       )
+
+    serializeParams: ->
+      {@hostname, @directory, @username, @port, @password}

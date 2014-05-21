@@ -73,12 +73,13 @@ module.exports =
         (callback) =>
           @connection = new ssh2()
           @connection.on 'error', (err) =>
-            connection.end()
+            @connection.end()
             callback(err)
           @connection.on 'ready', () ->
             callback(null)
           @connection.connect(@getConnectionString())
       ], (err, result) ->
+
         callback(err, result)
       )
 
@@ -101,3 +102,6 @@ module.exports =
       ssh2fs.readFile(@connection, file.path, (err, data) ->
         return callback(err, data)
       )
+
+    serializeParams: ->
+      {@hostname, @directory, @username, @port, @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath}

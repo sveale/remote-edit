@@ -1,5 +1,9 @@
+Serializable = require 'serializable'
+
 module.exports =
   class Host
+    Serializable.includeInto(@)
+
     constructor: (@hostname, @directory, @username, @port) ->
 
     getConnectionString: ->
@@ -13,3 +17,6 @@ module.exports =
 
     getFileData: (file, callback) ->
       throw new Error("see subclass")
+
+    serializeParams: ->
+      throw new Error("Must be implemented in subclass!")
