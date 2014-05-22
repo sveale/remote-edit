@@ -88,7 +88,7 @@ class MainView extends View
 
 
   serializeParams: ->
-    {hostList: JSON.stringify(host.serialize() for host in @hostList)}
+    hostList: JSON.stringify(host.serialize() for host in @hostList)
 
   deserializeParams: (params) ->
     tmpArray = []
@@ -108,6 +108,9 @@ class MainView extends View
   browse: ->
     @hostView.setItems(@hostList)
     @hostView.attach()
+
+  showOpenFiles: ->
+
 
   newHost: (@mode) ->
     @storeFocusedElement()

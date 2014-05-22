@@ -1,5 +1,6 @@
 Host = require './host'
 RemoteFile = require './remote-file'
+LocalFile = require './local-file'
 
 async = require 'async'
 filesize = require 'file-size'
@@ -12,7 +13,7 @@ module.exports =
     Serializable.includeInto(this)
     Host.registerDeserializers(FtpHost)
 
-    constructor: (@hostname, @directory, @username, @port, @password) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @password) ->
       super
 
     createRemoteFileFromListObj: (path, item) ->
@@ -93,4 +94,17 @@ module.exports =
       )
 
     serializeParams: ->
-      {@hostname, @directory, @username, @port, @password}
+      {
+        @hostname
+        @directory
+        @username
+        @port
+        localFiles: JSON.stringify(localFile.serialize() for localFile in @localFiles)
+        @password
+      }
+
+    deserializeParams: (params) ->
+      tmpArray = []
+      tmpArray.push(LocalFile.deserialize(localFile)) for localFile in JSON.parse(params.localFiles)
+      params.localFiles = tmpArray
+      params

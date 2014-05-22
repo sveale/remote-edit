@@ -1,5 +1,6 @@
 Host = require './host'
 RemoteFile = require './remote-file'
+LocalFile = require './local-file'
 
 fs = require 'fs'
 ssh2fs = require 'ssh2-fs'
@@ -16,7 +17,7 @@ module.exports =
     Host.registerDeserializers(SftpHost)
 
 
-    constructor: (@hostname, @directory, @username, @port, @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath) ->
       super
 
     getConnectionStringUsingAgent: ->
@@ -108,4 +109,22 @@ module.exports =
       )
 
     serializeParams: ->
-      {@hostname, @directory, @username, @port, @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath}
+      {
+        @hostname
+        @directory
+        @username
+        @port
+        localFiles: JSON.stringify(localFile.serialize() for localFile in @localFiles)
+        @useAgent
+        @usePrivateKey
+        @usePassword
+        @password
+        @passphrase
+        @privateKeyPath
+      }
+
+    deserializeParams: (params) ->
+      tmpArray = []
+      tmpArray.push(LocalFile.deserialize(localFile)) for localFile in JSON.parse(params.localFiles)
+      params.localFiles = tmpArray
+      params

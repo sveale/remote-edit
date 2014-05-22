@@ -10,6 +10,7 @@ module.exports =
       super
       @addClass('overlay from-top')
       @setItems(@listOfItems)
+      @filesView = new FilesView(null)
 
     attach: ->
       atom.workspaceView.append(this)
@@ -23,12 +24,12 @@ module.exports =
         @li class: 'two-lines', =>
           @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
           if item instanceof SftpHost
-            @div class: "secondary-line", "Type: SFTP"
+            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}"
           else if item instanceof FtpHost
-            @div class: "secondary-line", "Type: FTP"
+            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}"
           else
             @div class: "secondary-line", "Type: UNDEFINED"
 
     confirmed: (item) ->
-      filesView = new FilesView(item)
-      filesView.attach()
+      @filesView.connect(item)
+      @filesView.attach()

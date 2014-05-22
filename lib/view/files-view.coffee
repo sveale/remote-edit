@@ -1,14 +1,18 @@
 {$, $$, SelectListView} = require 'atom'
+LocalFile = require '../model/local-file'
 
 fs = require 'fs'
 os = require 'os'
 async = require 'async'
+util = require 'util'
 
 module.exports =
   class FilesView extends SelectListView
     initialize: (@host) ->
       super
       @addClass('overlay from-top')
+
+    connect: (@host) ->
       @path = @host.directory
       async.waterfall([
         (callback) =>
@@ -73,7 +77,9 @@ module.exports =
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
         ], (err, result) =>
           @setError(err) if err?
-          atom.workspace.open(savePath)
+          localFile = new LocalFile(savePath, file)
+          @host.localFiles.push(localFile)
+          atom.workspace.open(localFile.path)
         )
 
     confirmed: (item) ->

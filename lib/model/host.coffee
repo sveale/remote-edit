@@ -4,7 +4,7 @@ module.exports =
   class Host
     Serializable.includeInto(this)
 
-    constructor: (@hostname, @directory, @username, @port) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = []) ->
 
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")
