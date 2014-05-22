@@ -5,9 +5,13 @@ async = require 'async'
 filesize = require 'file-size'
 moment = require 'moment'
 ftp = require 'ftp'
+Serializable = require 'serializable'
 
 module.exports =
   class FtpHost extends Host
+    Serializable.includeInto(this)
+    Host.registerDeserializers(FtpHost)
+
     constructor: (@hostname, @directory, @username, @port, @password) ->
       super
 

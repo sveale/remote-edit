@@ -2,7 +2,7 @@ Serializable = require 'serializable'
 
 module.exports =
   class Host
-    Serializable.includeInto(@)
+    Serializable.includeInto(this)
 
     constructor: (@hostname, @directory, @username, @port) ->
 

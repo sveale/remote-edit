@@ -1,15 +1,23 @@
 {$, BufferedProcess, EditorView, View} = require 'atom'
+Serializable = require 'serializable'
+util = require 'util'
 
 HostView = require './view/host-view'
 SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
+Host = require './model/host'
 
 module.exports =
 class MainView extends View
+  Serializable.includeInto(this)
+  atom.deserializers.add(this)
+
   previouslyFocusedElement: null
   hostView: new HostView([]);
-  hostList: []
   mode: null
+
+  constructor: (@hostList = []) ->
+    super
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
@@ -41,11 +49,12 @@ class MainView extends View
         @label 'Private key passphrase (leave blank if unencrypted)'
         @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
-  initialize: (serializeState) ->
+  initialize: ()->
     atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
     atom.workspaceView.command "remote-edit:browse", => @browse()
     atom.workspaceView.command "remote-edit:new-host-sftp", => @newHost("sftp")
     atom.workspaceView.command "remote-edit:new-host-ftp", => @newHost("ftp")
+    atom.workspaceView.command "remote-edit:clear-hosts", => @clearHosts()
 
     @on 'core:confirm', => @confirm()
     @on 'core:cancel', => @detach()
@@ -77,15 +86,15 @@ class MainView extends View
       @privateKeyBlock.hide()
       @passwordBlock.show()
 
-    ***REMOVED*** = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
-    ***REMOVED***2 = new SftpHost("***REMOVED***", "/", "sverre", 22, true, false, false, null, null, null)
-    ***REMOVED***Ftp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
-    leetnettFtp = new FtpHost("***REMOVED***", "/", "sverre", "21", "asdf")
 
-    @hostList = [***REMOVED***, ***REMOVED***2, ***REMOVED***Ftp, leetnettFtp]
+  serializeParams: ->
+    {hostList: JSON.stringify(host.serialize() for host in @hostList)}
 
-  # Returns an object that can be retrieved when package is activated
-  serialize: ->
+  deserializeParams: (params) ->
+    tmpArray = []
+    tmpArray.push(Host.deserialize(host)) for host in JSON.parse(params.hostList)
+    params.hostList = tmpArray
+    params
 
   # Tear down any state and detach
   destroy: ->
@@ -101,7 +110,7 @@ class MainView extends View
     @hostView.attach()
 
   newHost: (@mode) ->
-    @previouslyFocusedElement = $(':focus')
+    @storeFocusedElement()
 
     atom.workspaceView.append(this)
     if @mode == 'sftp'
@@ -115,26 +124,48 @@ class MainView extends View
         @privateKeyButton.click()
       else
         @passwordButton.click()
-
     else if @mode == 'ftp'
       @port.setText("21")
       @authenticationButtonsBlock.hide()
       @passwordBlock.show()
       @privateKeyBlock.hide()
     else
-      console.debug 'asdf'
+      throw new Error('Unsupported mode1')
 
     @hostName.focus()
 
+  clearHosts: () ->
+    @hostList = []
+    @restoreFocus()
 
   confirm: ->
     if @mode == 'sftp'
-      console.debug 'SFTP'
+      newHost = new SftpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, null, null, null, null, null)
+      if @userAgentButton.hasClass('selected')
+        newHost.useAgent = true
+      else if @privateKeyButton.hasClass('selected')
+        newHost.usePrivateKey = true
+        newHost.privateKeyPath = @privateKeyPath.getText()
+        newHost.passphrase = @privateKeyPassphrase.getText()
+      else if @passwordButton.hasClass('selected')
+        newHost.usePassword = true
+        newHost.password = @password.getText()
+      else
+        throw new Error('Unvalid option selected')
+      @hostList.push(newHost)
     else if @mode == 'ftp'
-      console.debug 'FTP'
-      newHost = new FtpHost(@hostName.getText(), @directory.getText(), @port.getText(), @password.getText())
+      newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), @password.getText())
       @hostList.push(newHost)
     else
       throw new Error('Selected mode is not supported!')
     @detach()
     @browse()
+
+  storeFocusedElement: ->
+    @previouslyFocusedElement = $(':focus')
+
+  restoreFocus: ->
+    if @previouslyFocusedElement?.isOnDom()
+      @previouslyFocusedElement.focus()
+    else
+      atom.workspaceView.focus()

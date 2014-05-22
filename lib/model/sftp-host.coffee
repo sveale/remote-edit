@@ -8,10 +8,14 @@ async = require 'async'
 util = require 'util'
 filesize = require 'file-size'
 moment = require 'moment'
-
+Serializable = require 'serializable'
 
 module.exports =
   class SftpHost extends Host
+    Serializable.includeInto(this)
+    Host.registerDeserializers(SftpHost)
+
+
     constructor: (@hostname, @directory, @username, @port, @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath) ->
       super
 

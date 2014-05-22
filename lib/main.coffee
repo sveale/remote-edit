@@ -12,10 +12,14 @@ module.exports =
 
 
   activate: (state) ->
-    @view = new MainView(state.state)
+    @view =
+      if state
+        atom.deserializers.deserialize(state)
+      else
+        new MainView()
 
   deactivate: ->
     @view?.destroy()
 
-  serialise: ->
-    viewState: @view.serialize()
+  serialize: ->
+    @view.serialize()
