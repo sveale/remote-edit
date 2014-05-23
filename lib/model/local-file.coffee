@@ -4,9 +4,9 @@ RemoteFile = require './remote-file'
 module.exports =
   class LocalFile
     Serializable.includeInto(this)
-    #Emitter.includeInto(this)
 
-    constructor: (@path, @remoteFile) ->
+    constructor: (@path, @remoteFile, @host = null) ->
+      @name = @remoteFile.name
 
     serializeParams: ->
       {

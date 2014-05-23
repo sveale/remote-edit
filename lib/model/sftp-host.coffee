@@ -54,7 +54,7 @@ module.exports =
       )
 
     createRemoteFileFromNameAndStat: (name, stat) ->
-      remoteFile = new RemoteFile(path.normalize(name), stat.isFile(),
+      remoteFile = new RemoteFile(name, stat.isFile(),
                                   stat.isDirectory(),
                                   filesize(stat.size).human(),
                                   parseInt(stat.permissions, 10).toString(8).substr(2, 4),
@@ -153,6 +153,6 @@ module.exports =
 
     deserializeParams: (params) ->
       tmpArray = []
-      tmpArray.push(LocalFile.deserialize(localFile)) for localFile in JSON.parse(params.localFiles)
+      tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in JSON.parse(params.localFiles)
       params.localFiles = tmpArray
       params

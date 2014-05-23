@@ -5,6 +5,8 @@ async = require 'async'
 {MessagePanelView, PlainMessageView} = require 'atom-message-panel'
 
 HostView = require './view/host-view'
+OpenFilesView = require './view/open-files-view'
+
 SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
 Host = require './model/host'
@@ -126,6 +128,14 @@ class MainView extends View
     @hostView.attach()
 
   showOpenFiles: ->
+    localFiles = []
+    async.each(@hostList, ((host, callback) ->
+      async.each(host.localFiles, ((file, callback) ->
+        localFiles.push(file)
+        ), ((err) -> console.debug err if err?))
+      ), ((err) -> console.debug err if err?))
+    showOpenFilesView = new OpenFilesView(localFiles)
+    showOpenFilesView.attach()
 
 
   newHost: (@mode) ->
