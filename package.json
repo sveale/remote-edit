@@ -16,6 +16,8 @@
     "file-size": "*",
     "moment": "*",
     "ssh2": "*",
-    "serializable": "*"
+    "serializable": "*",
+    "emissary": "*",
+    "osenv": "*"
   }
 }

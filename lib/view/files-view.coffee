@@ -5,6 +5,7 @@ fs = require 'fs'
 os = require 'os'
 async = require 'async'
 util = require 'util'
+path = require 'path'
 
 module.exports =
   class FilesView extends SelectListView
@@ -50,7 +51,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @setLoading("Loading...")
-          @host.getFilesMetadata(@path, callback)
+          @host.getFilesMetadata(path.normalize(@path), callback)
         (items, callback) =>
           @setItems(items)
           @cancelled()
@@ -64,22 +65,29 @@ module.exports =
         @path + next
       else
         @path + "/" + next
+      path.normalize(@path)
 
     updatePath: (next) =>
       @path = @getNewPath(next)
 
     openFile: (file) =>
       savePath = os.tmpdir() + file.name
+
       async.waterfall([
         (callback) =>
+          fs.realpath(os.tmpdir(), callback)
+        (realPath, callback) =>
+          savePath = realPath + file.name
           @host.getFileData(file, callback)
         (data, callback) =>
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
         ], (err, result) =>
-          @setError(err) if err?
-          localFile = new LocalFile(savePath, file)
-          @host.localFiles.push(localFile)
-          atom.workspace.open(localFile.path)
+          if err?
+            @setError(err)
+          else
+            localFile = new LocalFile(savePath, file)
+            @host.localFiles.push(localFile)
+            atom.workspace.open(localFile.path)
         )
 
     confirmed: (item) ->
