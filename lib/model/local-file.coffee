@@ -1,8 +1,10 @@
 Serializable = require 'serializable'
+RemoteFile = require './remote-file'
 
 module.exports =
   class LocalFile
     Serializable.includeInto(this)
+    #Emitter.includeInto(this)
 
     constructor: (@path, @remoteFile) ->
 
@@ -13,4 +15,5 @@ module.exports =
       }
 
     deserializeParams: (params) ->
+      params.remoteFile = RemoteFile.deserialize(params.remoteFile)
       params

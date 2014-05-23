@@ -17,7 +17,7 @@ module.exports =
       super
 
     createRemoteFileFromListObj: (path, item) ->
-      remoteFile = new RemoteFile((path + item.name), false, false, filesize(item.size).human(), null, null)
+      remoteFile = new RemoteFile((path + '/' + item.name), false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
         remoteFile.isDir = true
@@ -67,8 +67,22 @@ module.exports =
           @connection.on 'ready', () ->
             callback(null)
           @connection.connect(@getConnectionString())
-        ], (err, result) ->
-          callback(err, result)
+        ], (err) ->
+          callback?(err)
+        )
+
+    writeFile: (file, text, callback) ->
+      async.waterfall([
+        (callback) =>
+          if !@connection?
+            @connect(callback)
+          else
+            callback(null)
+        (callback) =>
+          @connection.put((new Buffer(text)), file.remoteFile.path, callback)
+        ], (err) ->
+          console.debug err if err?
+          callback?(err)
         )
 
     getFilesMetadata: (path, callback) ->
@@ -78,18 +92,20 @@ module.exports =
         (files, callback) =>
           async.map(files, ((item, callback) => callback(null, @createRemoteFileFromListObj(path, item))), callback)
         (objects, callback) =>
+          objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
+          objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
         ], (err, result) =>
-          return callback(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+          callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
         )
 
     getFileData: (file, callback) ->
       @connection.get(file.path, (err, stream) ->
         stream.once('data', (chunk) ->
-          return callback(null, chunk.toString('utf8'))
+          callback?(null, chunk.toString('utf8'))
         )
       )
 

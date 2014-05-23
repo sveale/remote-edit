@@ -12,6 +12,7 @@ module.exports =
     initialize: (@host) ->
       super
       @addClass('overlay from-top')
+      @connect(@host)
 
     connect: (@host) ->
       @path = @host.directory
@@ -22,6 +23,7 @@ module.exports =
         (callback) =>
           @populate(callback)
         ], (err, result) =>
+          console.debug err if err?
           @setError(err) if err?
         )
 
@@ -62,10 +64,9 @@ module.exports =
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
-        @path + next
+        path.normalize(@path + next)
       else
-        @path + "/" + next
-      path.normalize(@path)
+        path.normalize(@path + "/" + next)
 
     updatePath: (next) =>
       @path = @getNewPath(next)
@@ -77,7 +78,7 @@ module.exports =
         (callback) =>
           fs.realpath(os.tmpdir(), callback)
         (realPath, callback) =>
-          savePath = realPath + file.name
+          savePath = realPath + "/" + file.name
           @host.getFileData(file, callback)
         (data, callback) =>
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))

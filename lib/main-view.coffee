@@ -1,6 +1,8 @@
 {$, BufferedProcess, EditorView, View} = require 'atom'
 Serializable = require 'serializable'
 util = require 'util'
+async = require 'async'
+{MessagePanelView, PlainMessageView} = require 'atom-message-panel'
 
 HostView = require './view/host-view'
 SftpHost = require './model/sftp-host'
@@ -15,9 +17,17 @@ class MainView extends View
   previouslyFocusedElement: null
   hostView: new HostView([]);
   mode: null
+  messages: new MessagePanelView({title: 'Remote edit'})
 
   constructor: (@hostList = []) ->
     super
+    async.each(@hostList, ((item) =>
+      @subscribe item, 'localFileSaved', =>
+        @messages.add(new PlainMessageView({message: 'Local file was saved', class: 'text-info'}))
+      @subscribe item, 'remoteFileUpdated', =>
+        @messages.add(new PlainMessageView({message: 'Remote file updated', class: 'text-success'}))
+      ),
+      null)
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
@@ -50,6 +60,20 @@ class MainView extends View
         @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
   initialize: ()->
+    # atom.project.eachBuffer (buffer) =>
+    #   @subscribe buffer, 'saved', =>
+    #     async.each(@hostList, ((item) =>
+    #       async.detect(item.localFiles, ((localFile, callback) -> callback(localFile.path == buffer.getUri())), (result) =>
+    #         if result?
+    #           console.debug 'Saved event called on file that is connected to host'
+    #           #@writeFile(result)
+    #           # messages = new MessagePanelView title: 'Remember your Coffee!'
+    #           # messages.attach()
+    #           # messages.add new PlainMessageView 'some message'
+    #       )),
+    #       null)
+
+
     atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
     atom.workspaceView.command "remote-edit:browse", => @browse()
     atom.workspaceView.command "remote-edit:new-host-sftp", => @newHost("sftp")
@@ -143,7 +167,7 @@ class MainView extends View
 
   confirm: ->
     if @mode == 'sftp'
-      newHost = new SftpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, null, null, null, null, null)
+      newHost = new SftpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, null, null, null, null, null, null)
       if @userAgentButton.hasClass('selected')
         newHost.useAgent = true
       else if @privateKeyButton.hasClass('selected')
@@ -157,7 +181,7 @@ class MainView extends View
         throw new Error('Unvalid option selected')
       @hostList.push(newHost)
     else if @mode == 'ftp'
-      newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), @password.getText())
+      newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, @password.getText())
       @hostList.push(newHost)
     else
       throw new Error('Selected mode is not supported!')

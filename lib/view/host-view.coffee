@@ -1,4 +1,4 @@
-{$$, SelectListView, EditorView} = require 'atom'
+{$$, SelectListView} = require 'atom'
 
 FilesView = require './files-view'
 SftpHost = require '../model/sftp-host'
@@ -6,11 +6,11 @@ FtpHost = require '../model/ftp-host'
 
 module.exports =
   class HostView extends SelectListView
+
     initialize: (@listOfItems) ->
       super
       @addClass('overlay from-top')
       @setItems(@listOfItems)
-      @filesView = new FilesView(null)
 
     attach: ->
       atom.workspaceView.append(this)
@@ -31,5 +31,5 @@ module.exports =
             @div class: "secondary-line", "Type: UNDEFINED"
 
     confirmed: (item) ->
-      @filesView.connect(item)
-      @filesView.attach()
+      filesView = new FilesView(item)
+      filesView.attach()

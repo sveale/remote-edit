@@ -10,11 +10,13 @@ util = require 'util'
 filesize = require 'file-size'
 moment = require 'moment'
 Serializable = require 'serializable'
+{Emitter} = require 'emissary'
 
 module.exports =
   class SftpHost extends Host
     Serializable.includeInto(this)
     Host.registerDeserializers(SftpHost)
+    Emitter.includeInto(this)
 
 
     constructor: (@hostname, @directory, @username, @port, @localFiles = [], @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath) ->
@@ -83,10 +85,23 @@ module.exports =
           @connection.on 'ready', () ->
             callback(null)
           @connection.connect(@getConnectionString())
-      ], (err, result) ->
-
-        callback(err, result)
+      ], (err) ->
+        callback?(err)
       )
+
+    writeFile: (file, text, callback) ->
+      async.waterfall([
+        (callback) =>
+          if !@connection?
+            @connect(callback)
+          else
+            callback(null)
+        (callback) =>
+          ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
+        ], (err) ->
+          callback?(err)
+        )
+
 
     getFilesMetadata: (path, callback) ->
       async.waterfall([
@@ -100,12 +115,12 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
       ], (err, result) =>
-        return callback(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+        callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
     getFileData: (file, callback) ->
       ssh2fs.readFile(@connection, file.path, (err, data) ->
-        return callback(err, data)
+        callback?(err, data)
       )
 
     serializeParams: ->

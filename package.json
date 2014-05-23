@@ -18,6 +18,6 @@
     "ssh2": "*",
     "serializable": "*",
     "emissary": "*",
-    "osenv": "*"
+    "atom-message-panel": "*"
   }
 }
