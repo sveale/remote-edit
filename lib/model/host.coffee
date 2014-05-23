@@ -1,6 +1,7 @@
 Serializable = require 'serializable'
 async = require 'async'
 {Emitter, Subscriber} = require 'emissary'
+hash = require 'string-hash'
 
 module.exports =
   class Host
@@ -35,3 +36,6 @@ module.exports =
 
     writeFile: (file, text, callback) ->
       throw new Error("Must be implemented in subclass!")
+
+    hashCode: ->
+      hash(@hostname + @directory + @username + @port)

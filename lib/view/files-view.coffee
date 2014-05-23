@@ -71,20 +71,45 @@ module.exports =
     updatePath: (next) =>
       @path = @getNewPath(next)
 
-    openFile: (file) =>
-      savePath = os.tmpdir() + file.name
+    getDefaultSaveDirForHost: (callback) ->
+      async.waterfall([
+        (callback) ->
+          fs.realpath(os.tmpDir(), callback)
+        (path, callback) ->
+          path = path + "/remote-edit"
+          fs.mkdir(path, ((err) ->
+            if err? && err.code == 'EEXIST'
+              callback(null, path)
+            else
+              callback(err, path)
+            )
+          )
+        (path, callback) =>
+          path = path + "/" + @host.hashCode()
+          fs.mkdir(path, ((err) ->
+            if err? && err.code == 'EEXIST'
+              callback(null, path)
+            else
+              callback(err, path)
+            )
+          )
+        ], (err, savePath) ->
+          callback(err, savePath)
+        )
 
+    openFile: (file) =>
       async.waterfall([
         (callback) =>
-          fs.realpath(os.tmpdir(), callback)
-        (realPath, callback) =>
-          savePath = realPath + "/" + file.name
-          @host.getFileData(file, callback)
-        (data, callback) =>
+          @getDefaultSaveDirForHost(callback)
+        (savePath, callback) =>
+          savePath = savePath + "/" + (new Date()).getTime().toString() + "-" + file.name
+          @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
+        (data, savePath, callback) =>
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-        ], (err, result) =>
+        ], (err, savePath) =>
           if err?
             @setError(err)
+            console.debug err
           else
             localFile = new LocalFile(savePath, file)
             @host.localFiles.push(localFile)

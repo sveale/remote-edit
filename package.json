@@ -18,6 +18,7 @@
     "ssh2": "*",
     "serializable": "*",
     "emissary": "*",
-    "atom-message-panel": "*"
+    "atom-message-panel": "*",
+    "string-hash": "*"
   }
 }
