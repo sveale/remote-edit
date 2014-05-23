@@ -11,7 +11,8 @@ filesize = require 'file-size'
 moment = require 'moment'
 Serializable = require 'serializable'
 {Emitter} = require 'emissary'
-path = require 'path'
+Path = require 'path'
+osenv = require 'osenv'
 
 module.exports =
   class SftpHost extends Host
@@ -36,7 +37,8 @@ module.exports =
         host: @hostname,
         port: @port,
         username: @username,
-        privateKey: @getPrivateKey(@privateKeyPath)
+        privateKey: @getPrivateKey(@privateKeyPath),
+        passphrase: @passphrase
       }
 
     getConnectionStringUsingPassword: ->
@@ -47,7 +49,10 @@ module.exports =
         password: @password
       }
 
-    getPrivateKey = (path) ->
+    getPrivateKey: (path) ->
+      if path[0] == "~"
+        path = Path.normalize(osenv.home() + path.substring(1, path.length))
+
       return fs.readFileSync(path, 'ascii', (err, data) ->
         throw err if err?
         return data.trim()

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "ssh2-fs": "*",
-    "ftp": "*",
+    "ftp": ">=0.3.7",
     "async": "*",
     "file-size": "*",
     "moment": "*",
@@ -19,6 +19,7 @@
     "serializable": "*",
     "emissary": "*",
     "atom-message-panel": "*",
-    "string-hash": "*"
+    "string-hash": "*",
+    "osenv": "*"
   }
 }

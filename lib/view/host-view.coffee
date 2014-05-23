@@ -24,7 +24,15 @@ module.exports =
         @li class: 'two-lines', =>
           @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
           if item instanceof SftpHost
-            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}"
+            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " +
+              if item.usePassword
+                "password"
+              else if item.usePrivateKey
+                "key"
+              else if item.useAgent
+                "agent"
+              else
+                "undefined"
           else if item instanceof FtpHost
             @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}"
           else
