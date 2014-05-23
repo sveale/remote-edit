@@ -1,10 +1,11 @@
 {
   "name": "remote-edit",
   "main": "./lib/main.coffee",
-  "version": "0.0.0",
-  "description": "A short description of your package",
-  "repository": "https://github.com/atom/remote-edit",
+  "version": "0.0.1",
+  "description": "Packge to browse and edit remote files using ssh and ftp",
+  "repository": "https://github.com/sveale/remote-edit",
   "license": "MIT",
+  "author": "Sverre Aleksandersen",
   "engines": {
     "atom": ">0.50.0"
   },
@@ -15,7 +16,6 @@
     "file-size": "*",
     "moment": "*",
     "ssh2": "*",
-    "serializable": "*",
-    "emissary": "*"
+    "serializable": "*"
   }
 }
