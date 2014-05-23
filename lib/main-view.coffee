@@ -66,20 +66,6 @@ class MainView extends View
         @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
   initialize: ()->
-    # atom.project.eachBuffer (buffer) =>
-    #   @subscribe buffer, 'saved', =>
-    #     async.each(@hostList, ((item) =>
-    #       async.detect(item.localFiles, ((localFile, callback) -> callback(localFile.path == buffer.getUri())), (result) =>
-    #         if result?
-    #           console.debug 'Saved event called on file that is connected to host'
-    #           #@writeFile(result)
-    #           # messages = new MessagePanelView title: 'Remember your Coffee!'
-    #           # messages.attach()
-    #           # messages.add new PlainMessageView 'some message'
-    #       )),
-    #       null)
-
-
     atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
     atom.workspaceView.command "remote-edit:browse", => @browse()
     atom.workspaceView.command "remote-edit:new-host-sftp", => @newHost("sftp")
