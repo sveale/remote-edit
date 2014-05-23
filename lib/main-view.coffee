@@ -22,10 +22,16 @@ class MainView extends View
   constructor: (@hostList = []) ->
     super
     async.each(@hostList, ((item) =>
-      @subscribe item, 'localFileSaved', =>
-        @messages.add(new PlainMessageView({message: 'Local file was saved', class: 'text-info'}))
-      @subscribe item, 'remoteFileUpdated', =>
-        @messages.add(new PlainMessageView({message: 'Remote file updated', class: 'text-success'}))
+      @subscribe item, 'info', (data) =>
+        @messages.attach()
+        @messages.add(new PlainMessageView(data))
+
+        closeMessages = () =>
+          @messages.clear()
+          @messages.close()
+
+        clearInterval(@closeMessagesTimer)
+        @closeMessagesTimer = setTimeout(closeMessages, 3000)
       ),
       null)
 

@@ -11,6 +11,7 @@ filesize = require 'file-size'
 moment = require 'moment'
 Serializable = require 'serializable'
 {Emitter} = require 'emissary'
+path = require 'path'
 
 module.exports =
   class SftpHost extends Host
@@ -53,7 +54,7 @@ module.exports =
       )
 
     createRemoteFileFromNameAndStat: (name, stat) ->
-      remoteFile = new RemoteFile(name, stat.isFile(),
+      remoteFile = new RemoteFile(path.normalize(name), stat.isFile(),
                                   stat.isDirectory(),
                                   filesize(stat.size).human(),
                                   parseInt(stat.permissions, 10).toString(8).substr(2, 4),
@@ -76,13 +77,16 @@ module.exports =
         throw new Error("No valid connection method is set for SftpHost!")
 
     connect: (callback) ->
+      @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection = new ssh2()
           @connection.on 'error', (err) =>
+            @emit 'info', {message: "Error occured when connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             @connection.end()
             callback(err)
-          @connection.on 'ready', () ->
+          @connection.on 'ready', () =>
+            @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString())
       ], (err) ->
@@ -90,6 +94,7 @@ module.exports =
       )
 
     writeFile: (file, text, callback) ->
+      @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           if !@connection?
@@ -98,7 +103,12 @@ module.exports =
             callback(null)
         (callback) =>
           ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
-        ], (err) ->
+        ], (err) =>
+          if err?
+            @emit('info', {message: "Error occured when writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+            console.debug err if err?
+          else
+            @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
           callback?(err)
         )
 
@@ -119,7 +129,10 @@ module.exports =
       )
 
     getFileData: (file, callback) ->
-      ssh2fs.readFile(@connection, file.path, (err, data) ->
+      @emit('info', {message: "Getting remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      ssh2fs.readFile(@connection, file.path, (err, data) =>
+        @emit('info', {message: "Error when reading remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
+        @emit('info', {message: "Successfully read remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
         callback?(err, data)
       )
 

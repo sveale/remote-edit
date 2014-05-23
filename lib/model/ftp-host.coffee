@@ -7,17 +7,21 @@ filesize = require 'file-size'
 moment = require 'moment'
 ftp = require 'ftp'
 Serializable = require 'serializable'
+path = require 'path'
+{Emitter} = require 'emissary'
+
 
 module.exports =
   class FtpHost extends Host
     Serializable.includeInto(this)
     Host.registerDeserializers(FtpHost)
+    Emitter.includeInto(this)
 
     constructor: (@hostname, @directory, @username, @port, @localFiles = [], @password) ->
       super
 
-    createRemoteFileFromListObj: (path, item) ->
-      remoteFile = new RemoteFile((path + '/' + item.name), false, false, filesize(item.size).human(), null, null)
+    createRemoteFileFromListObj: (name, item) ->
+      remoteFile = new RemoteFile(path.normalize((name + '/' + item.name)), false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
         remoteFile.isDir = true
@@ -58,13 +62,16 @@ module.exports =
       }
 
     connect: (callback) ->
+      @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection = new ftp()
           @connection.on 'error', (err) =>
             @connection.end()
+            @emit 'info', {message: "Error occured when connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             callback(err)
-          @connection.on 'ready', () ->
+          @connection.on 'ready', () =>
+            @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString())
         ], (err) ->
@@ -72,6 +79,7 @@ module.exports =
         )
 
     writeFile: (file, text, callback) ->
+      @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           if !@connection?
@@ -80,8 +88,12 @@ module.exports =
             callback(null)
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
-        ], (err) ->
-          console.debug err if err?
+        ], (err) =>
+          if err?
+            @emit('info', {message: "Error occured when writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+            console.debug err if err?
+          else
+            @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
           callback?(err)
         )
 
@@ -103,10 +115,16 @@ module.exports =
         )
 
     getFileData: (file, callback) ->
-      @connection.get(file.path, (err, stream) ->
-        stream.once('data', (chunk) ->
-          callback?(null, chunk.toString('utf8'))
-        )
+      @emit('info', {message: "Getting remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @connection.get(file.path, (err, stream) =>
+        if err?
+          @emit('info', {message: "Error when reading remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
+          callback(err, null)
+        else
+          @emit('info', {message: "Successfully read remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
+          stream.once('data', (chunk) ->
+            callback?(null, chunk.toString('utf8'))
+          )
       )
 
     serializeParams: ->

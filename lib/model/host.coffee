@@ -14,9 +14,8 @@ module.exports =
         @subscribe buffer, 'will-be-saved', =>
           async.detect(@localFiles, ((localFile, callback) -> callback(localFile.path == buffer.getUri())), (localFile) =>
             if localFile?
-              #console.debug 'Saved event called on file that is connected to this host'
+              @emit 'info', {message: "Local version of remote file #{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path} has been saved", className: 'text-info'}
               @writeFile(localFile, buffer.getText(), null)
-              @emit('localFileSaved')
           )
 
     getConnectionString: ->

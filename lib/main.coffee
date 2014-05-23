@@ -1,4 +1,4 @@
-MainView = require './main-view'
+MainView = require './main-view'  
 
 module.exports =
   configDefaults:
