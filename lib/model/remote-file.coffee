@@ -13,4 +13,4 @@ module.exports =
       callback(!(@name[0] == "." && @name.length >2))
 
     serializeParams: ->
-      {@path, @isFile, @isdir, @size, @permissions, @lastModified}
+      {@path, @isFile, @isDir, @size, @permissions, @lastModified}

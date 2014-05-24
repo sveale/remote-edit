@@ -14,6 +14,7 @@ path = require 'path'
 module.exports =
   class FtpHost extends Host
     Serializable.includeInto(this)
+
     Host.registerDeserializers(FtpHost)
     Emitter.includeInto(this)
 

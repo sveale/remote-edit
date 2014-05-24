@@ -6,6 +6,7 @@ hash = require 'string-hash'
 module.exports =
   class Host
     Serializable.includeInto(this)
+
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 

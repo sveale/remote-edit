@@ -17,6 +17,7 @@ osenv = require 'osenv'
 module.exports =
   class SftpHost extends Host
     Serializable.includeInto(this)
+
     Host.registerDeserializers(SftpHost)
     Emitter.includeInto(this)
 

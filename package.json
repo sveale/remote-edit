@@ -20,6 +20,7 @@
     "emissary": "*",
     "atom-message-panel": "*",
     "string-hash": "*",
-    "osenv": "*"
+    "osenv": "*",
+    "underscore-plus": "*"
   }
 }

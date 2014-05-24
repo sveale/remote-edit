@@ -1,4 +1,6 @@
-MainView = require './main-view'  
+MainView = require './main-view'
+util = require 'util'
+_ = require 'underscore-plus'
 
 module.exports =
   configDefaults:
@@ -12,8 +14,9 @@ module.exports =
 
 
   activate: (state) ->
+    console.debug util.inspect(state)
     @view =
-      if state
+      if state? and _.size(state) > 0
         atom.deserializers.deserialize(state)
       else
         new MainView()

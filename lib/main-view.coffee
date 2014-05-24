@@ -14,28 +14,27 @@ Host = require './model/host'
 module.exports =
 class MainView extends View
   Serializable.includeInto(this)
-  atom.deserializers.add(this)
-
+  
   previouslyFocusedElement: null
   hostView: new HostView([]);
   mode: null
   messages: new MessagePanelView({title: 'Remote edit'})
 
+
+  postMessage: (data) =>
+    @messages.attach()
+    @messages.add(new PlainMessageView(data))
+
+    closeMessages = () =>
+      @messages.clear()
+      @messages.close()
+
+    clearInterval(@closeMessagesTimer)
+    @closeMessagesTimer = setTimeout(closeMessages, 3000)
+
   constructor: (@hostList = []) ->
     super
-    async.each(@hostList, ((item) =>
-      @subscribe item, 'info', (data) =>
-        @messages.attach()
-        @messages.add(new PlainMessageView(data))
-
-        closeMessages = () =>
-          @messages.clear()
-          @messages.close()
-
-        clearInterval(@closeMessagesTimer)
-        @closeMessagesTimer = setTimeout(closeMessages, 3000)
-      ),
-      null)
+    async.each(@hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
 
   @content: ->
     @div class: 'remote-edit overlay from-top', =>
@@ -168,6 +167,7 @@ class MainView extends View
     @restoreFocus()
 
   confirm: ->
+    newHost = null
     if @mode == 'sftp'
       newHost = new SftpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, null, null, null, null, null, null)
       if @userAgentButton.hasClass('selected')
@@ -181,12 +181,13 @@ class MainView extends View
         newHost.password = @password.getText()
       else
         throw new Error('Unvalid option selected')
-      @hostList.push(newHost)
     else if @mode == 'ftp'
       newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, @password.getText())
-      @hostList.push(newHost)
     else
       throw new Error('Selected mode is not supported!')
+
+    @subscribe newHost, 'info', (data) => @postMessage(data)
+    @hostList.push(newHost)
     @detach()
     @browse()
 
