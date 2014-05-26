@@ -7,7 +7,7 @@ FtpHost = require '../model/ftp-host'
 module.exports =
   class HostView extends SelectListView
 
-    initialize: (@listOfItems) ->
+    initialize: (@listOfItems = []) ->
       super
       @addClass('overlay from-top')
       @setItems(@listOfItems)

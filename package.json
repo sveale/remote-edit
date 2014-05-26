@@ -21,6 +21,7 @@
     "atom-message-panel": "*",
     "string-hash": "*",
     "osenv": "*",
-    "underscore-plus": "*"
+    "underscore-plus": "*",
+    "pathwatcher": "*"
   }
 }
