@@ -3,9 +3,10 @@
   "main": "./lib/main.coffee",
   "version": "0.0.0",
   "description": "Browse and edit remote files using SFTP and FTP",
+  "homepage": "https://github.com/sveale/remote-edit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sveale/remote-edit"
+    "url": "git://github.com/sveale/remote-edit.git"
   },
   "bugs": {
     "url": "https://github.com/sveale/remote-edit/issues"
