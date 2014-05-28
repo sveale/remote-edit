@@ -39,3 +39,7 @@ module.exports =
 
     hashCode: ->
       hash(@hostname + @directory + @username + @port)
+
+    addLocalFile: (localFile) ->
+      @localFiles.push(localFile)
+      @emit 'localFileAdded', localFile

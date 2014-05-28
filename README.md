@@ -1,5 +1,11 @@
-# remote-edit package
+# remote-edit for atom.io
 
-Atom package to browse and edit remote files using ssh and ftp.
+Atom package to browse and edit remote files using FTP and SFTP.
 
-![A screenshot of your spankin' package](https://f.cloud.github.com/assets/69169/2290250/c35d867a-a017-11e3-86be-cd7c5bf3ff9b.gif)
+## Features
+* Add FTP/SFTP hosts with GUI
+* Browse FTP/SFTP hosts
+* Downloaded files are automatically uploaded to host
+* Show downloaded files
+
+## Usage

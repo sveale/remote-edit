@@ -1,7 +1,9 @@
 {$, BufferedProcess, EditorView, View} = require 'atom'
+{MessagePanelView, PlainMessageView} = require 'atom-message-panel'
+
 util = require 'util'
 async = require 'async'
-{MessagePanelView, PlainMessageView} = require 'atom-message-panel'
+fs = require 'fs-plus'
 
 HostView = require './view/host-view'
 OpenFilesView = require './view/open-files-view'
@@ -68,7 +70,7 @@ module.exports =
           @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
     initialize: ->
-      @ipdw = new InterProcessDataWatcher("/Users/sveale/.atom/remoteEdit.json")
+      @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
       @loadInterProcessData()
       @subscribe @ipdw, 'contents-changed', => @loadInterProcessData()
 
@@ -125,6 +127,7 @@ module.exports =
       localFiles = []
       async.each(@ipdw.data.hostList, ((host, callback) ->
         async.each(host.localFiles, ((file, callback) ->
+          file.host = host
           localFiles.push(file)
           ), ((err) -> console.debug err if err?))
         ), ((err) -> console.debug err if err?))
@@ -165,7 +168,7 @@ module.exports =
           newHost.useAgent = true
         else if @privateKeyButton.hasClass('selected')
           newHost.usePrivateKey = true
-          newHost.privateKeyPath = @privateKeyPath.getText()
+          newHost.privateKeyPath = fs.absolute(@privateKeyPath.getText())
           newHost.passphrase = @privateKeyPassphrase.getText()
         else if @passwordButton.hasClass('selected')
           newHost.usePassword = true

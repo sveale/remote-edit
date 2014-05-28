@@ -106,19 +106,18 @@ module.exports =
           @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
         (data, savePath, callback) =>
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-        ], (err, savePath) =>
-          if err?
-            @setError(err)
-            console.debug err
-          else
-            localFile = new LocalFile(savePath, file)
-            @host.localFiles.push(localFile)
-            atom.workspace.open(localFile.path)
-        )
+      ], (err, savePath) =>
+        if err?
+          @setError(err)
+          console.debug err
+        else
+          localFile = new LocalFile(savePath, file, @host)
+          @host.addLocalFile(localFile)
+          atom.workspace.open(localFile.path)
+      )
 
     confirmed: (item) ->
       if item.isFile
-        #console.debug 'file selected'
         @openFile(item)
       else if item.isDir
         @setItems()

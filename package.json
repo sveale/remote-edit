@@ -22,6 +22,7 @@
     "string-hash": "*",
     "osenv": "*",
     "underscore-plus": "*",
-    "pathwatcher": "*"
+    "pathwatcher": "*",
+    "fs-plus": "*"
   }
 }

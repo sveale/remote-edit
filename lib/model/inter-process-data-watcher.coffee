@@ -18,6 +18,7 @@ module.exports =
     load: ->
       @data = InterProcessData.deserialize(JSON.parse(@file.readSync()))
       @data ?= new InterProcessData()
+      @subscribe @data, 'contents-changed', => @commit()
       @emit 'contents-changed'
 
     commit: ->
