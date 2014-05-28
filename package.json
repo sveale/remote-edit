@@ -35,7 +35,7 @@
     "pathwatcher": "*",
     "fs-plus": "*"
   },
-  "keywords" [
+  "keywords": [
     "atom",
     "package",
     "sftp",
