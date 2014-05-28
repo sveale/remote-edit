@@ -1,7 +1,7 @@
 {
   "name": "remote-edit",
   "main": "./lib/main.coffee",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Browse and edit remote files using SFTP and FTP",
   "repository": {
     "type": "git",
