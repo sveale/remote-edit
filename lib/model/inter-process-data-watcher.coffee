@@ -1,11 +1,12 @@
 {File} = require 'pathwatcher'
-{Subscriber} = require 'emissary'
+{Subscriber, Emitter} = require 'emissary'
 
 InterProcessData = require './inter-process-data'
 
 module.exports =
   class InterProcessDataWatcher
     Subscriber.includeInto(this)
+    Emitter.includeInto(this)
 
     data: null
 
@@ -15,9 +16,9 @@ module.exports =
       @load()
 
     load: ->
-      console.debug 'load'
       @data = InterProcessData.deserialize(JSON.parse(@file.readSync()))
       @data ?= new InterProcessData()
+      @emit 'contents-changed'
 
     commit: ->
       @file.write(JSON.stringify(@data.serialize()))

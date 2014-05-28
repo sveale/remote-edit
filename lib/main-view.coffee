@@ -30,6 +30,9 @@ module.exports =
       clearInterval(@closeMessagesTimer)
       @closeMessagesTimer = setTimeout(closeMessages, 3000)
 
+    loadInterProcessData: ->
+      async.each(@ipdw.data.hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
+
     # Needed for serialization
     constructor: () ->
       super
@@ -65,18 +68,9 @@ module.exports =
           @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
     initialize: ->
-      # async.waterfall([
-      #   (callback) =>
-      #     @ipdw = new InterProcessDataWatcher("/Users/sveale/.atom/remoteEdit.json")
-      #     callback(null)
-      #   (callback) =>
-      #     async.each(@ipdw.data.hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
-      #     callback(null)
-      # ], (err) ->
-      #   callback?(err)
-      # )
       @ipdw = new InterProcessDataWatcher("/Users/sveale/.atom/remoteEdit.json")
-      async.each(@ipdw.data.hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
+      @loadInterProcessData()
+      @subscribe @ipdw, 'contents-changed', => @loadInterProcessData()
 
       atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
       atom.workspaceView.command "remote-edit:browse", => @browse()
