@@ -44,7 +44,6 @@
     "ftp",
     "remote",
     "edit",
-    "sync",
-    "synchronize"
+    "sync"
   ]
 }
