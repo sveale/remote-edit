@@ -60,7 +60,7 @@ module.exports =
       )
 
     createRemoteFileFromNameAndStat: (name, stat) ->
-      remoteFile = new RemoteFile(Path.normalize(name), stat.isFile(),
+      remoteFile = new RemoteFile(name, stat.isFile(),
                                   stat.isDirectory(),
                                   filesize(stat.size).human(),
                                   parseInt(stat.permissions, 10).toString(8).substr(2, 4),
@@ -68,7 +68,7 @@ module.exports =
       return remoteFile
 
     getNumberOfConcurrentSshQueriesInOneConnection: ->
-      atom.config.get 'remote-edit.numberOfConcurrentSshConnectionToOneHost'
+      atom.config.get 'remote-edit.numberOfConcurrentSshQueriesInOneConnection'
 
     ####################
     # Overridden methods
@@ -131,7 +131,7 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
       ], (err, result) =>
-        callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+        callback(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
     getFileData: (file, callback) ->
