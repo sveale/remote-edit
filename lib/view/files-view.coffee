@@ -35,6 +35,7 @@ module.exports =
       @focusFilterEditor()
 
     cancel: ->
+      @host.close()
       @hide()
 
     viewForItem: (item) ->
@@ -114,6 +115,7 @@ module.exports =
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
           atom.workspace.open(localFile.path)
+          @host.close()
       )
 
     confirmed: (item) ->

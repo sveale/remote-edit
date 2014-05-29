@@ -1,7 +1,3 @@
-## 0.1.0 - First Release
-* FTP and SFTP browsing
-* Download and upload of file
-* List downloaded files
-* Add new host (FTP/SFTP)
-* SFTP auth with password, privatekey and user agent
-* Hosts are persisted and are cross process
+## 0.1.1 - Bugfix
+* fixed error where connections where left open even though host view had been closed
+* fixed bug where file would only be written to remote once

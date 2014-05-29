@@ -62,6 +62,10 @@ module.exports =
         password: @password
       }
 
+    close: (callback) ->
+      @connection?.end()
+      callback?(null)
+
     connect: (callback) ->
       @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
@@ -85,8 +89,10 @@ module.exports =
         (callback) =>
           if !@connection?
             @connect(callback)
+          else if !@connection.connected
+            @connect(callback)
           else
-            callback(null)
+            callback(new Error())
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
         ], (err) =>
@@ -95,6 +101,7 @@ module.exports =
             console.debug err if err?
           else
             @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+          @close()
           callback?(err)
         )
 

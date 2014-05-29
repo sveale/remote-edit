@@ -25,6 +25,9 @@ module.exports =
     connect: (callback) ->
       throw new Error("Function connect(callback) needs to be implemented by subclasses!")
 
+    close: (callback) ->
+      throw new Error("Needs to be implemented by subclasses!")
+
     getFilesMetadata: (path, callback) ->
       throw new Error("Function getFiles(Callback) needs to be implemented by subclasses!")
 

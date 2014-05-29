@@ -82,6 +82,10 @@ module.exports =
       else
         throw new Error("No valid connection method is set for SftpHost!")
 
+    close: (callback) ->
+      @connection?.end()
+      callback?(null)
+
     connect: (callback) ->
       @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
@@ -105,8 +109,10 @@ module.exports =
         (callback) =>
           if !@connection?
             @connect(callback)
+          else if @connection._state == 'closed'
+            @connect(callback)
           else
-            callback(null)
+            callback(new Error())
         (callback) =>
           ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
         ], (err) =>
@@ -115,6 +121,7 @@ module.exports =
             console.debug err if err?
           else
             @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+          @close()
           callback?(err)
         )
 
