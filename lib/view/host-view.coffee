@@ -11,6 +11,7 @@ module.exports =
       super
       @addClass('overlay from-top')
       @setItems(@listOfItems)
+      @listenForEvents()
 
     attach: ->
       atom.workspaceView.append(this)
@@ -42,3 +43,10 @@ module.exports =
       @cancel()
       filesView = new FilesView(item)
       filesView.attach()
+
+    listenForEvents: ->
+      @command 'hostview:delete', =>
+        # item = @getSelectedItem()
+        # @items.splice(@items.indexOf(item))
+        # @populateList()
+        # @setLoading()
