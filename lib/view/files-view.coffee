@@ -25,8 +25,8 @@ module.exports =
         (callback) =>
           @populate(callback)
         ], (err, result) =>
-          console.debug err if err?
           @setError(err) if err?
+          setTimeout((=> @cancel()), 5000)
         )
 
     getFilterKey: ->
@@ -35,10 +35,6 @@ module.exports =
     attach: ->
       atom.workspaceView.append(this)
       @focusFilterEditor()
-
-    cancel: ->
-      @host.close()
-      @hide()
 
     viewForItem: (item) ->
       #console.debug 'viewforitem'
@@ -118,8 +114,8 @@ module.exports =
           @host.addLocalFile(localFile)
           uri = "remote-edit://editor/#{localFile.path}"
           atom.workspace.open(uri, split: 'left')
-
           @host.close()
+          @cancel()
       )
 
     confirmed: (item) ->

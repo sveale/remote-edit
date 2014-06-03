@@ -55,7 +55,7 @@ module.exports =
     ####################
     # Overridden methods
     getConnectionString: ->
-      return {
+      {
         host: @hostname,
         port: @port,
         user: @username,

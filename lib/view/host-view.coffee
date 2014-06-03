@@ -39,5 +39,6 @@ module.exports =
             @div class: "secondary-line", "Type: UNDEFINED"
 
     confirmed: (item) ->
+      @cancel()
       filesView = new FilesView(item)
       filesView.attach()
