@@ -1,5 +1,6 @@
 Serializable = require 'serializable'
 RemoteFile = require './remote-file'
+fs = require 'fs-plus'
 
 module.exports =
   class LocalFile
@@ -17,3 +18,10 @@ module.exports =
     deserializeParams: (params) ->
       params.remoteFile = RemoteFile.deserialize(params.remoteFile)
       params
+
+    delete: ->
+      fs.unlink(@path, -> console.debug err if err?)
+      if @host?
+        index = @host.localFiles.indexOf(@)
+        if index > -1
+          @host.localFiles.splice(index)

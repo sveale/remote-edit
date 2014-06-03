@@ -8,4 +8,9 @@
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
 '.workspace':
-  'ctrl-alt-o': 'remote-edit:toggle'
+  'ctrl-b': 'remote-edit:browse'
+  'ctrl-o': 'remote-edit:show-open-files'
+  'ctrl-c': 'remote-edit:clear-hosts'
+
+'.select-list':
+  'ctrl-d': 'openfilesview:delete'
