@@ -1,11 +1,13 @@
-{$, $$, SelectListView} = require 'atom'
+{$, $$, SelectListView, EditorView} = require 'atom'
 LocalFile = require '../model/local-file'
+FileEditorView = require './file-editor-view'
 
 fs = require 'fs'
 os = require 'os'
 async = require 'async'
 util = require 'util'
 path = require 'path'
+Q = require 'q'
 
 module.exports =
   class FilesView extends SelectListView
@@ -114,7 +116,9 @@ module.exports =
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          atom.workspace.open(localFile.path)
+          uri = "remote-edit://editor/#{localFile.path}"
+          atom.workspace.open(uri, split: 'left')
+
           @host.close()
       )
 

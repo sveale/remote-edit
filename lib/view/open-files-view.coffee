@@ -22,4 +22,5 @@ module.exports =
         @li "#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
 
     confirmed: (localFile) ->
-      atom.workspace.open(localFile.path)
+      uri = "remote-edit://editor/#{localFile.path}"
+      atom.workspace.open(uri, split: 'left')

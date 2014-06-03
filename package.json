@@ -33,7 +33,8 @@
     "osenv": "*",
     "underscore-plus": "*",
     "pathwatcher": "*",
-    "fs-plus": "*"
+    "fs-plus": "*",
+    "q": "*"
   },
   "keywords": [
     "atom",

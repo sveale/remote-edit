@@ -11,3 +11,4 @@
 * **add password prompt if specified auth scheme and no password is present**
 * when remote files are displayed show where they're from
 * keyboard shortcuts for deleting hosts/files
+* optional prompt when remote files are saved
