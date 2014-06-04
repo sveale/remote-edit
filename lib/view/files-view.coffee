@@ -1,6 +1,7 @@
 {$, $$, SelectListView, EditorView} = require 'atom'
 LocalFile = require '../model/local-file'
 FileEditorView = require './file-editor-view'
+Dialog = require './dialog'
 
 fs = require 'fs'
 os = require 'os'
@@ -16,17 +17,26 @@ module.exports =
       @addClass('overlay from-top')
       @connect(@host)
 
-    connect: (@host) ->
+    connect: (@host, connectionOptions = {}) ->
       @path = @host.directory
       async.waterfall([
         (callback) =>
           @setLoading("Connecting...")
-          @host.connect(callback)
+          @host.connect(callback, connectionOptions)
         (callback) =>
           @populate(callback)
         ], (err, result) =>
-          @setError(err) if err?
-          setTimeout((=> @cancel()), 5000)
+          if err?
+            console.error err if err?
+            @setError(err) if err?
+            async.waterfall([
+              (callback) =>
+                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog.attach(callback)
+              ], (err, result) =>
+                @connect(@host, {password: result})
+                @attach()
+              )
         )
 
     getFilterKey: ->

@@ -13,6 +13,7 @@ Serializable = require 'serializable'
 {Emitter} = require 'emissary'
 Path = require 'path'
 osenv = require 'osenv'
+_ = require 'underscore-plus'
 
 module.exports =
   class SftpHost extends Host
@@ -72,13 +73,13 @@ module.exports =
 
     ####################
     # Overridden methods
-    getConnectionString: ->
+    getConnectionString: (connectionOptions) ->
       if @useAgent
-        return @getConnectionStringUsingAgent()
+        return _.extend(@getConnectionStringUsingAgent(), connectionOptions)
       else if @usePrivateKey
-        return @getConnectionStringUsingKey()
+        return _.extend(@getConnectionStringUsingKey(), connectionOptions)
       else if @usePassword
-        return @getConnectionStringUsingPassword()
+        return _.extend(@getConnectionStringUsingPassword(), connectionOptions)
       else
         throw new Error("No valid connection method is set for SftpHost!")
 
@@ -86,7 +87,7 @@ module.exports =
       @connection?.end()
       callback?(null)
 
-    connect: (callback) ->
+    connect: (callback, connectionOptions = {}) ->
       @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
@@ -98,7 +99,7 @@ module.exports =
           @connection.on 'ready', () =>
             @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
-          @connection.connect(@getConnectionString())
+          @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
         callback?(err)
       )

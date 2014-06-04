@@ -10,9 +10,10 @@
 * look at how promises can be utilized in inter-process-data.coffee and other parts of the package
 * **add password prompt if specified auth scheme and no password is present**
 * when remote files are displayed show where they're from
-  * **mark open remote files as remote**
+  * ~~mark open remote files as remote~~
   * modify gutter to show origin
 * keyboard shortcuts for deleting hosts/files
   * issue of persistence
   * showing keyboard shortcut in list
 * optional prompt when remote files are saved
+* remove subscription from host.coffee and place the logic in file-editor-view.coffee

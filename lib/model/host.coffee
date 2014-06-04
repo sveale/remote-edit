@@ -22,7 +22,7 @@ module.exports =
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")
 
-    connect: (callback) ->
+    connect: (callback, connectionOptions = {}) ->
       throw new Error("Function connect(callback) needs to be implemented by subclasses!")
 
     close: (callback) ->

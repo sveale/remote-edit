@@ -9,6 +9,7 @@ ftp = require 'ftp'
 Serializable = require 'serializable'
 path = require 'path'
 {Emitter} = require 'emissary'
+_ = require 'underscore-plus'
 
 
 module.exports =
@@ -54,19 +55,19 @@ module.exports =
 
     ####################
     # Overridden methods
-    getConnectionString: ->
-      {
+    getConnectionString: (connectionOptions) ->
+      _.extend({
         host: @hostname,
         port: @port,
         user: @username,
         password: @password
-      }
+      }, connectionOptions)
 
     close: (callback) ->
       @connection?.end()
       callback?(null)
 
-    connect: (callback) ->
+    connect: (callback, connectionOptions = {}) ->
       @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
@@ -78,7 +79,7 @@ module.exports =
           @connection.on 'ready', () =>
             @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
-          @connection.connect(@getConnectionString())
+          @connection.connect(@getConnectionString(connectionOptions))
         ], (err) ->
           callback?(err)
         )
