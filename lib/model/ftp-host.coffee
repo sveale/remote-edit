@@ -19,7 +19,7 @@ module.exports =
     Host.registerDeserializers(FtpHost)
     Emitter.includeInto(this)
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @password) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword = true,  @password) ->
       super
 
     createRemoteFileFromListObj: (name, item) ->

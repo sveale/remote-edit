@@ -176,7 +176,7 @@ module.exports =
         else
           throw new Error('Unvalid option selected')
       else if @mode == 'ftp'
-        newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, @password.getText())
+        newHost = new FtpHost(@hostName.getText(), @directory.getText(), @username.getText(), @port.getText(), null, true, @password.getText())
       else
         throw new Error('Selected mode is not supported!')
 

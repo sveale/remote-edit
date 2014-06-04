@@ -26,7 +26,7 @@ module.exports =
         (callback) =>
           @populate(callback)
         ], (err, result) =>
-          if err?
+          if err? and @host.usePassword
             console.error err if err?
             @setError(err) if err?
             async.waterfall([

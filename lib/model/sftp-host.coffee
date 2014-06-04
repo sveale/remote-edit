@@ -23,7 +23,7 @@ module.exports =
     Emitter.includeInto(this)
 
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @useAgent, @usePrivateKey, @usePassword, @password, @passphrase, @privateKeyPath) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword, @useAgent, @usePrivateKey, @password, @passphrase, @privateKeyPath) ->
       super
 
     getConnectionStringUsingAgent: ->

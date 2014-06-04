@@ -10,7 +10,7 @@ module.exports =
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = []) ->
+    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword) ->
       atom.project.eachBuffer (buffer) =>
         @subscribe buffer, 'will-be-saved', =>
           async.detect(@localFiles, ((localFile, callback) -> callback(localFile.path == buffer.getUri())), (localFile) =>
