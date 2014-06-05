@@ -1,4 +1,4 @@
-## 0.2.0 -
+## 1.0.0 -
 * Remote files are opened in a special editor which displays a globe next to the name to emphasize that they're remote
 * if selected auth is username/password and password is left blank it will prompt for password
 * hosts and "open files" can be deleted from their respective views by pressing 'ctrl-d'
