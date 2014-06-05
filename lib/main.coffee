@@ -10,7 +10,8 @@ module.exports =
     showHiddenFiles: false,
     numberOfConcurrentSshQueriesInOneConnection: 5,
     sshPrivateKeyPath: "~/.ssh/id_rsa",
-    defaultSerializePath: "~/.atom/remoteEdit.json"
+    defaultSerializePath: "~/.atom/remoteEdit.json",
+    uploadOnSave: true
 
   activate: (state) ->
     @setupOpener()
