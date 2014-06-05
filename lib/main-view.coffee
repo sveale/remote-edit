@@ -60,7 +60,7 @@ module.exports =
             @button class: 'btn', outlet: 'passwordButton', 'Password'
 
         @div class: 'block', outlet: 'passwordBlock', =>
-          @label 'Password'
+          @label 'Password (leave empty if you want to be prompted)'
           @subview 'password', new EditorView(mini: true)
 
         @div class: 'block', outlet: 'privateKeyBlock', =>

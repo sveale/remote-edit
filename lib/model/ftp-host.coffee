@@ -22,6 +22,7 @@ module.exports =
 
     constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword = true,  @password) ->
       super
+      @connection = new ftp()
 
     createRemoteFileFromListObj: (name, item) ->
       remoteFile = new RemoteFile(path.normalize((name + '/' + item.name)), false, false, filesize(item.size).human(), null, null)
@@ -72,7 +73,6 @@ module.exports =
       @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
-          @connection = new ftp()
           @connection.on 'error', (err) =>
             @connection.end()
             @emit 'info', {message: "Error occured when connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-error'}
@@ -85,16 +85,12 @@ module.exports =
           callback?(err)
         )
 
+    isConnected: ->
+      @connection? and @connection.connected
+
     writeFile: (file, text, callback) ->
       @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
-        (callback) =>
-          if !@connection?
-            @connect(callback)
-          else if !@connection.connected
-            @connect(callback)
-          else
-            callback(new Error())
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
         ], (err) =>

@@ -34,6 +34,9 @@ module.exports =
     writeFile: (file, text, callback) ->
       throw new Error("Must be implemented in subclass!")
 
+    isConnected: ->
+      throw new Error("Must be implemented in subclass!o")
+
     hashCode: ->
       hash(@hostname + @directory + @username + @port)
 

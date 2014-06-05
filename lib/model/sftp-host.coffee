@@ -105,16 +105,12 @@ module.exports =
         callback?(err)
       )
 
+    isConnected: ->
+      @connection and @connection._state == 'authenticated'
+
     writeFile: (file, text, callback) ->
       @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
-        (callback) =>
-          if !@connection?
-            @connect(callback)
-          else if @connection._state == 'closed'
-            @connect(callback)
-          else
-            callback(new Error())
         (callback) =>
           ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
         ], (err) =>

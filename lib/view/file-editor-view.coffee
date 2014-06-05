@@ -1,9 +1,7 @@
 {$$$, EditorView, Editor} = require 'atom'
 Serializable = require 'serializable'
-util = require 'util'
-
-LocalFile = require '../model/local-file'
-Host = require '../model/host'
+async = require 'async'
+Dialog = require './dialog'
 
 module.exports =
   class FileEditorView extends EditorView
@@ -20,9 +18,29 @@ module.exports =
       @editor.getTitle()
 
     save: ->
-      if @localFile? and @host?
-        @host.writeFile(@localFile, @editor.buffer.getText(), null)
+      @upload()
       @editor.save()
+
+    upload: (connectionOptions = {})->
+      if @localFile? and @host?
+        async.waterfall([
+          (callback) =>
+            if !@host.isConnected()
+              @host.connect(callback, connectionOptions)
+            else
+              callback(null)
+          (callback) =>
+            @host.writeFile(@localFile, @editor.buffer.getText(), null)
+          ], (err) =>
+            if err? and @host.usePassword
+              async.waterfall([
+                (callback) =>
+                  passwordDialog = new Dialog({prompt: "Enter password"})
+                  passwordDialog.attach(callback)
+                ], (err, result) =>
+                  @upload({password: result})
+                )
+          )
 
     getUri: ->
       @uri
