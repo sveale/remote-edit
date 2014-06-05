@@ -23,7 +23,4 @@ module.exports =
 
     delete: ->
       fs.unlink(@path, -> console.debug err if err?)
-      if @host?
-        index = @host.localFiles.indexOf(this)
-        if index > -1
-          @host.localFiles.splice(index)
+      @host?.removeLocalFile(this)

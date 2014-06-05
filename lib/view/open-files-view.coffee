@@ -2,6 +2,7 @@
 
 async = require 'async'
 Q = require 'q'
+_ = require 'underscore-plus'
 
 module.exports =
   class OpenFilesView extends SelectListView
@@ -31,11 +32,11 @@ module.exports =
         editorView.host = localFile.host
         )
 
-
     listenForEvents: ->
       @command 'openfilesview:delete', =>
         item = @getSelectedItem()
-        @items.splice(@items.indexOf(item))
-        item.delete()
-        @populateList()
-        @setLoading()
+        if item?
+          @items = _.reject(@items, ((val) => val == item))
+          item.delete()
+          @populateList()
+          @setLoading()

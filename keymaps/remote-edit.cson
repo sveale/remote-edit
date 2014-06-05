@@ -14,4 +14,4 @@
 
 '.select-list':
   'ctrl-d': 'openfilesview:delete'
-  #'ctrl-d': 'hostview:delete'
+  'ctrl-d': 'hostview:delete'

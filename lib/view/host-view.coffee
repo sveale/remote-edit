@@ -1,4 +1,5 @@
 {$$, SelectListView} = require 'atom'
+_ = require 'underscore-plus'
 
 FilesView = require './files-view'
 SftpHost = require '../model/sftp-host'
@@ -46,7 +47,9 @@ module.exports =
 
     listenForEvents: ->
       @command 'hostview:delete', =>
-        # item = @getSelectedItem()
-        # @items.splice(@items.indexOf(item))
-        # @populateList()
-        # @setLoading()
+        item = @getSelectedItem()
+        if item?
+          @items = _.reject(@items, ((val) => val == item))
+          item.delete()
+          @populateList()
+          @setLoading()

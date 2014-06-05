@@ -12,8 +12,7 @@
 * when remote files are displayed show where they're from
   * ~~mark open remote files as remote~~
   * modify status-bar to show origin
-* keyboard shortcuts for deleting hosts/files
-  * issue of persistence
+* ~~keyboard shortcuts for deleting hosts/files~~ (ctrl-d)
   * showing keyboard shortcut in list
-* optional prompt when remote files are saved
+* ~~optional prompt when remote files are saved~~
 * ~~remove subscription from host.coffee and place the logic in file-editor-view.coffee~~

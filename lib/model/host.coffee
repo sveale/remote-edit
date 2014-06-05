@@ -2,6 +2,7 @@ Serializable = require 'serializable'
 async = require 'async'
 {Emitter, Subscriber} = require 'emissary'
 hash = require 'string-hash'
+_ = require 'underscore-plus'
 
 module.exports =
   class Host
@@ -42,4 +43,13 @@ module.exports =
 
     addLocalFile: (localFile) ->
       @localFiles.push(localFile)
-      @emit 'localFileAdded', localFile
+      @emit 'changed', localFile
+
+    removeLocalFile: (localFile) ->
+      @localFiles = _.reject(@localFiles, ((val) => val == localFile))
+      @emit 'changed', localFile
+
+    delete: ->
+      for file in @localFiles
+        file.delete()
+      @emit 'delete', this
