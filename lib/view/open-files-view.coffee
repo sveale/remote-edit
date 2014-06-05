@@ -6,10 +6,9 @@ _ = require 'underscore-plus'
 
 module.exports =
   class OpenFilesView extends SelectListView
-
     initialize: (@listOfItems) ->
       super
-      @addClass('overlay from-top')
+      @addClass('overlay from-top openfilesview')
       @setItems(@listOfItems)
       @listenForEvents()
 
@@ -19,7 +18,6 @@ module.exports =
 
     getFilterKey: ->
       return "name"
-
 
     viewForItem: (localFile) ->
       $$ ->

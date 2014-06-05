@@ -12,6 +12,8 @@
   'ctrl-o': 'remote-edit:show-open-files'
   'ctrl-c': 'remote-edit:clear-hosts'
 
-'.select-list':
+'.openfilesview.select-list':
   'ctrl-d': 'openfilesview:delete'
+
+'.hostview.select-list':
   'ctrl-d': 'hostview:delete'

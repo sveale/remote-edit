@@ -10,7 +10,7 @@ module.exports =
 
     initialize: (@listOfItems = []) ->
       super
-      @addClass('overlay from-top')
+      @addClass('overlay from-top hostview')
       @setItems(@listOfItems)
       @listenForEvents()
 
