@@ -28,7 +28,9 @@ module.exports =
           if item instanceof SftpHost
             @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " +
               if item.usePassword
-                "password"
+                "password" +
+                if item.password == "" or item.password == '' or !item.password?
+                  " (not set)"
               else if item.usePrivateKey
                 "key"
               else if item.useAgent
@@ -36,7 +38,9 @@ module.exports =
               else
                 "undefined"
           else if item instanceof FtpHost
-            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}"
+            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}, Auth: password" +
+            if item.password == "" or item.password == '' or !item.password?
+              " (not set)"
           else
             @div class: "secondary-line", "Type: UNDEFINED"
 

@@ -7,6 +7,7 @@ fs = require 'fs-plus'
 
 HostView = require './view/host-view'
 OpenFilesView = require './view/open-files-view'
+FileEditorView = require './view/file-editor-view'
 
 SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
@@ -34,6 +35,10 @@ module.exports =
 
     loadInterProcessData: ->
       async.each(@ipdw.data.hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
+      for pane in atom.workspaceView.getPanes()
+        for item in pane.getItems()
+          if item instanceof FileEditorView
+            @subscribe item.host, 'info', (data) => @postMessage(data)
 
     # Needed for serialization
     constructor: () ->

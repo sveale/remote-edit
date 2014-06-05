@@ -1,6 +1,10 @@
 ## 0.2.0 -
 * Remote files are opened in a special editor which displays a globe next to the name to emphasize that they're remote
-* if selected auth is username/password and the connection fails it will prompt for password
+* if selected auth is username/password and password is left blank it will prompt for password
+* hosts and "open files" can be deleted from their respective views by pressing 'ctrl-d'
+* added settings option to specify whether files should be automatically uploaded on save
+* added keybindings for quick opening of most common features. see settings screenshot
+* added message panel
 
 ## 0.1.1 - Bugfix
 * fixed error where connections where left open even though host view had been closed

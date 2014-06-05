@@ -16,3 +16,4 @@
   * showing keyboard shortcut in list
 * ~~optional prompt when remote files are saved~~
 * ~~remove subscription from host.coffee and place the logic in file-editor-view.coffee~~
+* ~~persisted file-editor-view windows and it's host is not connected to message window~~

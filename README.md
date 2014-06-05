@@ -3,13 +3,10 @@
 Atom package to browse and edit remote files using FTP and SFTP.
 
 ## Features
-* Add FTP/SFTP hosts with GUI
-* Browse FTP/SFTP hosts
-* Downloaded files are automatically uploaded to host
-* Show downloaded files
+* See changelog
 
 ## Settings
-![Settings window for remote-edit](http://i.imgur.com/YReATky.png)
+![Settings window for remote-edit](http://i.imgur.com/UdOg3YV.png)
 
 ## Usage
 ### Commands

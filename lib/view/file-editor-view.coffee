@@ -1,4 +1,4 @@
-{$$$, EditorView, Editor} = require 'atom'
+{$, $$$, EditorView, Editor} = require 'atom'
 Serializable = require 'serializable'
 async = require 'async'
 Dialog = require './dialog'
@@ -19,6 +19,7 @@ module.exports =
 
     save: ->
       @editor.save()
+
       if atom.config.get 'remote-edit.uploadOnSave'
         @upload()
       else
@@ -30,7 +31,7 @@ module.exports =
           when 0 then @upload()
           when 1 then return
 
-    upload: (connectionOptions = {})->
+    upload: (connectionOptions = {}) ->
       if @localFile? and @host?
         async.waterfall([
           (callback) =>
@@ -39,7 +40,7 @@ module.exports =
             else
               callback(null)
           (callback) =>
-            @host.writeFile(@localFile, @editor.buffer.getText(), null)
+            @host.writeFile(@localFile, @editor.buffer.getText(), callback)
           ], (err) =>
             if err? and @host.usePassword
               async.waterfall([

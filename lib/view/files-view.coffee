@@ -21,8 +21,9 @@ module.exports =
       @path = @host.directory
       async.waterfall([
         (callback) =>
-          @setLoading("Connecting...")
-          @host.connect(callback, connectionOptions)
+          if !@host.isConnected()
+            @setLoading("Connecting...")
+            @host.connect(callback, connectionOptions)
         (callback) =>
           @populate(callback)
         ], (err, result) =>

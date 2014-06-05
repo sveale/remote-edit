@@ -20,9 +20,10 @@ module.exports =
     Host.registerDeserializers(FtpHost)
     Emitter.includeInto(this)
 
+    connection: undefined
+
     constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword = true,  @password) ->
       super
-      @connection = new ftp()
 
     createRemoteFileFromListObj: (name, item) ->
       remoteFile = new RemoteFile(path.normalize((name + '/' + item.name)), false, false, filesize(item.size).human(), null, null)
@@ -70,15 +71,16 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
+      @emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
+          @connection = new ftp()
           @connection.on 'error', (err) =>
             @connection.end()
-            @emit 'info', {message: "Error occured when connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-error'}
+            @emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             callback(err)
           @connection.on 'ready', () =>
-            @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
+            @emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
         ], (err) ->
@@ -89,16 +91,16 @@ module.exports =
       @connection? and @connection.connected
 
     writeFile: (file, text, callback) ->
-      @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
+      @emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
         ], (err) =>
           if err?
-            @emit('info', {message: "Error occured when writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+            @emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
             console.debug err if err?
           else
-            @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+            @emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
           @close()
           callback?(err)
         )
@@ -121,13 +123,13 @@ module.exports =
         )
 
     getFileData: (file, callback) ->
-      @emit('info', {message: "Getting remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
       @connection.get(file.path, (err, stream) =>
         if err?
-          @emit('info', {message: "Error when reading remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
+          @emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
           callback(err, null)
         else
-          @emit('info', {message: "Successfully read remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
+          @emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
           stream.once('data', (chunk) ->
             callback?(null, chunk.toString('utf8'))
           )

@@ -23,6 +23,7 @@ module.exports =
     Host.registerDeserializers(SftpHost)
     Emitter.includeInto(this)
 
+    connection: undefined
 
     constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword, @useAgent, @usePrivateKey, @password, @passphrase, @privateKeyPath) ->
       super
@@ -89,16 +90,16 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emit 'info', {message: "Connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-info'}
+      @emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection = new ssh2()
           @connection.on 'error', (err) =>
-            @emit 'info', {message: "Error occured when connecting to #{@username}@#{@hostname}:#{@port}", className: 'text-error'}
+            @emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             @connection.end()
             callback(err)
           @connection.on 'ready', () =>
-            @emit 'info', {message: "Successfully connected to #{@username}@#{@hostname}:#{@port}", className: 'text-success'}
+            @emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
@@ -106,19 +107,19 @@ module.exports =
       )
 
     isConnected: ->
-      @connection and @connection._state == 'authenticated'
+      @connection? and @connection._state == 'authenticated'
 
     writeFile: (file, text, callback) ->
-      @emit 'info', {message: "Writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
+      @emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
         ], (err) =>
           if err?
-            @emit('info', {message: "Error occured when writing remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+            @emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
             console.debug err if err?
           else
-            @emit('info', {message: "Successfully wrote remote file #{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+            @emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
           @close()
           callback?(err)
         )
@@ -129,6 +130,7 @@ module.exports =
         (callback) =>
           ssh2fs.readdir(@connection, path, callback)
         (files, callback) =>
+          console.debug files
           async.mapLimit(files, @getNumberOfConcurrentSshQueriesInOneConnection(), ((item, callback) => ssh2fs.stat(@connection, (path + "/" + item), (err, stat) => callback(err, @createRemoteFileFromNameAndStat((path + "/" + item), stat)))), callback)
         (objects, callback) =>
           if atom.config.get 'remote-edit.showHiddenFiles'
@@ -140,10 +142,10 @@ module.exports =
       )
 
     getFileData: (file, callback) ->
-      @emit('info', {message: "Getting remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
       ssh2fs.readFile(@connection, file.path, (err, data) =>
-        @emit('info', {message: "Error when reading remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
-        @emit('info', {message: "Successfully read remote file #{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
+        @emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
+        @emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
         callback?(err, data)
       )
 
