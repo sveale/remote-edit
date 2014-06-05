@@ -26,9 +26,9 @@ module.exports =
         (callback) =>
           @populate(callback)
         ], (err, result) =>
+          console.error err if err?
+          @setError(err) if err?
           if err? and @host.usePassword
-            console.error err if err?
-            @setError(err) if err?
             async.waterfall([
               (callback) =>
                 passwordDialog = new Dialog({prompt: "Enter password"})
@@ -113,7 +113,7 @@ module.exports =
         (savePath, callback) =>
           savePath = savePath + "/" + (new Date()).getTime().toString() + "-" + file.name
           @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
-        (data, savePath, callback) =>
+        (data, savePath, callback) ->
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
       ], (err, savePath) =>
         if err?
@@ -122,8 +122,12 @@ module.exports =
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          uri = "remote-edit://editor/#{localFile.path}"
-          atom.workspace.open(uri, split: 'left')
+          uri = "remote-edit://localFile/#{localFile.path}"
+          atom.workspace.open(uri, split: 'left').then((editorView) =>
+            editorView.localFile = localFile
+            editorView.host = localFile.host
+          )
+
           @host.close()
           @cancel()
       )

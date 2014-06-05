@@ -15,6 +15,7 @@ _ = require 'underscore-plus'
 module.exports =
   class FtpHost extends Host
     Serializable.includeInto(this)
+    atom.deserializers.add(this)
 
     Host.registerDeserializers(FtpHost)
     Emitter.includeInto(this)
@@ -143,6 +144,7 @@ module.exports =
         @username
         @port
         localFiles: JSON.stringify(localFile.serialize() for localFile in @localFiles)
+        @usePassword
         @password
       }
 

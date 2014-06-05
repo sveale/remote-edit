@@ -6,6 +6,8 @@ Host = require './host'
 module.exports =
   class InterProcessData
     Serializable.includeInto(this)
+    atom.deserializers.add(this)
+    
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 

@@ -8,7 +8,7 @@
 * ~~display open files~~
 * ~~add status updates when files are updated~~
 * look at how promises can be utilized in inter-process-data.coffee and other parts of the package
-* **add password prompt if specified auth scheme and no password is present**
+* ~~**add password prompt if specified auth scheme and no password is present**~~
 * when remote files are displayed show where they're from
   * ~~mark open remote files as remote~~
   * modify gutter to show origin

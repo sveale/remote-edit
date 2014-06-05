@@ -2,7 +2,7 @@ Host = require './host'
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
 
-fs = require 'fs'
+fs = require 'fs-plus'
 ssh2fs = require 'ssh2-fs'
 ssh2 = require 'ssh2'
 async = require 'async'
@@ -18,6 +18,7 @@ _ = require 'underscore-plus'
 module.exports =
   class SftpHost extends Host
     Serializable.includeInto(this)
+    atom.deserializers.add(this)
 
     Host.registerDeserializers(SftpHost)
     Emitter.includeInto(this)

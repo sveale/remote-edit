@@ -5,6 +5,7 @@ Path = require 'path'
 module.exports =
   class RemoteFile
     Serializable.includeInto(this)
+    atom.deserializers.add(this)
 
     constructor: (@path, @isFile, @isDir, @size, @permissions, @lastModified) ->
       @name = Path.basename(@path)

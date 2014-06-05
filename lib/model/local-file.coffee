@@ -1,10 +1,12 @@
 Serializable = require 'serializable'
 RemoteFile = require './remote-file'
+Host = require './host'
 fs = require 'fs-plus'
 
 module.exports =
   class LocalFile
     Serializable.includeInto(this)
+    atom.deserializers.add(this)
 
     constructor: (@path, @remoteFile, @host = null) ->
       @name = @remoteFile.name
@@ -22,6 +24,6 @@ module.exports =
     delete: ->
       fs.unlink(@path, -> console.debug err if err?)
       if @host?
-        index = @host.localFiles.indexOf(@)
+        index = @host.localFiles.indexOf(this)
         if index > -1
           @host.localFiles.splice(index)

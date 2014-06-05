@@ -35,7 +35,7 @@ module.exports =
       catch error
         return
 
-      if host is 'editor'
+      if host is 'localfile'
         atom.project.open(pathname).then (editor) -> new FileEditorView(editor, uriToOpen)
       else
         undefined
