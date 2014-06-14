@@ -40,3 +40,25 @@ module.exports =
         atom.project.open(pathname).then (editor) -> new FileEditorView(editor, uriToOpen)
       else
         undefined
+
+    atom.workspace.registerOpener (uriToOpen) ->
+      try
+        {protocol, host, pathname} = url.parse(uriToOpen)
+      catch error
+        return
+      return unless protocol is 'ftp:'
+
+      console.debug uriToOpen
+
+      undefined
+
+    atom.workspace.registerOpener (uriToOpen) ->
+      try
+        {protocol, host, pathname} = url.parse(uriToOpen)
+      catch error
+        return
+      return unless protocol is 'sftp:'
+
+      console.debug uriToOpen
+
+      undefined

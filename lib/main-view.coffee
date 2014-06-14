@@ -40,10 +40,6 @@ module.exports =
           if item instanceof FileEditorView
             @subscribe item.host, 'info', (data) => @postMessage(data)
 
-    # Needed for serialization
-    constructor: () ->
-      super
-
     @content: ->
       @div class: 'remote-edit overlay from-top', =>
         @label 'Hostname'
@@ -76,7 +72,6 @@ module.exports =
 
     initialize: ->
       @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
-      @loadInterProcessData()
       @subscribe @ipdw, 'contents-changed', => @loadInterProcessData()
 
       atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()

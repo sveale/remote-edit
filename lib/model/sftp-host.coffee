@@ -130,7 +130,6 @@ module.exports =
         (callback) =>
           ssh2fs.readdir(@connection, path, callback)
         (files, callback) =>
-          console.debug files
           async.mapLimit(files, @getNumberOfConcurrentSshQueriesInOneConnection(), ((item, callback) => ssh2fs.stat(@connection, (path + "/" + item), (err, stat) => callback(err, @createRemoteFileFromNameAndStat((path + "/" + item), stat)))), callback)
         (objects, callback) =>
           if atom.config.get 'remote-edit.showHiddenFiles'
