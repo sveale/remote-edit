@@ -13,6 +13,8 @@ SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
 Host = require './model/host'
 
+q = require 'Q'
+
 InterProcessDataWatcher = require './model/inter-process-data-watcher'
 
 module.exports =
@@ -34,11 +36,13 @@ module.exports =
       @closeMessagesTimer = setTimeout(closeMessages, 3000)
 
     loadInterProcessData: ->
-      async.each(@ipdw.data.hostList, ((item) => @subscribe item, 'info', (data) => @postMessage(data)), null)
-      for pane in atom.workspaceView.getPanes()
-        for item in pane.getItems()
-          if item instanceof FileEditorView
-            @subscribe item.host, 'info', (data) => @postMessage(data)
+      @ipdw.data.then((data) =>
+        async.each(data.hostList, ((item) => @subscribe item, 'info', (info) => @postMessage(info)), null)
+        for pane in atom.workspaceView.getPanes()
+          for item in pane.getItems()
+            if item instanceof FileEditorView
+              @subscribe item.host, 'info', (info) => @postMessage(info)
+      )
 
     @content: ->
       @div class: 'remote-edit overlay from-top', =>
@@ -73,12 +77,6 @@ module.exports =
     initialize: ->
       @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
       @subscribe @ipdw, 'contents-changed', => @loadInterProcessData()
-
-      atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
-      atom.workspaceView.command "remote-edit:browse", => @browse()
-      atom.workspaceView.command "remote-edit:new-host-sftp", => @newHost("sftp")
-      atom.workspaceView.command "remote-edit:new-host-ftp", => @newHost("ftp")
-      atom.workspaceView.command "remote-edit:clear-hosts", => @clearHosts()
 
       @on 'core:confirm', => @confirm()
       @on 'core:cancel', => @detach()
@@ -120,19 +118,23 @@ module.exports =
       super
 
     browse: ->
-      @hostView.setItems(@ipdw.data.hostList)
-      @hostView.attach()
+      @ipdw.data.then((data) =>
+        @hostView.setItems(data.hostList)
+        @hostView.attach()
+      )
 
     showOpenFiles: ->
       localFiles = []
-      async.each(@ipdw.data.hostList, ((host, callback) ->
-        async.each(host.localFiles, ((file, callback) ->
-          file.host = host
-          localFiles.push(file)
+      @ipdw.data.then((data) =>
+        async.each(data.hostList, ((host, callback) ->
+          async.each(host.localFiles, ((file, callback) ->
+            file.host = host
+            localFiles.push(file)
+            ), ((err) -> console.debug err if err?))
           ), ((err) -> console.debug err if err?))
-        ), ((err) -> console.debug err if err?))
-      showOpenFilesView = new OpenFilesView(localFiles)
-      showOpenFilesView.attach()
+        showOpenFilesView = new OpenFilesView(localFiles)
+        showOpenFilesView.attach()
+      )
 
 
     newHost: (@mode) ->
@@ -156,9 +158,11 @@ module.exports =
       @hostName.focus()
 
     clearHosts: () ->
-      @ipdw.data.hostList = []
-      @ipdw.commit()
-      @restoreFocus()
+      @ipdw.data.then((data) =>
+        data.hostList = []
+        @ipdw.commit()
+        @restoreFocus()
+      )
 
     confirm: ->
       newHost = null
@@ -181,10 +185,12 @@ module.exports =
         throw new Error('Selected mode is not supported!')
 
       @subscribe newHost, 'info', (data) => @postMessage(data)
-      @ipdw.data.hostList.push(newHost)
-      @ipdw.commit()
-      @detach()
-      @browse()
+      @ipdw.data.then((data) =>
+        data.hostList.push(newHost)
+        @ipdw.commit()
+        @detach()
+        @browse()
+      )
 
     storeFocusedElement: ->
       @previouslyFocusedElement = $(':focus')

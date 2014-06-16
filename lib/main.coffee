@@ -1,10 +1,3 @@
-MainView = require './main-view'
-util = require 'util'
-_ = require 'underscore-plus'
-FileEditorView = require './view/file-editor-view'
-url = require 'url'
-Q = require 'q'
-
 module.exports =
   configDefaults:
     showHiddenFiles: false,
@@ -13,18 +6,34 @@ module.exports =
     defaultSerializePath: "~/.atom/remoteEdit.json",
     uploadOnSave: true
 
+  getView: ->
+    MainView = require './main-view'
+    @view ?= new MainView()
+
   activate: (state) ->
     @setupOpener()
-    @view = new MainView()
+
+    atom.workspaceView.command "remote-edit:show-open-files", =>
+      @getView().showOpenFiles()
+
+    atom.workspaceView.command "remote-edit:browse", =>
+      @getView().browse()
+
+    atom.workspaceView.command "remote-edit:new-host-sftp", =>
+      @getView().newHost("sftp")
+
+    atom.workspaceView.command "remote-edit:new-host-ftp", =>
+      @getView().newHost("ftp")
+
+    atom.workspaceView.command "remote-edit:clear-hosts", =>
+      @getView().clearHosts()
 
   deactivate: ->
     @view?.destroy()
 
-  serialize: ->
-    @view?.serialize()
-
   setupOpener: ->
     atom.workspace.registerOpener (uriToOpen) ->
+      url = require 'url'
       try
         {protocol, host, pathname} = url.parse(uriToOpen)
       catch error
@@ -37,6 +46,8 @@ module.exports =
         return
 
       if host is 'localfile'
+        Q = require 'q'
+        FileEditorView = require './view/file-editor-view'
         atom.project.open(pathname).then (editor) -> new FileEditorView(editor, uriToOpen)
       else
-        undefined
+        return

@@ -1,3 +1,6 @@
+## 1.1.0 - Refactored to reduce startup time
+* Implemented Q promises to enable deferred loading. Startup time of plugin reduced from ~500ms to ~10ms
+
 ## 1.0.0 -
 * Remote files are opened in a special editor which displays a globe next to the name to emphasize that they're remote
 * if selected auth is username/password and password is left blank it will prompt for password
