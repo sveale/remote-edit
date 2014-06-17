@@ -74,12 +74,19 @@ module.exports =
           @label 'Private key passphrase (leave blank if unencrypted)'
           @subview 'privateKeyPassphrase', new EditorView(mini: true)
 
+        @div class: 'block', outlet: 'buttonBlock', =>
+          @button class: 'inline-block btn pull-right', outlet: 'cancelButton', 'Cancel'
+          @button class: 'inline-block btn pull-right', outlet: 'saveButton', 'Save'
+
     initialize: ->
       @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
       @subscribe @ipdw, 'contents-changed', => @loadInterProcessData()
 
       @on 'core:confirm', => @confirm()
+      @saveButton.on 'click', => @confirm()
+
       @on 'core:cancel', => @detach()
+      @cancelButton.on 'click', => @detach()
 
       @directory.setText("/")
       @username.setText(process.env['USER'])

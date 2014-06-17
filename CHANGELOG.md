@@ -1,3 +1,6 @@
+## 1.1.1 - issue #3
+* Added save/close buttons to "New host ..."
+
 ## 1.1.0 - Refactored to reduce startup time
 * Implemented Q promises to enable deferred loading. Startup time of plugin reduced from ~500ms to ~10ms
 
