@@ -1,3 +1,6 @@
+## 1.1.2 - bugfix issue #4
+* developer error
+
 ## 1.1.1 - issue #3
 * Added save/close buttons to "New host ..."
 

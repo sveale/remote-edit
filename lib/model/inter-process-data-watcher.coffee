@@ -18,7 +18,7 @@ module.exports =
     load: ->
       deferred = Q.defer()
       @file.read().then((content) ->
-        deferred.resolve(InterProcessData.deserialize(JSON.parse(content)))
+        deferred.resolve(InterProcessData.deserialize(JSON.parse(content)) ? new InterProcessData([]))
       )
 
       deferred.promise.then (data) =>
