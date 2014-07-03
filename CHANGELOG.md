@@ -1,3 +1,5 @@
+## 1.1.4 - fixes #8
+
 ## 1.1.3 - bugfixes
 * should fix a number of bugs. see commit messages
 
