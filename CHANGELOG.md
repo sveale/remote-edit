@@ -1,3 +1,6 @@
+## 1.1.3 - bugfixes
+* should fix a number of bugs. see commit messages
+
 ## 1.1.2 - bugfix issue #4
 * developer error
 
