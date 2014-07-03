@@ -13,7 +13,7 @@ SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
 Host = require './model/host'
 
-q = require 'Q'
+Q = require 'q'
 
 InterProcessDataWatcher = require './model/inter-process-data-watcher'
 
