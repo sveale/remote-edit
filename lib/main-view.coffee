@@ -4,6 +4,7 @@
 util = require 'util'
 async = require 'async'
 fs = require 'fs-plus'
+osenv = require 'osenv'
 
 HostView = require './view/host-view'
 OpenFilesView = require './view/open-files-view'
@@ -89,7 +90,7 @@ module.exports =
       @cancelButton.on 'click', => @detach()
 
       @directory.setText("/")
-      @username.setText(process.env['USER'])
+      @username.setText(osenv.user())
 
       @privateKeyPath.setText(atom.config.get('remote-edit.sshPrivateKeyPath'))
       @privateKeyPassphrase.setText("")
