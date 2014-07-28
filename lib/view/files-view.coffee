@@ -63,7 +63,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @setLoading("Loading...")
-          @host.getFilesMetadata(path.normalize(@path), callback)
+          @host.getFilesMetadata(@path, callback)
         (items, callback) =>
           @setItems(items)
           @cancelled()
@@ -74,9 +74,9 @@ module.exports =
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
-        path.normalize(@path + next)
+        @path + next
       else
-        path.normalize(@path + "/" + next)
+        @path + "/" + next
 
     updatePath: (next) =>
       @path = @getNewPath(next)
