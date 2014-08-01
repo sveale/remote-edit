@@ -194,6 +194,7 @@ module.exports =
 
       @subscribe newHost, 'info', (data) => @postMessage(data)
       @ipdw.data.then((data) =>
+        data.addSubscriptionToHost(newHost)
         data.hostList.push(newHost)
         @ipdw.commit()
         @detach()

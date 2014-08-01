@@ -1,6 +1,7 @@
 Serializable = require 'serializable'
 {Subscriber, Emitter} = require 'emissary'
 _ = require 'underscore-plus'
+util = require 'util'
 
 Host = require './host'
 
@@ -14,10 +15,7 @@ module.exports =
 
     constructor: (@hostList = []) ->
       for host in @hostList
-        @subscribe host, 'changed', => @emit 'contents-changed'
-        @subscribe host, 'delete', =>
-          @hostList = _.reject(@hostList, ((val) => val == host))
-          @emit 'contents-changed'
+        @addSubscriptionToHost(host)
 
     serializeParams: ->
       hostList: JSON.stringify(host.serialize() for host in @hostList)
@@ -27,3 +25,9 @@ module.exports =
       tmpArray.push(Host.deserialize(host)) for host in JSON.parse(params.hostList)
       params.hostList = tmpArray
       params
+
+    addSubscriptionToHost: (host) ->
+      @subscribe host, 'changed', => @emit 'contents-changed'
+      @subscribe host, 'delete', =>
+        @hostList = _.reject(@hostList, ((val) => val == host))
+        @emit 'contents-changed'

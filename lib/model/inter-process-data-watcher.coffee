@@ -12,8 +12,8 @@ module.exports =
 
     constructor: (@filePath) ->
       @file = new File(@filePath)
-      @subscribe @file, 'contents-changed', => @data = @load()
       @data = @load()
+      @subscribe @file, 'contents-changed', => @data = @load()
 
     load: ->
       deferred = Q.defer()
@@ -22,12 +22,12 @@ module.exports =
       )
 
       deferred.promise.then (data) =>
-        @subscribe data, 'contents-changed', =>@commit
+        @subscribe data, 'contents-changed', => @commit()
         @emit 'contents-changed'
 
       deferred.promise
 
 
     commit: ->
-      @data.then (data) =>
-        @file.write(JSON.stringify(data.serialize()))
+      @data.then (resolvedData) =>
+        @file.write(JSON.stringify(resolvedData.serialize()))

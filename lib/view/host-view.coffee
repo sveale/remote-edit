@@ -26,21 +26,23 @@ module.exports =
         @li class: 'two-lines', =>
           @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
           if item instanceof SftpHost
-            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " +
-              if item.usePassword
-                "password" +
-                if item.password == "" or item.password == '' or !item.password?
-                  " (not set)"
-              else if item.usePrivateKey
-                "key"
-              else if item.useAgent
-                "agent"
-              else
-                "undefined"
+            authType = "not set"
+            if item.usePassword and (item.password == "" or item.password == '' or !item.password?)
+              authType = "password (not set)"
+            else if item.usePassword
+              authType = "password (set)"
+            else if item.usePrivateKey
+              authType = "key"
+            else if item.useAgent
+              authType = "agent"
+            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " + authType
           else if item instanceof FtpHost
-            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}, Auth: password" +
-            if item.password == "" or item.password == '' or !item.password?
-              " (not set)"
+            authType = "not set"
+            if item.usePassword and (item.password == "" or item.password == '' or !item.password?)
+              authType = "password (not set)"
+            else
+              authType = "password (set)"
+            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}, Auth: " + authType
           else
             @div class: "secondary-line", "Type: UNDEFINED"
 
