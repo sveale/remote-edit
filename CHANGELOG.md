@@ -1,3 +1,6 @@
+## 1.2.0 -
+* accidentaly pushed *minor* instead of *patch* to atom.io so just updating changelog to reflect my mistake..
+
 ## 1.1.5 - fixes #15 and #12
 
 ## 1.1.4 - fixes #8
