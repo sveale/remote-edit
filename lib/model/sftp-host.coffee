@@ -139,7 +139,12 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
       ], (err, result) =>
-        callback(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+        if err?
+          @emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+          console.debug err if err?
+          callback?(err)
+        else
+          callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
     getFileData: (file, callback) ->

@@ -1,4 +1,5 @@
 Host = require './host'
+
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
 
@@ -78,7 +79,7 @@ module.exports =
           @connection.on 'error', (err) =>
             @connection.end()
             @emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
-            callback(err)
+            callback?(err)
           @connection.on 'ready', () =>
             @emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
@@ -119,7 +120,12 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
         ], (err, result) =>
-          callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+          if err?
+            @emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+            console.debug err if err?
+            callback?(err)
+          else
+            callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
         )
 
     getFileData: (file, callback) ->
