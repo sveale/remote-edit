@@ -1,3 +1,5 @@
+## 1.2.1 - fixes #16 and two other small bugs
+
 ## 1.2.0 -
 * accidentaly pushed *minor* instead of *patch* to atom.io so just updating changelog to reflect my mistake..
 
