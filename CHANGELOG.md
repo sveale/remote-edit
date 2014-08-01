@@ -1,3 +1,5 @@
+## 1.1.5 - fixes #15 and #12
+
 ## 1.1.4 - fixes #8
 
 ## 1.1.3 - bugfixes
