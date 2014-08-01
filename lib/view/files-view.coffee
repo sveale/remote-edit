@@ -63,7 +63,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @setLoading("Loading...")
-          @host.getFilesMetadata(path.normalize(@path), callback)
+          @host.getFilesMetadata(@path, callback)
         (items, callback) =>
           @setItems(items)
           @cancelled()
@@ -74,9 +74,9 @@ module.exports =
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
-        path.normalize(@path + next)
+        @path + next
       else
-        path.normalize(@path + "/" + next)
+        @path + "/" + next
 
     updatePath: (next) =>
       @path = @getNewPath(next)
@@ -85,22 +85,22 @@ module.exports =
       async.waterfall([
         (callback) ->
           fs.realpath(os.tmpDir(), callback)
-        (path, callback) ->
-          path = path + "/remote-edit"
-          fs.mkdir(path, ((err) ->
+        (tmpDir, callback) ->
+          tmpDir = tmpDir + path.sep + "remote-edit"
+          fs.mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
-              callback(null, path)
+              callback(null, tmpDir)
             else
-              callback(err, path)
+              callback(err, tmpDir)
             )
           )
-        (path, callback) =>
-          path = path + "/" + @host.hashCode()
-          fs.mkdir(path, ((err) ->
+        (tmpDir, callback) =>
+          tmpDir = tmpDir + path.sep + @host.hashCode()
+          fs.mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
-              callback(null, path)
+              callback(null, tmpDir)
             else
-              callback(err, path)
+              callback(err, tmpDir)
             )
           )
         ], (err, savePath) ->
@@ -112,7 +112,7 @@ module.exports =
         (callback) =>
           @getDefaultSaveDirForHost(callback)
         (savePath, callback) =>
-          savePath = savePath + "/" + (new Date()).getTime().toString() + "-" + file.name
+          savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
           @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
         (data, savePath, callback) ->
           fs.writeFile(savePath, data, (err) -> callback(err, savePath))
@@ -123,7 +123,7 @@ module.exports =
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/#{localFile.path}"
+          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
           atom.workspace.open(uri, split: 'left').then((editorView) =>
             editorView.localFile = localFile
             editorView.host = localFile.host

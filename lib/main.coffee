@@ -35,19 +35,14 @@ module.exports =
     atom.workspace.registerOpener (uriToOpen) ->
       url = require 'url'
       try
-        {protocol, host, pathname} = url.parse(uriToOpen)
+        {protocol, host, query} = url.parse(uriToOpen, true)
       catch error
         return
       return unless protocol is 'remote-edit:'
 
-      try
-        pathname = decodeURI(pathname) if pathname
-      catch error
-        return
-
       if host is 'localfile'
         Q = require 'q'
         FileEditorView = require './view/file-editor-view'
-        atom.project.open(pathname).then (editor) -> new FileEditorView(editor, uriToOpen)
+        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen)
       else
         return
