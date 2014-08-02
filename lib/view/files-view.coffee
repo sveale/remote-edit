@@ -9,6 +9,7 @@ async = require 'async'
 util = require 'util'
 path = require 'path'
 Q = require 'q'
+_ = require 'underscore-plus'
 
 module.exports =
   class FilesView extends SelectListView
@@ -21,23 +22,43 @@ module.exports =
       @path = @host.directory
       async.waterfall([
         (callback) =>
+          if @host.usePassword and !connectionOptions.password?
+            if @host.password == "" or @host.password == '' or !@host.password?
+              async.waterfall([
+                (callback) =>
+                  passwordDialog = new Dialog({prompt: "Enter password"})
+                  passwordDialog.attach(callback)
+                ], (err, result) =>
+                  connectionOptions = _.extend({password: result}, connectionOptions)
+                  @attach()
+                  callback(null)
+                )
+            else
+              callback(null)
+          else
+            callback(null)
+        (callback) =>
           if !@host.isConnected()
             @setLoading("Connecting...")
             @host.connect(callback, connectionOptions)
         (callback) =>
           @populate(callback)
         ], (err, result) =>
-          console.error err if err?
-          @setError(err) if err?
-          if err? and @host.usePassword
-            async.waterfall([
-              (callback) =>
-                passwordDialog = new Dialog({prompt: "Enter password"})
-                passwordDialog.attach(callback)
-              ], (err, result) =>
-                @connect(@host, {password: result})
-                @attach()
-              )
+          if err?
+            console.error err
+            if err.code == 450 or err.type == "PERMISSION_DENIED"
+              @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
+            else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
+              async.waterfall([
+                (callback) =>
+                  passwordDialog = new Dialog({prompt: "Enter password"})
+                  passwordDialog.attach(callback)
+                ], (err, result) =>
+                  @connect(@host, {password: result})
+                  @attach()
+                )
+            else
+              @setError(err)
         )
 
     getFilterKey: ->
