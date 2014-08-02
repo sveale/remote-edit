@@ -1,3 +1,7 @@
+## 1.2.2
+* improved password prompt when this auth scheme is selected. user is now prompted before any connection attempt
+* added special notification if "default directory" is not readable, ref issue #16
+
 ## 1.2.1 - fixes #16 and two other small bugs
 
 ## 1.2.0 -
