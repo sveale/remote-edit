@@ -1,7 +1,7 @@
-{File} = require 'pathwatcher'
 {Subscriber, Emitter} = require 'emissary'
 Q = require 'q'
 util = require 'util'
+fs = require 'fs-plus'
 
 InterProcessData = require './inter-process-data'
 
@@ -11,14 +11,23 @@ module.exports =
     Emitter.includeInto(this)
 
     constructor: (@filePath) ->
-      @file = new File(@filePath)
       @data = @load()
-      @subscribe @file, 'contents-changed', => @data = @load()
+      fs.watch(@filePath, ((event, filename) =>
+        if event == 'change'
+          @data = @load()
+        )
+      )
 
     load: ->
       deferred = Q.defer()
-      @file.read().then((content) ->
-        deferred.resolve(InterProcessData.deserialize(JSON.parse(content)) ? new InterProcessData([]))
+
+      fs.readFile(@filePath, 'utf8', ((err, data) =>
+        throw err if err?
+        if data.length > 0
+          deferred.resolve(InterProcessData.deserialize(JSON.parse(data)))
+        else
+          deferred.resolve(new InterProcessData([]))
+        )
       )
 
       deferred.promise.then (data) =>
@@ -30,4 +39,7 @@ module.exports =
 
     commit: ->
       @data.then (resolvedData) =>
-        @file.write(JSON.stringify(resolvedData.serialize()))
+        fs.writeFile(@filePath, JSON.stringify(resolvedData.serialize()), ((err) =>
+          throw err if err?
+          )
+        )

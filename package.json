@@ -32,7 +32,6 @@
     "string-hash": ">=1.1.0",
     "osenv": ">=0.1.0",
     "underscore-plus": ">=1.5.0",
-    "pathwatcher": "1.3.2",
     "fs-plus": ">=2.2.3",
     "q": ">=1.0.1"
   },
