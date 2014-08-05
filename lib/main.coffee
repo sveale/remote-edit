@@ -33,12 +33,15 @@ module.exports =
 
   setupOpener: ->
     atom.workspace.registerOpener (uriToOpen) ->
+      console.debug uriToOpen
       url = require 'url'
       try
         {protocol, host, query} = url.parse(uriToOpen, true)
       catch error
         return
       return unless protocol is 'remote-edit:'
+
+      console.debug 'about to check if its localfile'
 
       if host is 'localfile'
         Q = require 'q'
