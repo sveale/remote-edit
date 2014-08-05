@@ -1,3 +1,6 @@
+## 1.2.3
+* removed node-pathwatcher from the project because of all the issues it has caused with installation
+
 ## 1.2.2
 * improved password prompt when this auth scheme is selected. user is now prompted before any connection attempt
 * added special notification if "default directory" is not readable, ref issue #16
