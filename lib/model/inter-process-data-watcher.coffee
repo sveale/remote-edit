@@ -11,10 +11,14 @@ module.exports =
     Emitter.includeInto(this)
 
     constructor: (@filePath) ->
-      @data = @load()
-      fs.watch(@filePath, ((event, filename) =>
-        if event == 'change'
-          @data = @load()
+      @data = Q.defer().promise
+
+      fs.open(@filePath, 'w', "0644", =>
+        @data = @load()
+        fs.watch(@filePath, ((event, filename) =>
+          if event == 'change'
+            @data = @load()
+          )
         )
       )
 
