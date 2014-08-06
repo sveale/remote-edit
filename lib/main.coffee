@@ -11,7 +11,7 @@ module.exports =
     @view ?= new MainView()
 
   activate: (state) ->
-    @setupOpener()
+    @setupOpeners()
 
     atom.workspaceView.command "remote-edit:show-open-files", =>
       @getView().showOpenFiles()
@@ -28,9 +28,8 @@ module.exports =
   deactivate: ->
     @view?.destroy()
 
-  setupOpener: ->
+  setupOpeners: ->
     atom.workspace.registerOpener (uriToOpen) ->
-      console.debug uriToOpen
       url = require 'url'
       try
         {protocol, host, query} = url.parse(uriToOpen, true)
@@ -38,7 +37,7 @@ module.exports =
         return
       return unless protocol is 'remote-edit:'
 
-      console.debug 'about to check if its localfile'
+      console.debug 'wtf'
 
       if host is 'localfile'
         Q = require 'q'
@@ -46,3 +45,25 @@ module.exports =
         atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen)
       else
         return
+
+    atom.workspace.registerOpener (uriToOpen) ->
+      url = require 'url'
+      try
+        parsedUri = url.parse(uriToOpen, true)
+      catch error
+        return
+
+      if parsedUri.protocol is 'sftp:'
+        SftpHost = require './model/sftp-host'
+        host = new SftpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 22), [], true, false, false, (parsedUri.auth.split(':')[1] ? ""), null, null)
+      else if parsedUri.protocol is 'ftp:'
+        FtpHost = require './model/ftp-host'
+        host = new FtpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 21), null, true, (parsedUri.auth.split(':')[1] ? null))
+
+      if host?
+        FilesView = require './view/files-view'
+        filesView = new FilesView(host)
+        filesView.attach()
+
+      throw Error("No promises :)")
+      return
