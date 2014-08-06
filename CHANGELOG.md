@@ -1,3 +1,8 @@
+## 1.3.0
+* removed ssh2-fs from dependencies because it didn't list all directories. 
+* removed "clear hosts" functionality because key-binding conflicted with copy on windows and linux, and because it is better achieved by using ctrl-d inside the select view
+* fixed bug where an issue would occur during the first time the plugin is run because the json file where hosts/files where saved didnt get created
+
 ## 1.2.3
 * removed node-pathwatcher from the project because of all the issues it has caused with installation
 
