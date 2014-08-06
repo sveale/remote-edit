@@ -13,7 +13,7 @@ module.exports =
     constructor: (@filePath) ->
       @data = Q.defer().promise
 
-      fs.open(@filePath, 'w', "0644", =>
+      fs.open(@filePath, 'a', "0644", =>
         @data = @load()
         fs.watch(@filePath, ((event, filename) =>
           if event == 'change'
