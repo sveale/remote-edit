@@ -25,9 +25,6 @@ module.exports =
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
       @getView().newHost("ftp")
 
-    atom.workspaceView.command "remote-edit:clear-hosts", =>
-      @getView().clearHosts()
-
   deactivate: ->
     @view?.destroy()
 

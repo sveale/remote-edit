@@ -165,13 +165,6 @@ module.exports =
 
       @hostName.focus()
 
-    clearHosts: () ->
-      @ipdw.data.then((data) =>
-        data.hostList = []
-        @ipdw.commit()
-        @restoreFocus()
-      )
-
     confirm: ->
       newHost = null
       if @mode == 'sftp'

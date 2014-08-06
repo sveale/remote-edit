@@ -9,7 +9,6 @@
         { 'label': 'Browse hosts', 'command': 'remote-edit:browse' }
         { 'label': 'Add new host (sftp)', 'command': 'remote-edit:new-host-sftp' }
         { 'label': 'Add new host (ftp)', 'command': 'remote-edit:new-host-ftp' }
-        { 'label': 'Clear hosts', 'command': 'remote-edit:clear-hosts' }
     ]
     ]
   }

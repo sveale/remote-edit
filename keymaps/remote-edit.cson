@@ -10,7 +10,6 @@
 '.workspace':
   'ctrl-b': 'remote-edit:browse'
   'ctrl-o': 'remote-edit:show-open-files'
-  'ctrl-c': 'remote-edit:clear-hosts'
 
 '.openfilesview.select-list':
   'ctrl-d': 'openfilesview:delete'
