@@ -3,7 +3,6 @@ RemoteFile = require './remote-file'
 LocalFile = require './local-file'
 
 fs = require 'fs-plus'
-ssh2fs = require 'ssh2-fs'
 ssh2 = require 'ssh2'
 async = require 'async'
 util = require 'util'
@@ -62,12 +61,8 @@ module.exports =
         return data.trim()
       )
 
-    createRemoteFileFromNameAndStat: (name, stat) ->
-      remoteFile = new RemoteFile(name, stat.isFile(),
-                                  stat.isDirectory(),
-                                  filesize(stat.size).human(),
-                                  parseInt(stat.permissions, 10).toString(8).substr(2, 4),
-                                  moment(stat.mtime * 1000).format("HH:MM DD/MM/YYYY"))
+    createRemoteFileFromFile: (path, file) ->
+      remoteFile = new RemoteFile("#{path}/#{file.filename}", (file.longname[0] != 'd'), (file.longname[0] == 'd'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
       return remoteFile
 
     getNumberOfConcurrentSshQueriesInOneConnection: ->
@@ -113,7 +108,9 @@ module.exports =
       @emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
-          ssh2fs.writeFile(@connection, file.remoteFile.path, text, callback)
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          sftp.fastPut(file.path, file.remoteFile.path, callback)
         ], (err) =>
           if err?
             @emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
@@ -128,9 +125,11 @@ module.exports =
     getFilesMetadata: (path, callback) ->
       async.waterfall([
         (callback) =>
-          ssh2fs.readdir(@connection, path, callback)
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          sftp.readdir(path, callback)
         (files, callback) =>
-          async.mapLimit(files, @getNumberOfConcurrentSshQueriesInOneConnection(), ((item, callback) => ssh2fs.stat(@connection, (path + "/" + item), (err, stat) => callback(err, @createRemoteFileFromNameAndStat((path + "/" + item), stat)))), callback)
+          async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
         (objects, callback) =>
           objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
           objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
@@ -149,10 +148,22 @@ module.exports =
 
     getFileData: (file, callback) ->
       @emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
-      ssh2fs.readFile(@connection, file.path, (err, data) =>
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          s = sftp.createReadStream(file.path)
+          data = []
+          s.on 'data', ((d) => data.push(d.toString()))
+          s.on 'error', ((error) =>
+            e = new Error("ENOENT, open #{file.path}")
+            callback?(e)
+          )
+          s.on 'close', (=> callback(null, data.join('')))
+      ], (err, result) =>
         @emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
         @emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
-        callback?(err, data)
+        callback?(err, result)
       )
 
     serializeParams: ->
