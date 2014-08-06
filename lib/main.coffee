@@ -64,6 +64,5 @@ module.exports =
         FilesView = require './view/files-view'
         filesView = new FilesView(host)
         filesView.attach()
-
-      throw Error("No promises :)")
-      return
+      else
+        return
