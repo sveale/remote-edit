@@ -41,6 +41,8 @@ module.exports =
           if !@host.isConnected()
             @setLoading("Connecting...")
             @host.connect(callback, connectionOptions)
+          else
+            callback(null)
         (callback) =>
           @populate(callback)
         ], (err, result) =>
