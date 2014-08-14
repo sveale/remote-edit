@@ -8,7 +8,7 @@ filesize = require 'file-size'
 moment = require 'moment'
 ftp = require 'ftp'
 Serializable = require 'serializable'
-path = require 'path'
+Path = require 'path'
 {Emitter} = require 'emissary'
 _ = require 'underscore-plus'
 
@@ -27,7 +27,7 @@ module.exports =
       super
 
     createRemoteFileFromListObj: (name, item) ->
-      remoteFile = new RemoteFile(path.normalize((name + '/' + item.name)), false, false, filesize(item.size).human(), null, null)
+      remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
         remoteFile.isDir = true

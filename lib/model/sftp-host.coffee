@@ -62,7 +62,7 @@ module.exports =
       )
 
     createRemoteFileFromFile: (path, file) ->
-      remoteFile = new RemoteFile("#{path}/#{file.filename}", (file.longname[0] != 'd'), (file.longname[0] == 'd'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
+      remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] != 'd'), (file.longname[0] == 'd'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
       return remoteFile
 
     getNumberOfConcurrentSshQueriesInOneConnection: ->

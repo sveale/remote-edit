@@ -37,8 +37,6 @@ module.exports =
         return
       return unless protocol is 'remote-edit:'
 
-      console.debug 'wtf'
-
       if host is 'localfile'
         Q = require 'q'
         FileEditorView = require './view/file-editor-view'
