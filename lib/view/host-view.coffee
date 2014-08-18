@@ -1,61 +1,149 @@
-{$$, SelectListView} = require 'atom'
-_ = require 'underscore-plus'
+{$, View, EditorView} = require 'atom'
 
-FilesView = require './files-view'
+Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
 FtpHost = require '../model/ftp-host'
 
-module.exports =
-  class HostView extends SelectListView
+fs = require 'fs-plus'
 
-    initialize: (@listOfItems = []) ->
+module.exports =
+  class HostView extends View
+    previouslyFocusedElement: null
+
+    @content: ->
+      @div class: 'remote-edit overlay from-top', =>
+        @label 'Hostname'
+        @subview 'hostname', new EditorView(mini: true)
+
+        @label 'Default directory'
+        @subview 'directory', new EditorView(mini: true)
+
+        @label 'Username'
+        @subview 'username', new EditorView(mini: true)
+
+        @label 'Port'
+        @subview 'port', new EditorView(mini: true)
+
+        @div class: 'block', outlet: 'authenticationButtonsBlock', =>
+          @div class: 'btn-group', =>
+            @button class: 'btn selected', outlet: 'userAgentButton', 'User agent'
+            @button class: 'btn', outlet: 'privateKeyButton', 'Private key'
+            @button class: 'btn', outlet: 'passwordButton', 'Password'
+
+        @div class: 'block', outlet: 'passwordBlock', =>
+          @label 'Password (leave empty if you want to be prompted)'
+          @subview 'password', new EditorView(mini: true)
+
+        @div class: 'block', outlet: 'privateKeyBlock', =>
+          @label 'Private key path'
+          @subview 'privateKeyPath', new EditorView(mini: true)
+          @label 'Private key passphrase (leave blank if unencrypted)'
+          @subview 'privateKeyPassphrase', new EditorView(mini: true)
+
+        @div class: 'block', outlet: 'buttonBlock', =>
+          @button class: 'inline-block btn pull-right', outlet: 'cancelButton', 'Cancel'
+          @button class: 'inline-block btn pull-right', outlet: 'saveButton', 'Save'
+
+    initialize: (@host, @ipdw) ->
+      throw new Error("Parameter \"host\" undefined!") if !@host?
+
+      @on 'core:confirm', => @confirm()
+      @saveButton.on 'click', => @confirm()
+
+      @on 'core:cancel', => @detach()
+      @cancelButton.on 'click', => @detach()
+
+      @hostname.setText(@host.hostname) if @host.hostname?
+      @directory.setText(@host.directory) if @host.directory?
+      @username.setText(@host.username) if @host.username?
+      @port.setText(@host.port) if @host.port?
+
+      @userAgentButton.on 'click', =>
+        @privateKeyButton.toggleClass('selected', false)
+        @userAgentButton.toggleClass('selected', true)
+        @passwordButton.toggleClass('selected', false)
+        @passwordBlock.hide()
+        @privateKeyBlock.hide()
+
+      @privateKeyButton.on 'click', =>
+        @privateKeyButton.toggleClass('selected', true)
+        @userAgentButton.toggleClass('selected', false)
+        @passwordButton.toggleClass('selected', false)
+        @passwordBlock.hide()
+        @privateKeyBlock.show()
+
+      @passwordButton.on 'click', =>
+        @privateKeyButton.toggleClass('selected', false)
+        @userAgentButton.toggleClass('selected', false)
+        @passwordButton.toggleClass('selected', true)
+        @privateKeyBlock.hide()
+        @passwordBlock.show()
+
+      if (@host instanceof SftpHost)
+        @authenticationButtonsBlock.show()
+
+        @passwordBlock.hide()
+        @privateKeyBlock.hide()
+
+        if @host.usePassword
+          @passwordBlock.show()
+        else if @host.usePrivateKey
+          @privateKeyBlock.show()
+        else
+          @userAgentButton.click()
+      else if (@host instanceof FtpHost)
+        @authenticationButtonsBlock.hide()
+        @passwordBlock.show()
+        @privateKeyBlock.hide()
+      else
+        throw new Error("\"host\" is unknown!", @host)
+
+    confirm: ->
+      if @host instanceof SftpHost
+        @host.useAgent = @userAgentButton.hasClass('selected')
+        @host.usePrivateKey = @privateKeyButton.hasClass('selected')
+        @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
+        @host.passphrase = @privateKeyPassphrase.getText()
+        @host.usePassword = @passwordButton.hasClass('selected')
+        @host.password = @password.getText()
+      else if @host instanceof FtpHost
+        @host.usePassword = true
+        @host.password = @password.getText()
+      else
+        throw new Error("\"host\" is not valid type!", @host)
+
+      @host.hostname = @hostname.getText()
+      @host.directory = @directory.getText()
+      @host.username = @username.getText()
+      @host.port = @port.getText()
+
+      if @ipdw?
+        @ipdw.data.then((data) =>
+          data.hostList.push(@host)
+          @ipdw.commit()
+        )
+      @detach()
+
+
+    # Tear down any state and detach
+    destroy: ->
+      @detach()
+
+    detach: ->
+      return unless @hasParent()
+      @previouslyFocusedElement?.focus()
       super
-      @addClass('overlay from-top hostview')
-      @setItems(@listOfItems)
-      @listenForEvents()
+
+    storeFocusedElement: ->
+      @previouslyFocusedElement = $(':focus')
+
+    restoreFocus: ->
+      if @previouslyFocusedElement?.isOnDom()
+        @previouslyFocusedElement.focus()
+      else
+        atom.workspaceView.focus()
 
     attach: ->
       atom.workspaceView.append(this)
-      @focusFilterEditor()
-
-    getFilterKey: ->
-      return "hostname"
-
-    viewForItem: (item) ->
-      $$ ->
-        @li class: 'two-lines', =>
-          @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
-          if item instanceof SftpHost
-            authType = "not set"
-            if item.usePassword and (item.password == "" or item.password == '' or !item.password?)
-              authType = "password (not set)"
-            else if item.usePassword
-              authType = "password (set)"
-            else if item.usePrivateKey
-              authType = "key"
-            else if item.useAgent
-              authType = "agent"
-            @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " + authType
-          else if item instanceof FtpHost
-            authType = "not set"
-            if item.usePassword and (item.password == "" or item.password == '' or !item.password?)
-              authType = "password (not set)"
-            else
-              authType = "password (set)"
-            @div class: "secondary-line", "Type: FTP, Open files: #{item.localFiles.length}, Auth: " + authType
-          else
-            @div class: "secondary-line", "Type: UNDEFINED"
-
-    confirmed: (item) ->
-      @cancel()
-      filesView = new FilesView(item)
-      filesView.attach()
-
-    listenForEvents: ->
-      @command 'hostview:delete', =>
-        item = @getSelectedItem()
-        if item?
-          @items = _.reject(@items, ((val) => val == item))
-          item.delete()
-          @populateList()
-          @setLoading()
+      @storeFocusedElement()
+      @hostname.focus()

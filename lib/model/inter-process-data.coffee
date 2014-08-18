@@ -29,5 +29,5 @@ module.exports =
     addSubscriptionToHost: (host) ->
       @subscribe host, 'changed', => @emit 'contents-changed'
       @subscribe host, 'delete', =>
-        @hostList = _.reject(@hostList, ((val) => val == host))
+        @hostList = _.reject(@hostList, ((val) -> val == host))
         @emit 'contents-changed'

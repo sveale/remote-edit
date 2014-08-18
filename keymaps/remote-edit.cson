@@ -7,12 +7,13 @@
 
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
-'.workspace':
-  'ctrl-b': 'remote-edit:browse'
-  'ctrl-o': 'remote-edit:show-open-files'
+'.platform-darwin, .platform-darwin .workspace':
+  'cmd-shift-b': 'remote-edit:browse'
+  'cmd-shift-o': 'remote-edit:show-open-files'
 
-'.openfilesview.select-list':
-  'ctrl-d': 'openfilesview:delete'
+'.platform-darwin, .platform-darwin  .openfilesview .select-list':
+  'cmd-shift-d': 'openfilesview:delete'
 
-'.hostview.select-list':
-  'ctrl-d': 'hostview:delete'
+'.platform-darwin, .platform-darwin .hostview .select-list':
+  'cmd-shift-d': 'hostview:delete'
+  'cmd-shift-e': 'hostview:edit'

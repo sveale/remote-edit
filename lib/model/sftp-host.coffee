@@ -24,8 +24,8 @@ module.exports =
 
     connection: undefined
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword, @useAgent, @usePrivateKey, @password, @passphrase, @privateKeyPath) ->
-      super
+    constructor: (@hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
+      super( @hostname, @directory, @username, @port, @localFiles, @usePassword)
 
     getConnectionStringUsingAgent: ->
       return {

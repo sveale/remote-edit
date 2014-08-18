@@ -6,24 +6,51 @@ module.exports =
     defaultSerializePath: "~/.atom/remoteEdit.json",
     uploadOnSave: true
 
-  getView: ->
-    MainView = require './main-view'
-    @view ?= new MainView()
+  getIpdw: ->
+    InterProcessDataWatcher = require './model/inter-process-data-watcher'
+    fs = require 'fs-plus'
+    @ipdw ?= new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
 
   activate: (state) ->
+    @getIpdw()
     @setupOpeners()
 
     atom.workspaceView.command "remote-edit:show-open-files", =>
-      @getView().showOpenFiles()
+      @ipdw.data.then((data) ->
+        localFiles = []
+        async = require 'async'
+        async.each(data.hostList, ((host, callback) ->
+          async.each(host.localFiles, ((file, callback) ->
+            file.host = host
+            localFiles.push(file)
+            ), ((err) -> console.debug err if err?))
+          ), ((err) -> console.debug err if err?))
+        OpenFilesView = require './view/open-files-view'
+        showOpenFilesView = new OpenFilesView(localFiles)
+        showOpenFilesView.attach()
+      )
 
     atom.workspaceView.command "remote-edit:browse", =>
-      @getView().browse()
+      HostsView = require './view/hosts-view'
+      @ipdw.data.then((data) ->
+        view = new HostsView()
+        view.setItems(data.hostList)
+        view.attach()
+      )
 
     atom.workspaceView.command "remote-edit:new-host-sftp", =>
-      @getView().newHost("sftp")
+      SftpHost = require './model/sftp-host'
+      HostView = require './view/host-view'
+      host = new SftpHost()
+      view = new HostView(host, @getIpdw())
+      view.attach()
 
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
-      @getView().newHost("ftp")
+      FtpHost = require './model/ftp-host'
+      HostView = require './view/host-view'
+      host = new FtpHost()
+      view = new HostView(host, @getIpdw())
+      view.attach()
 
   deactivate: ->
     @view?.destroy()
