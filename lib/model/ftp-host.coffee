@@ -24,7 +24,7 @@ module.exports =
     connection: undefined
 
     constructor: (@hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
-      super( @hostname, @directory, @username, @port, @localFiles, @usePassword)
+      super( @hostname, @directory, @username, @port, @localFiles, @usePassword )
 
     createRemoteFileFromListObj: (name, item) ->
       remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, filesize(item.size).human(), null, null)

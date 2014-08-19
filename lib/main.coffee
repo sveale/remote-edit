@@ -6,13 +6,13 @@ module.exports =
     defaultSerializePath: "~/.atom/remoteEdit.json",
     uploadOnSave: true
 
-  getIpdw: ->
+  createIpdw: ->
     InterProcessDataWatcher = require './model/inter-process-data-watcher'
     fs = require 'fs-plus'
-    @ipdw ?= new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
+    @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
 
   activate: (state) ->
-    @getIpdw()
+    @createIpdw()
     @setupOpeners()
 
     atom.workspaceView.command "remote-edit:show-open-files", =>
@@ -42,14 +42,14 @@ module.exports =
       SftpHost = require './model/sftp-host'
       HostView = require './view/host-view'
       host = new SftpHost()
-      view = new HostView(host, @getIpdw())
+      view = new HostView(host, @ipdw)
       view.attach()
 
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
       FtpHost = require './model/ftp-host'
       HostView = require './view/host-view'
       host = new FtpHost()
-      view = new HostView(host, @getIpdw())
+      view = new HostView(host, @ipdw)
       view.attach()
 
   deactivate: ->

@@ -47,7 +47,7 @@ module.exports =
       @emit 'changed', localFile
 
     removeLocalFile: (localFile) ->
-      @localFiles = _.reject(@localFiles, ((val) => val == localFile))
+      @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
       @emit 'changed', localFile
 
     delete: ->

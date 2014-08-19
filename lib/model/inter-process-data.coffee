@@ -4,6 +4,8 @@ _ = require 'underscore-plus'
 util = require 'util'
 
 Host = require './host'
+FtpHost = require './model/ftp-host'
+SftpHost = require './model/sftp-host'
 
 module.exports =
   class InterProcessData
