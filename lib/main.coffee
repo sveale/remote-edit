@@ -1,3 +1,6 @@
+# Import needed to register deserializer
+FileEditorView = require './view/file-editor-view'
+
 module.exports =
   configDefaults:
     showHiddenFiles: false,
