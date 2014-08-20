@@ -25,14 +25,14 @@ module.exports =
           if @host.usePassword and !connectionOptions.password?
             if @host.password == "" or @host.password == '' or !@host.password?
               async.waterfall([
-                (callback) =>
+                (callback) ->
                   passwordDialog = new Dialog({prompt: "Enter password"})
                   passwordDialog.attach(callback)
-                ], (err, result) =>
-                  connectionOptions = _.extend({password: result}, connectionOptions)
-                  @attach()
-                  callback(null)
-                )
+              ], (err, result) =>
+                connectionOptions = _.extend({password: result}, connectionOptions)
+                @attach()
+                callback(null)
+              )
             else
               callback(null)
           else
@@ -45,23 +45,23 @@ module.exports =
             callback(null)
         (callback) =>
           @populate(callback)
-        ], (err, result) =>
-          if err?
-            console.error err
-            if err.code == 450 or err.type == "PERMISSION_DENIED"
-              @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
-            else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
-              async.waterfall([
-                (callback) =>
-                  passwordDialog = new Dialog({prompt: "Enter password"})
-                  passwordDialog.attach(callback)
-                ], (err, result) =>
-                  @connect(@host, {password: result})
-                  @attach()
-                )
-            else
-              @setError(err)
-        )
+      ], (err, result) =>
+        if err?
+          console.error err
+          if err.code == 450 or err.type == "PERMISSION_DENIED"
+            @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
+          else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
+            async.waterfall([
+              (callback) ->
+                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog.attach(callback)
+            ], (err, result) =>
+              @connect(@host, {password: result})
+              @attach()
+            )
+          else
+            @setError(err)
+      )
 
     getFilterKey: ->
       return "name"
@@ -90,10 +90,10 @@ module.exports =
         (items, callback) =>
           @setItems(items)
           @cancelled()
-        ], (err, result) =>
-          @setError(err) if err?
-          return callback(err, result)
-        )
+      ], (err, result) =>
+        @setError(err) if err?
+        return callback(err, result)
+      )
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
@@ -126,9 +126,9 @@ module.exports =
               callback(err, tmpDir)
             )
           )
-        ], (err, savePath) ->
-          callback(err, savePath)
-        )
+      ], (err, savePath) ->
+        callback(err, savePath)
+      )
 
     openFile: (file) =>
       async.waterfall([
@@ -147,7 +147,7 @@ module.exports =
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
           uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
-          atom.workspace.open(uri, split: 'left').then((editorView) =>
+          atom.workspace.open(uri, split: 'left').then((editorView) ->
             editorView.localFile = localFile
             editorView.host = localFile.host
           )

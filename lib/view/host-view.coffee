@@ -122,6 +122,8 @@ module.exports =
           data.hostList.push(@host)
           @ipdw.commit()
         )
+      else
+        @host.invalidate()
       @detach()
 
 

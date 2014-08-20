@@ -25,7 +25,7 @@ module.exports =
 
     confirmed: (localFile) ->
       uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
-      atom.workspace.open(uri, split: 'left').then((editorView) =>
+      atom.workspace.open(uri, split: 'left').then((editorView) ->
         editorView.localFile = localFile
         editorView.host = localFile.host
         )
@@ -34,7 +34,7 @@ module.exports =
       @command 'openfilesview:delete', =>
         item = @getSelectedItem()
         if item?
-          @items = _.reject(@items, ((val) => val == item))
+          @items = _.reject(@items, ((val) -> val == item))
           item.delete()
           @populateList()
           @setLoading()

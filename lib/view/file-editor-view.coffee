@@ -41,16 +41,16 @@ module.exports =
               callback(null)
           (callback) =>
             @host.writeFile(@localFile, @editor.buffer.getText(), callback)
-          ], (err) =>
-            if err? and @host.usePassword
-              async.waterfall([
-                (callback) =>
-                  passwordDialog = new Dialog({prompt: "Enter password"})
-                  passwordDialog.attach(callback)
-                ], (err, result) =>
-                  @upload({password: result})
-                )
-          )
+        ], (err) =>
+          if err? and @host.usePassword
+            async.waterfall([
+              (callback) ->
+                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog.attach(callback)
+            ], (err, result) =>
+              @upload({password: result})
+            )
+        )
 
     getUri: ->
       @uri

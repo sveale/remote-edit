@@ -54,3 +54,6 @@ module.exports =
       for file in @localFiles
         file.delete()
       @emit 'delete', this
+
+    invalidate: ->
+      @emit 'changed'
