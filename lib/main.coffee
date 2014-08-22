@@ -1,5 +1,9 @@
-# Import needed to register deserializer
+# Imports needed to register deserializer
 FileEditorView = require './view/file-editor-view'
+Host = require './model/host'
+SftpHost = require './model/sftp-host'
+FtpHost = require './model/ftp-host'
+
 
 module.exports =
   configDefaults:
