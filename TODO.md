@@ -19,3 +19,4 @@
 * ~~persisted file-editor-view windows and it's host is not connected to message window~~
 * ~~fix deserializer on file-editor-view~~
 * re-add message panel. figure out how to avoid duplicate registration..
+* rewrite urls used to open up files such that it contains serialized localfile? that way the file name will be good

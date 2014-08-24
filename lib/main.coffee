@@ -1,4 +1,4 @@
-# Imports needed to register deserializer
+# Imports needed to register deserializers
 FileEditorView = require './view/file-editor-view'
 Host = require './model/host'
 SftpHost = require './model/sftp-host'
@@ -46,14 +46,12 @@ module.exports =
       )
 
     atom.workspaceView.command "remote-edit:new-host-sftp", =>
-      SftpHost = require './model/sftp-host'
       HostView = require './view/host-view'
       host = new SftpHost()
       view = new HostView(host, @ipdw)
       view.attach()
 
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
-      FtpHost = require './model/ftp-host'
       HostView = require './view/host-view'
       host = new FtpHost()
       view = new HostView(host, @ipdw)
@@ -73,10 +71,7 @@ module.exports =
 
       if host is 'localfile'
         Q = require 'q'
-        FileEditorView = require './view/file-editor-view'
-        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen)
-      else
-        return
+        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen, query.title)
 
     atom.workspace.registerOpener (uriToOpen) ->
       url = require 'url'
@@ -86,10 +81,8 @@ module.exports =
         return
 
       if parsedUri.protocol is 'sftp:'
-        SftpHost = require './model/sftp-host'
         host = new SftpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 22), [], true, false, false, (parsedUri.auth.split(':')[1] ? ""), null, null)
       else if parsedUri.protocol is 'ftp:'
-        FtpHost = require './model/ftp-host'
         host = new FtpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 21), null, true, (parsedUri.auth.split(':')[1] ? null))
 
       if host?

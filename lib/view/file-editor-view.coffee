@@ -8,14 +8,20 @@ module.exports =
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    constructor: (editor, @uri, @localFile = undefined, @host = undefined) ->
+    localFile: null
+    host: null
+
+    constructor: (editor, @uri, @title) ->
       super(editor)
 
     getIconName: ->
       "globe"
 
     getTitle: ->
-      @editor.getTitle()
+      if @title?
+        @title
+      else
+        @editor.getTitle()
 
     save: ->
       @editor.save()

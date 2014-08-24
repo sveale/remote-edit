@@ -4,6 +4,9 @@ async = require 'async'
 Q = require 'q'
 _ = require 'underscore-plus'
 
+FileEditorView = require './file-editor-view'
+LocalFile = require '../model/local-file'
+
 module.exports =
   class OpenFilesView extends SelectListView
     initialize: (@listOfItems) ->
@@ -24,11 +27,13 @@ module.exports =
         @li class: 'localfile', "#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
 
     confirmed: (localFile) ->
-      uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
+      uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
       atom.workspace.open(uri, split: 'left').then((editorView) ->
         editorView.localFile = localFile
         editorView.host = localFile.host
         )
+
+
 
     listenForEvents: ->
       @command 'openfilesview:delete', =>

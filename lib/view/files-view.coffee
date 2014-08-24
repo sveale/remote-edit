@@ -146,11 +146,11 @@ module.exports =
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
+          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
           atom.workspace.open(uri, split: 'left').then((editorView) ->
             editorView.localFile = localFile
             editorView.host = localFile.host
-          )
+            )
 
           @host.close()
           @cancel()
