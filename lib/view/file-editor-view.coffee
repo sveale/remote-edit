@@ -18,9 +18,7 @@ module.exports =
       "globe"
 
     getTitle: ->
-      if @localFile?
-        @localFile.name
-      else if @title?
+      if @title?
         @title
       else
         @editor.getTitle()

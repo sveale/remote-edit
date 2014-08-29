@@ -1,4 +1,4 @@
-{$$, SelectListView} = require 'atom'
+{$, $$, SelectListView} = require 'atom'
 _ = require 'underscore-plus'
 
 FilesView = require './files-view'
@@ -9,12 +9,13 @@ FtpHost = require '../model/ftp-host'
 
 module.exports =
   class HostsView extends SelectListView
-
-    initialize: (@listOfItems = []) ->
+    initialize: (@ipdw) ->
       super
+      @createItemsFromIpdw()
       @addClass('overlay from-top hostview')
-      @setItems(@listOfItems)
       @listenForEvents()
+      @subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
+
 
     attach: ->
       atom.workspaceView.append(this)
@@ -24,6 +25,8 @@ module.exports =
       return "hostname"
 
     viewForItem: (item) ->
+      keyBindings = @keyBindings
+
       $$ ->
         @li class: 'two-lines', =>
           @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
@@ -59,7 +62,6 @@ module.exports =
         if item?
           @items = _.reject(@items, ((val) -> val == item))
           item.delete()
-          @populateList()
           @setLoading()
       @command 'hostview:edit', =>
         item = @getSelectedItem()
@@ -67,3 +69,6 @@ module.exports =
           @cancel()
           hostView = new HostView(item)
           hostView.attach()
+
+    createItemsFromIpdw: ->
+      @ipdw.data.then((data) => @setItems(data.hostList))

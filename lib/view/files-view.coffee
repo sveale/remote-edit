@@ -15,8 +15,9 @@ module.exports =
   class FilesView extends SelectListView
     initialize: (@host) ->
       super
-      @addClass('overlay from-top')
+      @addClass('overlay from-top filesview')
       @connect(@host)
+      @listenForEvents()
 
     connect: (@host, connectionOptions = {}) ->
       @path = @host.directory
@@ -131,6 +132,7 @@ module.exports =
       )
 
     openFile: (file) =>
+      @setLoading("Downloading file...")
       async.waterfall([
         (callback) =>
           @getDefaultSaveDirForHost(callback)
@@ -156,6 +158,9 @@ module.exports =
           @cancel()
       )
 
+    openDirectory: (dir) =>
+      @setLoading("Opening directory...")
+
     confirmed: (item) ->
       if item.isFile
         @openFile(item)
@@ -166,3 +171,11 @@ module.exports =
       else
         @setError("Selected item is neither a file nor a directory!")
         #throw new Error("Path is neither a file nor a directory!")
+
+    listenForEvents: ->
+      @command 'filesview:open', =>
+        item = @getSelectedItem()
+        if item.isFile
+          @openFile(item)
+        else if item.isDir
+          @openDirectory(item)

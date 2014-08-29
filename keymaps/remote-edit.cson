@@ -12,8 +12,11 @@
   'cmd-shift-o': 'remote-edit:show-open-files'
 
 '.platform-darwin .openfilesview.select-list':
-  'cmd-shift-d': 'openfilesview:delete'
+  'shift-d': 'openfilesview:delete'
 
 '.platform-darwin .hostview.select-list':
-  'cmd-shift-d': 'hostview:delete'
-  'cmd-shift-e': 'hostview:edit'
+  'shift-d': 'hostview:delete'
+  'shift-e': 'hostview:edit'
+
+'.platform-darwin .filesview.select-list':
+  'shift-o': 'filesview:open'

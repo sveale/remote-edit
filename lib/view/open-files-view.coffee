@@ -9,11 +9,12 @@ LocalFile = require '../model/local-file'
 
 module.exports =
   class OpenFilesView extends SelectListView
-    initialize: (@listOfItems) ->
+    initialize: (@ipdw) ->
       super
       @addClass('overlay from-top openfilesview')
-      @setItems(@listOfItems)
+      @createItemsFromIpdw()
       @listenForEvents()
+      @subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
 
     attach: ->
       atom.workspaceView.append(this)
@@ -33,13 +34,22 @@ module.exports =
         editorView.host = localFile.host
         )
 
-
-
     listenForEvents: ->
       @command 'openfilesview:delete', =>
         item = @getSelectedItem()
         if item?
           @items = _.reject(@items, ((val) -> val == item))
           item.delete()
-          @populateList()
           @setLoading()
+
+    createItemsFromIpdw: ->
+      @ipdw.data.then((data) =>
+        localFiles = []
+        async.each(data.hostList, ((host, callback) ->
+          async.each(host.localFiles, ((file, callback) ->
+            file.host = host
+            localFiles.push(file)
+            ), ((err) -> console.debug err if err?))
+          ), ((err) -> console.debug err if err?))
+        @setItems(localFiles)
+      )
