@@ -130,15 +130,21 @@ module.exports =
 
     getFileData: (file, callback) ->
       @emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
-      @connection.get(file.path, (err, stream) =>
+      async.waterfall([
+        (callback) =>
+          @connection.get(file.path, callback)
+        (stream, callback) =>
+          data = []
+          stream.on 'data', (chunk) -> data.push(chunk.toString())
+          stream.on 'error', (error) -> callback(error)
+          stream.on 'close', -> callback(null, data.join(''))
+      ], (err, result) =>
         if err?
           @emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
           callback(err, null)
         else
           @emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
-          stream.once('data', (chunk) ->
-            callback?(null, chunk.toString('utf8'))
-          )
+          callback?(err, result)
       )
 
     serializeParams: ->
