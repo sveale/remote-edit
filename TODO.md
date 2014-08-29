@@ -20,3 +20,4 @@
 * ~~fix deserializer on file-editor-view~~
 * re-add message panel. figure out how to avoid duplicate registration..
 * ~~rewrite urls used to open up files such that it contains title to be displayed in file-editor-view?~~dd
+* ~~fix missing boxes when editing hosts~~

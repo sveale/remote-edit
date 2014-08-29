@@ -85,25 +85,7 @@ module.exports =
         @passwordBlock.show()
         @password.focus()
 
-      if (@host instanceof SftpHost)
-        # @passwordButton.click()
-        # @privateKeyButton.click()
-        # @userAgentButton.click()
 
-        @authenticationButtonsBlock.show()
-        @passwordBlock.hide()
-        @privateKeyBlock.hide()
-
-        if @host.usePassword
-          @passwordButton.click()
-        else if @host.usePrivateKey
-          @privateKeyButton.click()
-      else if (@host instanceof FtpHost)
-        @authenticationButtonsBlock.hide()
-        @passwordBlock.show()
-        @privateKeyBlock.hide()
-      else
-        throw new Error("\"host\" is unknown!", @host)
 
     confirm: ->
       if @host instanceof SftpHost
@@ -156,3 +138,18 @@ module.exports =
       atom.workspaceView.append(this)
       @storeFocusedElement()
       @hostname.focus()
+
+      if (@host instanceof SftpHost)
+        @authenticationButtonsBlock.show()
+        if @host.usePassword
+          @passwordButton.click()
+        else if @host.usePrivateKey
+          @privateKeyButton.click()
+        else if @host.useAgent
+          @userAgentButton.click()
+      else if (@host instanceof FtpHost)
+        @authenticationButtonsBlock.hide()
+        @passwordBlock.show()
+        @privateKeyBlock.hide()
+      else
+        throw new Error("\"host\" is unknown!", @host)
