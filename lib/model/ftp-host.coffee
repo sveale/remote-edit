@@ -27,6 +27,9 @@ module.exports =
       super( @hostname, @directory, @username, @port, @localFiles, @usePassword )
 
     createRemoteFileFromListObj: (name, item) ->
+      unless item.name?
+        return undefined
+
       remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
@@ -112,6 +115,8 @@ module.exports =
           @connection.list(path, callback)
         (files, callback) =>
           async.map(files, ((item, callback) => callback(null, @createRemoteFileFromListObj(path, item))), callback)
+        (objects, callback) ->
+          async.filter(objects, ((item, callback) -> callback(item?)), ((result) -> callback(null, result)))
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
           objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
