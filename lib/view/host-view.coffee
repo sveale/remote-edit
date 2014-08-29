@@ -53,10 +53,14 @@ module.exports =
       @on 'core:cancel', => @detach()
       @cancelButton.on 'click', => @detach()
 
-      @hostname.setText(@host.hostname) if @host.hostname?
-      @directory.setText(@host.directory) if @host.directory?
-      @username.setText(@host.username) if @host.username?
-      @port.setText(@host.port) if @host.port?
+      @hostname.setText(@host.hostname ? "")
+      @directory.setText(@host.directory ? "/")
+      @username.setText(@host.username ? "")
+
+      @port.setText(@host.port ? "")
+      @password.setText(@host.password ? "")
+      @privateKeyPath.setText(@host.privateKeyPath ? "")
+      @privateKeyPassphrase.setText(@host.passphrase ? "")
 
       @userAgentButton.on 'click', =>
         @privateKeyButton.toggleClass('selected', false)
@@ -71,6 +75,7 @@ module.exports =
         @passwordButton.toggleClass('selected', false)
         @passwordBlock.hide()
         @privateKeyBlock.show()
+        @privateKeyPath.focus()
 
       @passwordButton.on 'click', =>
         @privateKeyButton.toggleClass('selected', false)
@@ -78,19 +83,21 @@ module.exports =
         @passwordButton.toggleClass('selected', true)
         @privateKeyBlock.hide()
         @passwordBlock.show()
+        @password.focus()
 
       if (@host instanceof SftpHost)
-        @authenticationButtonsBlock.show()
+        # @passwordButton.click()
+        # @privateKeyButton.click()
+        # @userAgentButton.click()
 
+        @authenticationButtonsBlock.show()
         @passwordBlock.hide()
         @privateKeyBlock.hide()
 
         if @host.usePassword
-          @passwordBlock.show()
+          @passwordButton.click()
         else if @host.usePrivateKey
-          @privateKeyBlock.show()
-        else
-          @userAgentButton.click()
+          @privateKeyButton.click()
       else if (@host instanceof FtpHost)
         @authenticationButtonsBlock.hide()
         @passwordBlock.show()
