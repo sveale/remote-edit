@@ -1,28 +1,25 @@
 # Imports needed to register deserializers
 FileEditorView = require './view/file-editor-view'
 Host = require './model/host'
-SftpHost = require './model/sftp-host'
 FtpHost = require './model/ftp-host'
-
+SftpHost = require './model/sftp-host'
 
 module.exports =
   configDefaults:
     showHiddenFiles: false,
-    numberOfConcurrentSshQueriesInOneConnection: 5,
+    uploadOnSave: true,
     sshPrivateKeyPath: "~/.ssh/id_rsa",
     defaultSerializePath: "~/.atom/remoteEdit.json",
-    uploadOnSave: true
+    messagePanelTimeout: 5000
 
-  createIpdw: ->
-    InterProcessDataWatcher = require './model/inter-process-data-watcher'
-    fs = require 'fs-plus'
-    @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
+
 
   activate: (state) ->
-    @createIpdw()
     @setupOpeners()
 
     atom.workspaceView.command "remote-edit:show-open-files", =>
+      @createIpdw() if !@ipdw?
+
       @ipdw.data.then((data) ->
         localFiles = []
         async = require 'async'
@@ -38,6 +35,8 @@ module.exports =
       )
 
     atom.workspaceView.command "remote-edit:browse", =>
+      @createIpdw() if !@ipdw?
+
       HostsView = require './view/hosts-view'
       @ipdw.data.then((data) ->
         view = new HostsView()
@@ -46,12 +45,16 @@ module.exports =
       )
 
     atom.workspaceView.command "remote-edit:new-host-sftp", =>
+      @createIpdw() if !@ipdw?
+
       HostView = require './view/host-view'
       host = new SftpHost()
       view = new HostView(host, @ipdw)
       view.attach()
 
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
+      @createIpdw() if !@ipdw?
+
       HostView = require './view/host-view'
       host = new FtpHost()
       view = new HostView(host, @ipdw)
@@ -61,6 +64,7 @@ module.exports =
     @view?.destroy()
 
   setupOpeners: ->
+    @openers = true
     atom.workspace.registerOpener (uriToOpen) ->
       url = require 'url'
       try
@@ -91,3 +95,8 @@ module.exports =
         filesView.attach()
       else
         return
+
+  createIpdw: ->
+    InterProcessDataWatcher = require './model/inter-process-data-watcher'
+    fs = require 'fs-plus'
+    @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))

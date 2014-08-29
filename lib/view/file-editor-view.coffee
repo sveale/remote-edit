@@ -18,7 +18,9 @@ module.exports =
       "globe"
 
     getTitle: ->
-      if @title?
+      if @localFile?
+        @localFile.name
+      else if @title?
         @title
       else
         @editor.getTitle()
@@ -66,6 +68,7 @@ module.exports =
       uri: @uri
       localFile: @localFile?.serialize()
       host: @host?.serialize()
+      title: @title
 
     deserializeParams: (params) ->
       params.editor = atom.deserializers.deserialize(params.editor)
