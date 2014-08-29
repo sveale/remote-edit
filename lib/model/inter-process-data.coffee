@@ -6,6 +6,8 @@ util = require 'util'
 Host = require './host'
 FtpHost = require './ftp-host'
 SftpHost = require './sftp-host'
+LocalFile = require './local-file'
+RemoteFile = require './remote-file'
 
 module.exports =
   class InterProcessData

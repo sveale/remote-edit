@@ -2,6 +2,12 @@
 Serializable = require 'serializable'
 async = require 'async'
 Dialog = require './dialog'
+util = require 'util'
+
+Host = require '../model/host'
+FtpHost = require '../model/ftp-host'
+SftpHost = require '../model/sftp-host'
+LocalFile = require '../model/local-file'
 
 module.exports =
   class FileEditorView extends EditorView
@@ -11,7 +17,7 @@ module.exports =
     localFile: null
     host: null
 
-    constructor: (editor, @uri, @title) ->
+    constructor: (editor, @uri, @title, @localFile, @host) ->
       super(editor)
 
     getIconName: ->
@@ -57,6 +63,10 @@ module.exports =
               @upload({password: result})
             )
         )
+      else
+        console.error 'LocalFile and host not defined. Cannot upload file!'
+        console.debug util.inspect @localFile
+        console.debug util.inspect @host
 
     getUri: ->
       @uri
@@ -64,12 +74,12 @@ module.exports =
     serializeParams: ->
       editor: @editor.serialize()
       uri: @uri
+      title: @title
       localFile: @localFile?.serialize()
       host: @host?.serialize()
-      title: @title
 
     deserializeParams: (params) ->
       params.editor = atom.deserializers.deserialize(params.editor)
-      params.localFile = atom.deserializers.deserialize(params.localFile)
-      params.host = atom.deserializers.deserialize(params.host)
+      params.localFile = LocalFile.deserialize(params.localFile)
+      params.host = Host.deserialize(params.host)
       params

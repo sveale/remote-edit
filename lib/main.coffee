@@ -1,8 +1,5 @@
 # Imports needed to register deserializers
 FileEditorView = require './view/file-editor-view'
-Host = require './model/host'
-FtpHost = require './model/ftp-host'
-SftpHost = require './model/sftp-host'
 
 module.exports =
   configDefaults:
@@ -28,12 +25,14 @@ module.exports =
 
     atom.workspaceView.command "remote-edit:new-host-sftp", =>
       HostView = require './view/host-view'
+      SftpHost = require './model/sftp-host'
       host = new SftpHost()
       view = new HostView(host, @createIpdw())
       view.attach()
 
     atom.workspaceView.command "remote-edit:new-host-ftp", =>
       HostView = require './view/host-view'
+      FtpHost = require './model/ftp-host'
       host = new FtpHost()
       view = new HostView(host, @createIpdw())
       view.attach()
