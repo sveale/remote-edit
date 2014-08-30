@@ -136,7 +136,6 @@ module.exports =
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
       ], (err, result) =>
-        @close()
         if err?
           @emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
           console.err err if err?
@@ -160,7 +159,6 @@ module.exports =
           )
           s.on 'close', (-> callback(null, data.join('')))
       ], (err, result) =>
-        @close()
         @emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
         @emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
         callback?(err, result)

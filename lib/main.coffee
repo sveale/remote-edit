@@ -1,4 +1,4 @@
-# Imports needed to register deserializers
+# Import needed to register deserializers
 FileEditorView = require './view/file-editor-view'
 
 module.exports =
@@ -63,8 +63,10 @@ module.exports =
         return
 
       if parsedUri.protocol is 'sftp:'
+        SftpHost = require './model/sftp-host'
         host = new SftpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 22), [], true, false, false, (parsedUri.auth.split(':')[1] ? ""), null, null)
       else if parsedUri.protocol is 'ftp:'
+        FtpHost = require './model/ftp-host'
         host = new FtpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 21), null, true, (parsedUri.auth.split(':')[1] ? null))
 
       if host?

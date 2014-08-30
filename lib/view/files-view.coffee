@@ -180,3 +180,8 @@ module.exports =
           @openFile(item)
         else if item.isDir
           @openDirectory(item)
+
+    cancel: ->
+      super
+
+      @host?.close()
