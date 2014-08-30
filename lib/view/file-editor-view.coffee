@@ -3,6 +3,7 @@ Serializable = require 'serializable'
 async = require 'async'
 Dialog = require './dialog'
 util = require 'util'
+_ = require 'underscore-plus'
 
 Host = require '../model/host'
 FtpHost = require '../model/ftp-host'
@@ -46,6 +47,21 @@ module.exports =
     upload: (connectionOptions = {}) ->
       if @localFile? and @host?
         async.waterfall([
+          (callback) =>
+            if @host.usePassword and !connectionOptions.password?
+              if @host.password == "" or @host.password == '' or !@host.password?
+                async.waterfall([
+                  (callback) ->
+                    passwordDialog = new Dialog({prompt: "Enter password"})
+                    passwordDialog.attach(callback)
+                ], (err, result) =>
+                  connectionOptions = _.extend({password: result}, connectionOptions)
+                  callback(null)
+                )
+              else
+                callback(null)
+            else
+              callback(null)
           (callback) =>
             if !@host.isConnected()
               @host.connect(callback, connectionOptions)
