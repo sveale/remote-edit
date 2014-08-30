@@ -5,6 +5,7 @@ module.exports =
   configDefaults:
     showHiddenFiles: false,
     uploadOnSave: true,
+    messagePanel: true,
     sshPrivateKeyPath: "~/.ssh/id_rsa",
     defaultSerializePath: "~/.atom/remoteEdit.json",
     messagePanelTimeout: 6000

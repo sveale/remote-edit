@@ -159,6 +159,7 @@ module.exports =
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")
+      #uri = "remote-edit://remoteDir/?path=#{encodeURIComponent(dir)}&serializedHost=#{JSON.stringify(encodeURIComponent(@host.serialize()))}"
 
     confirmed: (item) ->
       if item.isFile

@@ -7,9 +7,13 @@
 
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
-'.platform-darwin .workspace':
-  'cmd-shift-b': 'remote-edit:browse'
-  'cmd-shift-o': 'remote-edit:show-open-files'
+'.platform-darwin':
+  'ctrl-cmd-b': 'remote-edit:browse'
+  'ctrl-cmd-o': 'remote-edit:show-open-files'
+
+'.platform-win32, .platform-linux':
+  'ctrl-shift-b': 'remote-edit:browse'
+  'ctrl-shift-o': 'remote-edit:show-open-files'
 
 '.platform-darwin .openfilesview.select-list':
   'shift-d': 'openfilesview:delete'
