@@ -27,7 +27,7 @@ module.exports =
         @addSubscriptionToHost(host)
 
       if atom.config.get 'remote-edit.messagePanel'
-        for pane in atom.workspaceView.getPanes()
+        for pane in atom.workspaceView.getPaneViews()
             for item in pane.getItems()
               if item instanceof FileEditorView
                 unless _.contains(@hostList, item.host)
