@@ -12,7 +12,6 @@ module.exports =
       @messages?.add(new PlainMessageView(data))
 
       closeMessages = =>
-        console.debug "closeMessages"
         @messages.clear()
         @messages.close()
 

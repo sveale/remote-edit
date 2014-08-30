@@ -22,5 +22,5 @@ module.exports =
       params
 
     delete: ->
-      fs.unlink(@path, -> console.debug err if err?)
+      fs.unlink(@path, -> console.err err if err?)
       @host?.removeLocalFile(this)

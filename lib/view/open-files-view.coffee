@@ -49,7 +49,7 @@ module.exports =
           async.each(host.localFiles, ((file, callback) ->
             file.host = host
             localFiles.push(file)
-            ), ((err) -> console.debug err if err?))
-          ), ((err) -> console.debug err if err?))
+            ), ((err) -> console.err err if err?))
+          ), ((err) -> console.err err if err?))
         @setItems(localFiles)
       )

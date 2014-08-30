@@ -72,7 +72,6 @@ module.exports =
       @focusFilterEditor()
 
     viewForItem: (item) ->
-      #console.debug 'viewforitem'
       $$ ->
         @li class: 'two-lines', =>
           if item.isFile
@@ -144,7 +143,7 @@ module.exports =
       ], (err, savePath) =>
         if err?
           @setError(err)
-          console.debug err
+          console.err err
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)

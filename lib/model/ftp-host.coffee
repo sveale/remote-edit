@@ -102,7 +102,7 @@ module.exports =
       ], (err) =>
         if err?
           @emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
-          console.debug err if err?
+          console.err err if err?
         else
           @emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
         @close()
@@ -127,7 +127,7 @@ module.exports =
       ], (err, result) =>
         if err?
           @emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
-          console.debug err if err?
+          console.err err if err?
           callback?(err)
         else
           callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
