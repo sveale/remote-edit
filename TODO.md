@@ -18,7 +18,7 @@
 * ~~remove subscription from host.coffee and place the logic in file-editor-view.coffee~~
 * ~~persisted file-editor-view windows and it's host is not connected to message window~~
 * ~~fix deserializer on file-editor-view~~
-* re-add message panel. figure out how to avoid duplicate registration..
+* ~~re-add message panel. figure out how to avoid duplicate registration..~~
 * ~~rewrite urls used to open up files such that it contains title to be displayed in file-editor-view?~~ddre
 * ~~fix missing boxes when editing hosts~~
 * ~~bug: only one item can be deleted at a time from hosts/open files~~

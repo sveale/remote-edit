@@ -5,6 +5,7 @@ fs = require 'fs-plus'
 
 InterProcessData = require './inter-process-data'
 
+
 module.exports =
   class InterProcessDataWatcher
     Subscriber.includeInto(this)

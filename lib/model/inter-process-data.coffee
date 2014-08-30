@@ -9,6 +9,8 @@ SftpHost = require './sftp-host'
 LocalFile = require './local-file'
 RemoteFile = require './remote-file'
 
+MessagesView = require '../view/messages-view'
+
 module.exports =
   class InterProcessData
     Serializable.includeInto(this)
@@ -16,6 +18,8 @@ module.exports =
 
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
+
+    messages: new MessagesView("Remote edit")
 
     constructor: (@hostList = []) ->
       for host in @hostList
@@ -35,3 +39,7 @@ module.exports =
       @subscribe host, 'delete', =>
         @hostList = _.reject(@hostList, ((val) -> val == host))
         @emit 'contents-changed'
+      @subscribe host, 'info', (info) => @messages.postMessage(info)
+
+
+      #  async.each(data.hostList, ((item) => @subscribe item, 'info', (info) => @postMessage(info)), null)

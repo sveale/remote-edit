@@ -7,7 +7,7 @@ module.exports =
     uploadOnSave: true,
     sshPrivateKeyPath: "~/.ssh/id_rsa",
     defaultSerializePath: "~/.atom/remoteEdit.json",
-    messagePanelTimeout: 5000
+    messagePanelTimeout: 6000
 
   activate: (state) ->
     @createIpdw()
