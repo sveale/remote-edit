@@ -1,6 +1,7 @@
 {$, $$, SelectListView, EditorView} = require 'atom'
 LocalFile = require '../model/local-file'
 FileEditorView = require './file-editor-view'
+
 Dialog = require './dialog'
 
 fs = require 'fs'
@@ -159,7 +160,7 @@ module.exports =
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")
-      #uri = "remote-edit://remoteDir/?path=#{encodeURIComponent(dir)}&serializedHost=#{JSON.stringify(encodeURIComponent(@host.serialize()))}"
+      throw new Error("Not implemented yet!")
 
     confirmed: (item) ->
       if item.isFile
