@@ -10,6 +10,7 @@ LocalFile = require './local-file'
 RemoteFile = require './remote-file'
 
 MessagesView = require '../view/messages-view'
+FileEditorView = require '../view/file-editor-view'
 
 module.exports =
   class InterProcessData
@@ -40,6 +41,11 @@ module.exports =
         @hostList = _.reject(@hostList, ((val) -> val == host))
         @emit 'contents-changed'
       @subscribe host, 'info', (info) => @messages.postMessage(info)
+      for pane in atom.workspaceView.getPanes()
+          for item in pane.getItems()
+            if item instanceof FileEditorView
+              unless _.contains(@hostList, item.host)
+                @subscribe item.host, 'info', (info) => @messages.postMessage(info)
 
 
       #  async.each(data.hostList, ((item) => @subscribe item, 'info', (info) => @postMessage(info)), null)
