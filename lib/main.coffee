@@ -1,6 +1,17 @@
 # Import needed to register deserializers
 FileEditorView = require './view/file-editor-view'
 
+# Deferred requirements
+OpenFilesView = null
+HostView = null
+HostsView = null
+SftpHost = null
+FtpHost = null
+url = null
+Q = null
+InterProcessDataWatcher = null
+fs = null
+
 module.exports =
   configDefaults:
     showHiddenFiles: false,
@@ -12,6 +23,54 @@ module.exports =
 
   activate: (state) ->
     @setupOpeners()
+    @initializeIpdwIfNecessary()
+
+    atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
+    atom.workspaceView.command "remote-edit:browse", => @browse()
+    atom.workspaceView.command "remote-edit:new-host-sftp", => @newHostSftp()
+    atom.workspaceView.command "remote-edit:new-host-ftp", => @newHostFtp()
+
+  deactivate: ->
+    @view?.destroy()
+
+  newHostSftp: ->
+    HostView ?= require './view/host-view'
+    SftpHost ?= require './model/sftp-host'
+    host = new SftpHost()
+    view = new HostView(host, @createIpdw())
+    view.attach()
+
+  newHostFtp: ->
+    HostView ?= require './view/host-view'
+    FtpHost ?= require './model/ftp-host'
+    host = new FtpHost()
+    view = new HostView(host, @createIpdw())
+    view.attach()
+
+  browse: ->
+    HostsView ?= require './view/hosts-view'
+    view = new HostsView(@createIpdw())
+    view.attach()
+
+  showOpenFiles: ->
+    OpenFilesView ?= require './view/open-files-view'
+    showOpenFilesView = new OpenFilesView(@createIpdw())
+    showOpenFilesView.attach()
+
+  setupOpeners: ->
+    atom.workspace.registerOpener (uriToOpen) ->
+      url ?= require 'url'
+      try
+        {protocol, host, query} = url.parse(uriToOpen, true)
+      catch error
+        return
+      return unless protocol is 'remote-edit:'
+
+      if host is 'localfile'
+        Q ?= require 'q'
+        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen, query.title)
+
+  initializeIpdwIfNecessary: ->
     if atom.config.get 'remote-edit.messagePanel'
       stop = false
       for pane in atom.workspaceView.getPaneViews() when !stop
@@ -20,49 +79,9 @@ module.exports =
             @createIpdw()
             stop = true
 
-    atom.workspaceView.command "remote-edit:show-open-files", =>
-      OpenFilesView = require './view/open-files-view'
-      showOpenFilesView = new OpenFilesView(@createIpdw())
-      showOpenFilesView.attach()
-
-    atom.workspaceView.command "remote-edit:browse", =>
-      HostsView = require './view/hosts-view'
-      view = new HostsView(@createIpdw())
-      view.attach()
-
-    atom.workspaceView.command "remote-edit:new-host-sftp", =>
-      HostView = require './view/host-view'
-      SftpHost = require './model/sftp-host'
-      host = new SftpHost()
-      view = new HostView(host, @createIpdw())
-      view.attach()
-
-    atom.workspaceView.command "remote-edit:new-host-ftp", =>
-      HostView = require './view/host-view'
-      FtpHost = require './model/ftp-host'
-      host = new FtpHost()
-      view = new HostView(host, @createIpdw())
-      view.attach()
-
-  deactivate: ->
-    @view?.destroy()
-
-  setupOpeners: ->
-    atom.workspace.registerOpener (uriToOpen) ->
-      url = require 'url'
-      try
-        {protocol, host, query} = url.parse(uriToOpen, true)
-      catch error
-        return
-      return unless protocol is 'remote-edit:'
-
-      if host is 'localfile'
-        Q = require 'q'
-        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen, query.title)
-
   createIpdw: ->
     unless @ipdw?
-      InterProcessDataWatcher = require './model/inter-process-data-watcher'
+      InterProcessDataWatcher ?= require './model/inter-process-data-watcher'
       fs = require 'fs-plus'
       @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
     @ipdw
