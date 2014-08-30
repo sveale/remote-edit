@@ -1,16 +1,16 @@
 Serializable = require 'serializable'
 {Subscriber, Emitter} = require 'emissary'
-_ = require 'underscore-plus'
-util = require 'util'
-
-Host = require './host'
-FtpHost = require './ftp-host'
-SftpHost = require './sftp-host'
-LocalFile = require './local-file'
-RemoteFile = require './remote-file'
 
 MessagesView = require '../view/messages-view'
 FileEditorView = require '../view/file-editor-view'
+
+# Defer requiring
+Host = null
+FtpHost = null
+SftpHost = null
+LocalFile = null
+RemoteFile = null
+_ = null
 
 module.exports =
   class InterProcessData
@@ -30,6 +30,7 @@ module.exports =
         for pane in atom.workspaceView.getPaneViews()
             for item in pane.getItems()
               if item instanceof FileEditorView
+                _ ?= require 'underscore-plus'
                 unless _.contains(@hostList, item.host)
                   @subscribe item.host, 'info', (info) => @messages.postMessage(info)
 
@@ -38,7 +39,13 @@ module.exports =
 
     deserializeParams: (params) ->
       tmpArray = []
-      tmpArray.push(Host.deserialize(host)) for host in JSON.parse(params.hostList)
+      if params.hostList?
+        Host ?= require './host'
+        FtpHost ?= require './ftp-host'
+        SftpHost ?= require './sftp-host'
+        LocalFile ?= require './local-file'
+        RemoteFile ?= require './remote-file'
+        tmpArray.push(Host.deserialize(host)) for host in JSON.parse(params.hostList)
       params.hostList = tmpArray
       params
 
@@ -50,7 +57,3 @@ module.exports =
 
       if atom.config.get 'remote-edit.messagePanel'
         @subscribe host, 'info', (info) => @messages.postMessage(info)
-
-
-
-      #  async.each(data.hostList, ((item) => @subscribe item, 'info', (info) => @postMessage(info)), null)

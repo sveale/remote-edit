@@ -1,9 +1,9 @@
 {Subscriber, Emitter} = require 'emissary'
 Q = require 'q'
-util = require 'util'
 fs = require 'fs-plus'
 
-InterProcessData = require './inter-process-data'
+# Defer requiring
+InterProcessData = null
 
 
 module.exports =
@@ -28,6 +28,7 @@ module.exports =
 
       fs.readFile(@filePath, 'utf8', ((err, data) ->
         throw err if err?
+        InterProcessData ?= require './inter-process-data'
         if data.length > 0
           deferred.resolve(InterProcessData.deserialize(JSON.parse(data)))
         else

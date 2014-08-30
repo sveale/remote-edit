@@ -1,14 +1,14 @@
-{$, $$$, EditorView, Editor} = require 'atom'
+{EditorView, Editor} = require 'atom'
 Serializable = require 'serializable'
-async = require 'async'
-Dialog = require './dialog'
-util = require 'util'
-_ = require 'underscore-plus'
 
-Host = require '../model/host'
-FtpHost = require '../model/ftp-host'
-SftpHost = require '../model/sftp-host'
-LocalFile = require '../model/local-file'
+# Defer requiring
+Host = null
+FtpHost = null
+SftpHost = null
+LocalFile = null
+async = null
+Dialog = null
+_ = null
 
 module.exports =
   class FileEditorView extends EditorView
@@ -36,6 +36,7 @@ module.exports =
       if atom.config.get 'remote-edit.uploadOnSave'
         @upload()
       else
+        Dialog
         chosen = atom.confirm
           message: "File has been saved. Do you want to upload changes to remote host?"
           detailedMessage: "The changes exists on disk and can be uploaded later."
@@ -45,6 +46,9 @@ module.exports =
           when 1 then return
 
     upload: (connectionOptions = {}) ->
+      Dialog ?= require './Dialog'
+      async ?= require 'async'
+      _ ?= require 'underscore-plus'
       if @localFile? and @host?
         async.waterfall([
           (callback) =>
@@ -81,8 +85,6 @@ module.exports =
         )
       else
         console.error 'LocalFile and host not defined. Cannot upload file!'
-        console.debug util.inspect @localFile
-        console.debug util.inspect @host
 
     getUri: ->
       @uri
@@ -96,6 +98,12 @@ module.exports =
 
     deserializeParams: (params) ->
       params.editor = atom.deserializers.deserialize(params.editor)
-      params.localFile = LocalFile.deserialize(params.localFile)
-      params.host = Host.deserialize(params.host)
+      if params.localFile?
+        LocalFile = require '../model/local-file'
+        params.localFile = LocalFile.deserialize(params.localFile)
+      if params.host?
+        Host = require '../model/host'
+        FtpHost = require '../model/ftp-host'
+        SftpHost = require '../model/sftp-host'
+        params.host = Host.deserialize(params.host)
       params
