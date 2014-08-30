@@ -11,8 +11,14 @@ module.exports =
     messagePanelTimeout: 6000
 
   activate: (state) ->
-    @createIpdw()
     @setupOpeners()
+    if atom.config.get 'remote-edit.messagePanel'
+      stop = false
+      for pane in atom.workspaceView.getPaneViews() when !stop
+        for item in pane.getItems() when !stop
+          if item instanceof FileEditorView
+            @createIpdw()
+            stop = true
 
     atom.workspaceView.command "remote-edit:show-open-files", =>
       OpenFilesView = require './view/open-files-view'
@@ -42,7 +48,6 @@ module.exports =
     @view?.destroy()
 
   setupOpeners: ->
-    @openers = true
     atom.workspace.registerOpener (uriToOpen) ->
       url = require 'url'
       try
@@ -54,27 +59,6 @@ module.exports =
       if host is 'localfile'
         Q = require 'q'
         atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen, query.title)
-
-    atom.workspace.registerOpener (uriToOpen) ->
-      url = require 'url'
-      try
-        parsedUri = url.parse(uriToOpen, true)
-      catch error
-        return
-
-      if parsedUri.protocol is 'sftp:'
-        SftpHost = require './model/sftp-host'
-        host = new SftpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 22), [], true, false, false, (parsedUri.auth.split(':')[1] ? ""), null, null)
-      else if parsedUri.protocol is 'ftp:'
-        FtpHost = require './model/ftp-host'
-        host = new FtpHost(parsedUri.hostname, (parsedUri.pathname ? '/'), (parsedUri.auth.split(':')[0] ? parsedUri.auth), (parsedUri.port ? 21), null, true, (parsedUri.auth.split(':')[1] ? null))
-
-      if host?
-        FilesView = require './view/files-view'
-        filesView = new FilesView(host)
-        filesView.attach()
-      else
-        return
 
   createIpdw: ->
     unless @ipdw?
