@@ -3,6 +3,7 @@ async = require 'async'
 {Emitter, Subscriber} = require 'emissary'
 hash = require 'string-hash'
 _ = require 'underscore-plus'
+osenv = require 'osenv'
 
 module.exports =
   class Host
@@ -12,7 +13,7 @@ module.exports =
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword) ->
+    constructor: (@hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
 
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")
@@ -46,10 +47,13 @@ module.exports =
       @emit 'changed', localFile
 
     removeLocalFile: (localFile) ->
-      @localFiles = _.reject(@localFiles, ((val) => val == localFile))
+      @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
       @emit 'changed', localFile
 
     delete: ->
       for file in @localFiles
         file.delete()
       @emit 'delete', this
+
+    invalidate: ->
+      @emit 'changed'

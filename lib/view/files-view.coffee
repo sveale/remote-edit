@@ -1,6 +1,7 @@
 {$, $$, SelectListView, EditorView} = require 'atom'
 LocalFile = require '../model/local-file'
 FileEditorView = require './file-editor-view'
+
 Dialog = require './dialog'
 
 fs = require 'fs'
@@ -15,8 +16,9 @@ module.exports =
   class FilesView extends SelectListView
     initialize: (@host) ->
       super
-      @addClass('overlay from-top')
+      @addClass('overlay from-top filesview')
       @connect(@host)
+      @listenForEvents()
 
     connect: (@host, connectionOptions = {}) ->
       @path = @host.directory
@@ -25,14 +27,14 @@ module.exports =
           if @host.usePassword and !connectionOptions.password?
             if @host.password == "" or @host.password == '' or !@host.password?
               async.waterfall([
-                (callback) =>
+                (callback) ->
                   passwordDialog = new Dialog({prompt: "Enter password"})
                   passwordDialog.attach(callback)
-                ], (err, result) =>
-                  connectionOptions = _.extend({password: result}, connectionOptions)
-                  @attach()
-                  callback(null)
-                )
+              ], (err, result) =>
+                connectionOptions = _.extend({password: result}, connectionOptions)
+                @attach()
+                callback(null)
+              )
             else
               callback(null)
           else
@@ -45,23 +47,23 @@ module.exports =
             callback(null)
         (callback) =>
           @populate(callback)
-        ], (err, result) =>
-          if err?
-            console.error err
-            if err.code == 450 or err.type == "PERMISSION_DENIED"
-              @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
-            else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
-              async.waterfall([
-                (callback) =>
-                  passwordDialog = new Dialog({prompt: "Enter password"})
-                  passwordDialog.attach(callback)
-                ], (err, result) =>
-                  @connect(@host, {password: result})
-                  @attach()
-                )
-            else
-              @setError(err)
-        )
+      ], (err, result) =>
+        if err?
+          console.error err
+          if err.code == 450 or err.type == "PERMISSION_DENIED"
+            @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
+          else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
+            async.waterfall([
+              (callback) ->
+                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog.attach(callback)
+            ], (err, result) =>
+              @connect(@host, {password: result})
+              @attach()
+            )
+          else
+            @setError(err)
+      )
 
     getFilterKey: ->
       return "name"
@@ -71,7 +73,6 @@ module.exports =
       @focusFilterEditor()
 
     viewForItem: (item) ->
-      #console.debug 'viewforitem'
       $$ ->
         @li class: 'two-lines', =>
           if item.isFile
@@ -90,10 +91,10 @@ module.exports =
         (items, callback) =>
           @setItems(items)
           @cancelled()
-        ], (err, result) =>
-          @setError(err) if err?
-          return callback(err, result)
-        )
+      ], (err, result) =>
+        @setError(err) if err?
+        return callback(err, result)
+      )
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
@@ -126,11 +127,12 @@ module.exports =
               callback(err, tmpDir)
             )
           )
-        ], (err, savePath) ->
-          callback(err, savePath)
-        )
+      ], (err, savePath) ->
+        callback(err, savePath)
+      )
 
     openFile: (file) =>
+      @setLoading("Downloading file...")
       async.waterfall([
         (callback) =>
           @getDefaultSaveDirForHost(callback)
@@ -142,19 +144,23 @@ module.exports =
       ], (err, savePath) =>
         if err?
           @setError(err)
-          console.debug err
+          console.err err
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}"
-          atom.workspace.open(uri, split: 'left').then((editorView) =>
+          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
+          atom.workspace.open(uri, split: 'left').then((editorView) ->
             editorView.localFile = localFile
             editorView.host = localFile.host
-          )
+            )
 
           @host.close()
           @cancel()
       )
+
+    openDirectory: (dir) =>
+      @setLoading("Opening directory...")
+      throw new Error("Not implemented yet!")
 
     confirmed: (item) ->
       if item.isFile
@@ -166,3 +172,11 @@ module.exports =
       else
         @setError("Selected item is neither a file nor a directory!")
         #throw new Error("Path is neither a file nor a directory!")
+
+    listenForEvents: ->
+      @command 'filesview:open', =>
+        item = @getSelectedItem()
+        if item.isFile
+          @openFile(item)
+        else if item.isDir
+          @openDirectory(item)

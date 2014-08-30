@@ -23,10 +23,13 @@ module.exports =
 
     connection: undefined
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword = true,  @password) ->
-      super
+    constructor: (@hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
+      super( @hostname, @directory, @username, @port, @localFiles, @usePassword )
 
     createRemoteFileFromListObj: (name, item) ->
+      unless item.name?
+        return undefined
+
       remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
@@ -80,13 +83,13 @@ module.exports =
             @connection.end()
             @emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             callback?(err)
-          @connection.on 'ready', () =>
+          @connection.on 'ready', =>
             @emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
-        ], (err) ->
-          callback?(err)
-        )
+      ], (err) ->
+        callback?(err)
+      )
 
     isConnected: ->
       @connection? and @connection.connected
@@ -96,15 +99,15 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
-        ], (err) =>
-          if err?
-            @emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
-            console.debug err if err?
-          else
-            @emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
-          @close()
-          callback?(err)
-        )
+      ], (err) =>
+        if err?
+          @emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+          console.err err if err?
+        else
+          @emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+        @close()
+        callback?(err)
+      )
 
     getFilesMetadata: (path, callback) ->
       async.waterfall([
@@ -112,21 +115,23 @@ module.exports =
           @connection.list(path, callback)
         (files, callback) =>
           async.map(files, ((item, callback) => callback(null, @createRemoteFileFromListObj(path, item))), callback)
-        (objects, callback) =>
+        (objects, callback) ->
+          async.filter(objects, ((item, callback) -> callback(item?)), ((result) -> callback(null, result)))
+        (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
           objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else
-            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
-        ], (err, result) =>
-          if err?
-            @emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
-            console.debug err if err?
-            callback?(err)
-          else
-            callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
-        )
+            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
+      ], (err, result) =>
+        if err?
+          @emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+          console.err err if err?
+          callback?(err)
+        else
+          callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+      )
 
     getFileData: (file, callback) ->
       @emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})

@@ -27,7 +27,7 @@ class Dialog extends View
     miniEditorFocused = @miniEditor.isFocused
     @restoreFocus() if miniEditorFocused
 
-  showError: (message='') ->
+  showError: (message = '') ->
     @errorMessage.text(message)
     @flashError() if message
 

@@ -5,6 +5,7 @@ fs = require 'fs-plus'
 
 InterProcessData = require './inter-process-data'
 
+
 module.exports =
   class InterProcessDataWatcher
     Subscriber.includeInto(this)
@@ -25,7 +26,7 @@ module.exports =
     load: ->
       deferred = Q.defer()
 
-      fs.readFile(@filePath, 'utf8', ((err, data) =>
+      fs.readFile(@filePath, 'utf8', ((err, data) ->
         throw err if err?
         if data.length > 0
           deferred.resolve(InterProcessData.deserialize(JSON.parse(data)))
@@ -43,7 +44,7 @@ module.exports =
 
     commit: ->
       @data.then (resolvedData) =>
-        fs.writeFile(@filePath, JSON.stringify(resolvedData.serialize()), ((err) =>
+        fs.writeFile(@filePath, JSON.stringify(resolvedData.serialize()), ((err) ->
           throw err if err?
           )
         )

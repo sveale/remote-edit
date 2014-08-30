@@ -24,8 +24,8 @@ module.exports =
 
     connection: undefined
 
-    constructor: (@hostname, @directory, @username, @port, @localFiles = [], @usePassword, @useAgent, @usePrivateKey, @password, @passphrase, @privateKeyPath) ->
-      super
+    constructor: (@hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
+      super( @hostname, @directory, @username, @port, @localFiles, @usePassword)
 
     getConnectionStringUsingAgent: ->
       return {
@@ -65,8 +65,6 @@ module.exports =
       remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] != 'd'), (file.longname[0] == 'd'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
       return remoteFile
 
-    getNumberOfConcurrentSshQueriesInOneConnection: ->
-      atom.config.get 'remote-edit.numberOfConcurrentSshQueriesInOneConnection'
 
     ####################
     # Overridden methods
@@ -93,7 +91,7 @@ module.exports =
             @emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             @connection.end()
             callback(err)
-          @connection.on 'ready', () =>
+          @connection.on 'ready', =>
             @emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
@@ -109,41 +107,41 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
-        (sftp, callback) =>
+        (sftp, callback) ->
           sftp.fastPut(file.path, file.remoteFile.path, callback)
-        ], (err) =>
-          if err?
-            @emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
-            console.debug err if err?
-          else
-            @emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
-          @close()
-          callback?(err)
-        )
+      ], (err) =>
+        if err?
+          @emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+          console.err err if err?
+        else
+          @emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+        @close()
+        callback?(err)
+      )
 
 
     getFilesMetadata: (path, callback) ->
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
-        (sftp, callback) =>
+        (sftp, callback) ->
           sftp.readdir(path, callback)
         (files, callback) =>
           async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
-        (objects, callback) =>
+        (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
           objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else
-            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) => callback(null, result)))
+            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
       ], (err, result) =>
         if err?
           @emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
-          console.debug err if err?
+          console.err err if err?
           callback?(err)
         else
-          callback?(err, (result.sort (a, b) => return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+          callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
     getFileData: (file, callback) ->
@@ -151,15 +149,15 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
-        (sftp, callback) =>
+        (sftp, callback) ->
           s = sftp.createReadStream(file.path)
           data = []
-          s.on 'data', ((d) => data.push(d.toString()))
-          s.on 'error', ((error) =>
+          s.on 'data', ((d) -> data.push(d.toString()))
+          s.on 'error', ((error) ->
             e = new Error("ENOENT, open #{file.path}")
             callback?(e)
           )
-          s.on 'close', (=> callback(null, data.join('')))
+          s.on 'close', (-> callback(null, data.join('')))
       ], (err, result) =>
         @emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
         @emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
