@@ -1,9 +1,6 @@
 Serializable = require 'serializable'
 {Subscriber, Emitter} = require 'emissary'
 
-MessagesView = require '../view/messages-view'
-FileEditorView = require '../view/file-editor-view'
-
 # Defer requiring
 Host = null
 FtpHost = null
@@ -11,6 +8,8 @@ SftpHost = null
 LocalFile = null
 RemoteFile = null
 _ = null
+MessagesView = null
+FileEditorView = null
 
 module.exports =
   class InterProcessData
@@ -20,19 +19,37 @@ module.exports =
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 
-    messages: new MessagesView("Remote edit")
-
     constructor: (@hostList = []) ->
       for host in @hostList
         @addSubscriptionToHost(host)
 
       if atom.config.get 'remote-edit.messagePanel'
+        MessagesView ?= require '../view/messages-view'
+        @messages = new MessagesView("Remote edit")
+
+        FileEditorView ?= require '../view/file-editor-view'
         for pane in atom.workspaceView.getPaneViews()
             for item in pane.getItems()
               if item instanceof FileEditorView
                 _ ?= require 'underscore-plus'
                 unless _.contains(@hostList, item.host)
                   @subscribe item.host, 'info', (info) => @messages.postMessage(info)
+
+    destroy: ->
+      for host in @hostList
+        @unsubscribe host
+
+      FileEditorView ?= require '../view/file-editor-view'
+      for pane in atom.workspaceView.getPaneViews()
+          for item in pane.getItems()
+            if item instanceof FileEditorView
+              _ ?= require 'underscore-plus'
+              unless _.contains(@hostList, item.host)
+                @unsubscribe item.host
+
+      delete @hostList
+      @messages?.destroy()
+      delete @messages
 
     serializeParams: ->
       hostList: JSON.stringify(host.serialize() for host in @hostList)

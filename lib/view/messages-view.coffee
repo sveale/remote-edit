@@ -15,5 +15,10 @@ module.exports =
         @messages.clear()
         @messages.close()
 
-      clearInterval(closeMessagesTimer) if closeMessagesTimer?
+      clearTimeout(closeMessagesTimer) if closeMessagesTimer?
       closeMessagesTimer = setTimeout(closeMessages, atom.config.get('remote-edit.messagePanelTimeout'))
+
+    destroy: ->
+      clearTimeout(closeMessagesTimer) if closeMessagesTimer?
+      @messages.clear()
+      @messages.close()
