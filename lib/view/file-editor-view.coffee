@@ -1,4 +1,4 @@
-EditorView = require 'atom'
+{EditorView} = require 'atom'
 Serializable = require 'serializable'
 
 # Defer requiring
