@@ -12,7 +12,7 @@ module.exports =
     initialize: (@ipdw) ->
       super
       @createItemsFromIpdw()
-      @addClass('overlay from-top hostview')
+      @addClass('overlay from-top hosts-view')
       @listenForEvents()
       @subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
 

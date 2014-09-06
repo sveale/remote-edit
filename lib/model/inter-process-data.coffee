@@ -40,7 +40,7 @@ module.exports =
         @unsubscribe host
 
       FileEditorView ?= require '../view/file-editor-view'
-      for pane in atom.workspaceView.getPaneViews()
+      for pane in atom.workspaceView?.getPaneViews() ? []
           for item in pane.getItems()
             if item instanceof FileEditorView
               _ ?= require 'underscore-plus'
@@ -69,6 +69,7 @@ module.exports =
     addSubscriptionToHost: (host) ->
       @subscribe host, 'changed', => @emit 'contents-changed'
       @subscribe host, 'delete', =>
+        _ ?= require 'underscore-plus'
         @hostList = _.reject(@hostList, ((val) -> val == host))
         @emit 'contents-changed'
 
