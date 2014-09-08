@@ -27,26 +27,26 @@ While in "show downloaded files" mode you can remove a file from the list by pre
 
 ## images
 ### Available commands
-![Available commands](./images/commands.png)
+![Available commands](http://imgur.com/dS9a0CZ.png)
 
 ### Add a new FTP host
-![Adding a new FTP host](./images/new-host-ftp.png)
+![Adding a new FTP host](http://imgur.com/dEVvXd6.png)
 
 ### Add a new SFTP host
-![Adding a new SFTP host](./images/new-host-sftp.png)
+![Adding a new SFTP host](http://imgur.com/4Kq3kwh.png)
 
 ### Edit existing host
-![Editing an existing host](./images/edit-host.png)
+![Editing an existing host](http://imgur.com/GgXh5qQ.png)
 
 ### Select host
-![Select host](./images/select-host.png)
+![Select host](http://imgur.com/BediXn9.png)
 
 ### Browse host
-![Browsing host](./images/browse-host.png)
+![Browsing host](http://i.imgur.com/RwvMgFH.png)
 
 ### Show downloaded files
-![Show open files](./images/show-open-files.png)
+![Show open files](http://imgur.com/wpTTBQt.png)
 
 
 ## Settings window
-![Settings window for remote-edit](./images/settings.png)
+![Settings window for remote-edit](http://imgur.com/8BG2Mz7.png)
