@@ -25,28 +25,28 @@ While in "select host" mode you can delete a host by pressing "shift-d" or edit 
 
 While in "show downloaded files" mode you can remove a file from the list by pressing "shift-d". The file is deleted locally but not remotely.
 
-## Screenshots
+## images
 ### Available commands
-![Available commands](./screenshots/commands.png)
+![Available commands](./images/commands.png)
 
 ### Add a new FTP host
-![Adding a new FTP host](./screenshots/new-host-ftp.png)
+![Adding a new FTP host](./images/new-host-ftp.png)
 
 ### Add a new SFTP host
-![Adding a new SFTP host](./screenshots/new-host-sftp.png)
+![Adding a new SFTP host](./images/new-host-sftp.png)
 
 ### Edit existing host
-![Editing an existing host](./screenshots/edit-host.png)
+![Editing an existing host](./images/edit-host.png)
 
 ### Select host
-![Select host](./screenshots/select-host.png)
+![Select host](./images/select-host.png)
 
 ### Browse host
-![Browsing host](./screenshots/browse-host.png)
+![Browsing host](./images/browse-host.png)
 
 ### Show downloaded files
-![Show open files](./screenshots/show-open-files.png)
+![Show open files](./images/show-open-files.png)
 
 
 ## Settings window
-![Settings window for remote-edit](./screenshots/settings.png)
+![Settings window for remote-edit](./images/settings.png)
