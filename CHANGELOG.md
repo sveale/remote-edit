@@ -1,4 +1,4 @@
-## 1.3.6
+## 1.4
 * Removed ability to open up sftp:// and ftp:// style links from Atom console
 * Fixed missing "find" functionality when editing remote files
 * Added some tests
