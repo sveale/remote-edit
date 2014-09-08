@@ -1,3 +1,10 @@
+## 1.3.6
+* Removed ability to open up sftp:// and ftp:// style links from Atom console
+* Fixed missing "find" functionality when editing remote files
+* Added some tests
+* Refactored large parts of the code base
+* Fixed some issues, se commit messages and github issues
+
 ## 1.3.1
 * added capability to open up sftp:// and ftp:// style links from Atom console by issuing "atom.workspace.open('ftp://username:password@host:port/some/path')" style commands. Password, port and path can be omitted, ie. 'ftp://username@host' works just fine. If port is omitted port 21/22 will be used.
 
