@@ -32,8 +32,8 @@ module.exports =
       deferred = Q.defer()
 
       fs.readFile(@filePath, 'utf8', ((err, data) ->
-        throw err if err?
         InterProcessData ?= require './inter-process-data'
+        throw err if err?
         if data.length > 0
           deferred.resolve(InterProcessData.deserialize(JSON.parse(data)))
         else

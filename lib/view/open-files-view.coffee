@@ -11,7 +11,7 @@ module.exports =
   class OpenFilesView extends SelectListView
     initialize: (@ipdw) ->
       super
-      @addClass('overlay from-top openfilesview')
+      @addClass('overlay from-top open-files-view')
       @createItemsFromIpdw()
       @listenForEvents()
       @subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
@@ -25,7 +25,7 @@ module.exports =
 
     viewForItem: (localFile) ->
       $$ ->
-        @li class: 'localfile', "#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
+        @li class: 'local-file', "#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
 
     confirmed: (localFile) ->
       uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
