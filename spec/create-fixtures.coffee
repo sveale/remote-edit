@@ -36,7 +36,7 @@ module.exports =
 
       fs.writeFileSync(@persistFile, JSON.stringify(ipd.serialize()))
 
-      ipd.destroy()
+      ipd.reset()
 
     getSerializePath: ->
       @persistFile

@@ -18,11 +18,8 @@ module.exports =
         @data = @load()
         fs.watch(@filePath, ((event, filename) =>
           if event == 'change'
-            if @data?
-              @data.then (resolvedData) =>
-                resolvedData.destroy()
-                @data = @load()
-            else
+            @data.then (resolvedData) =>
+              resolvedData.reset()
               @data = @load()
           )
         )

@@ -62,6 +62,7 @@ module.exports =
         if item?
           @items = _.reject(@items, ((val) -> val == item))
           item.delete()
+          @populateList()
           @setLoading()
       @command 'hostview:edit', =>
         item = @getSelectedItem()

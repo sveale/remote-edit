@@ -23,6 +23,7 @@ module.exports =
     Emitter.includeInto(this)
 
     connection: undefined
+    protocol: "sftp"
 
     constructor: (@hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
       super( @hostname, @directory, @username, @port, @localFiles, @usePassword)

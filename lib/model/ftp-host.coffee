@@ -22,6 +22,7 @@ module.exports =
     Emitter.includeInto(this)
 
     connection: undefined
+    protocol: "ftp"
 
     constructor: (@hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
       super( @hostname, @directory, @username, @port, @localFiles, @usePassword )

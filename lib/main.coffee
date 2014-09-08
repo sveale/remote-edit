@@ -1,12 +1,14 @@
-# Import needed to register deserializers
-FileEditorView = require './view/file-editor-view'
+# Import needed to register deserializer
+RemoteEditEditor = require './model/remote-edit-editor'
 
 # Deferred requirements
 OpenFilesView = null
 HostView = null
 HostsView = null
+Host = null
 SftpHost = null
 FtpHost = null
+LocalFile = null
 url = null
 Q = null
 InterProcessDataWatcher = null
@@ -57,6 +59,21 @@ module.exports =
     showOpenFilesView = new OpenFilesView(@createIpdw())
     showOpenFilesView.attach()
 
+  initializeIpdwIfNecessary: ->
+    if atom.config.get 'remote-edit.messagePanel'
+      stop = false
+      for editor in atom.workspace.getEditors() when !stop
+        if editor instanceof RemoteEditEditor
+          @createIpdw()
+          stop = true
+
+  createIpdw: ->
+    unless @ipdw?
+      InterProcessDataWatcher ?= require './model/inter-process-data-watcher'
+      fs = require 'fs-plus'
+      @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
+    @ipdw
+
   setupOpeners: ->
     atom.workspace.registerOpener (uriToOpen) ->
       url ?= require 'url'
@@ -68,20 +85,12 @@ module.exports =
 
       if host is 'localfile'
         Q ?= require 'q'
-        atom.project.open(query.path).then (editor) -> new FileEditorView(editor, uriToOpen, query.title)
+        Host ?= require './model/host'
+        FtpHost ?= require './model/ftp-host'
+        SftpHost ?= require './model/sftp-host'
+        LocalFile ?= require './model/local-file'
+        localFile = LocalFile.deserialize(JSON.parse(decodeURIComponent(query.localFile)))
+        host = Host.deserialize(JSON.parse(decodeURIComponent(query.host)))
 
-  initializeIpdwIfNecessary: ->
-    if atom.config.get 'remote-edit.messagePanel'
-      stop = false
-      for pane in atom.workspaceView.getPaneViews() when !stop
-        for item in pane.getItems() when !stop
-          if item instanceof FileEditorView
-            @createIpdw()
-            stop = true
-
-  createIpdw: ->
-    unless @ipdw?
-      InterProcessDataWatcher ?= require './model/inter-process-data-watcher'
-      fs = require 'fs-plus'
-      @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
-    @ipdw
+        atom.project.bufferForPath(localFile.path).then (buffer) ->
+          editor = new RemoteEditEditor({buffer: buffer, registerEditor: true, host: host, localFile: localFile})

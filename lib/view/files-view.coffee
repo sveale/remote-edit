@@ -1,6 +1,5 @@
 {$, $$, SelectListView, EditorView} = require 'atom'
 LocalFile = require '../model/local-file'
-FileEditorView = require './file-editor-view'
 
 Dialog = require './dialog'
 
@@ -148,11 +147,8 @@ module.exports =
         else
           localFile = new LocalFile(savePath, file, @host)
           @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
-          atom.workspace.open(uri, split: 'left').then((editorView) ->
-            editorView.localFile = localFile
-            editorView.host = localFile.host
-            )
+          uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+          atom.workspace.open(uri, split: 'left')
 
           @host.close()
           @cancel()

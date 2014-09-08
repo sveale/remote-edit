@@ -4,7 +4,6 @@ async = require 'async'
 Q = require 'q'
 _ = require 'underscore-plus'
 
-FileEditorView = require './file-editor-view'
 LocalFile = require '../model/local-file'
 
 module.exports =
@@ -25,14 +24,12 @@ module.exports =
 
     viewForItem: (localFile) ->
       $$ ->
-        @li class: 'local-file', "#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
+        @li class: 'local-file', "#{localFile.host.protocol}://#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
 
     confirmed: (localFile) ->
-      uri = "remote-edit://localFile/?path=#{encodeURIComponent(localFile.path)}&title=#{encodeURIComponent(localFile.name)}"
-      atom.workspace.open(uri, split: 'left').then((editorView) ->
-        editorView.localFile = localFile
-        editorView.host = localFile.host
-        )
+      uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+      atom.workspace.open(uri, split: 'left')
+      @cancel()
 
     listenForEvents: ->
       @command 'openfilesview:delete', =>

@@ -15,12 +15,12 @@
   'ctrl-shift-b': 'remote-edit:browse'
   'ctrl-shift-o': 'remote-edit:show-open-files'
 
-'.platform-darwin .openfilesview.select-list':
+'.platform-darwin .open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
 
-'.platform-darwin .hostview.select-list':
+'.platform-darwin .hosts-view.select-list':
   'shift-d': 'hostview:delete'
   'shift-e': 'hostview:edit'
 
-'.platform-darwin .filesview.select-list':
+'.platform-darwin .files-view.select-list':
   'shift-o': 'filesview:open'

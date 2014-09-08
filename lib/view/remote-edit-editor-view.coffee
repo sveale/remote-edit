@@ -1,5 +1,5 @@
-{EditorView} = require 'atom'
-Serializable = require 'serializable'
+{$, $$, $$$, EditorView} = require 'atom'
+RemoteEditEditor = require '../model/remote-edit-editor'
 
 # Defer requiring
 Host = null
@@ -11,32 +11,28 @@ Dialog = null
 _ = null
 
 module.exports =
-  class FileEditorView extends EditorView
-    Serializable.includeInto(this)
-    atom.deserializers.add(this)
+  class RemoteEditEditorView extends EditorView
+    initialize: (editor) ->
+      if editor not instanceof RemoteEditEditor
+        throw new Error("Can only handle RemoteEditEditor!")
 
-    localFile: null
-    host: null
+      @addClass("remote-edit-file-editor")
+      @subscribe editor, 'saved', =>
+        @save()
 
-    constructor: (editor, @uri, @title, @localFile, @host) ->
       super(editor)
 
     getIconName: ->
       "globe"
 
     getTitle: ->
-      if @title?
-        @title
-      else
-        @editor.getTitle()
+      @editor?.getTitle() ? "undefined"
 
     save: ->
-      @editor.save()
-
       if atom.config.get 'remote-edit.uploadOnSave'
         @upload()
       else
-        Dialog
+        Dialog ?= require './Dialog'
         chosen = atom.confirm
           message: "File has been saved. Do you want to upload changes to remote host?"
           detailedMessage: "The changes exists on disk and can be uploaded later."
@@ -49,11 +45,11 @@ module.exports =
       Dialog ?= require './Dialog'
       async ?= require 'async'
       _ ?= require 'underscore-plus'
-      if @localFile? and @host?
+      if @editor.localFile? and @editor.host?
         async.waterfall([
           (callback) =>
-            if @host.usePassword and !connectionOptions.password?
-              if @host.password == "" or @host.password == '' or !@host.password?
+            if @editor.host.usePassword and !connectionOptions.password?
+              if @editor.host.password == "" or @editor.host.password == '' or !@editor.host.password?
                 async.waterfall([
                   (callback) ->
                     passwordDialog = new Dialog({prompt: "Enter password"})
@@ -67,14 +63,14 @@ module.exports =
             else
               callback(null)
           (callback) =>
-            if !@host.isConnected()
-              @host.connect(callback, connectionOptions)
+            if !@editor.host.isConnected()
+              @editor.host.connect(callback, connectionOptions)
             else
               callback(null)
           (callback) =>
-            @host.writeFile(@localFile, @editor.buffer.getText(), callback)
+            @editor.host.writeFile(@editor.localFile, @editor.buffer.getText(), callback)
         ], (err) =>
-          if err? and @host.usePassword
+          if err? and @editor.host.usePassword
             async.waterfall([
               (callback) ->
                 passwordDialog = new Dialog({prompt: "Enter password"})
@@ -87,23 +83,4 @@ module.exports =
         console.error 'LocalFile and host not defined. Cannot upload file!'
 
     getUri: ->
-      @uri
-
-    serializeParams: ->
-      editor: @editor.serialize()
-      uri: @uri
-      title: @title
-      localFile: @localFile?.serialize()
-      host: @host?.serialize()
-
-    deserializeParams: (params) ->
-      params.editor = atom.deserializers.deserialize(params.editor)
-      if params.localFile?
-        LocalFile = require '../model/local-file'
-        params.localFile = LocalFile.deserialize(params.localFile)
-      if params.host?
-        Host = require '../model/host'
-        FtpHost = require '../model/ftp-host'
-        SftpHost = require '../model/sftp-host'
-        params.host = Host.deserialize(params.host)
-      params
+      return @editor?.getUri()
