@@ -1,4 +1,4 @@
-{$, $$, $$$, EditorView} = require 'atom'
+{$, $$$, EditorView} = require 'atom'
 RemoteEditEditor = require '../model/remote-edit-editor'
 
 # Defer requiring
@@ -12,7 +12,7 @@ _ = null
 
 module.exports =
   class RemoteEditEditorView extends EditorView
-    initialize: (editor) ->
+    constructor: (editor) ->
       if editor not instanceof RemoteEditEditor
         throw new Error("Can only handle RemoteEditEditor!")
 

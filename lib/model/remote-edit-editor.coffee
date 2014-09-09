@@ -1,4 +1,3 @@
-##{Editor} = require 'atom'
 path = require 'path'
 resourcePath = atom.config.resourcePath
 Editor = require path.resolve resourcePath, 'src', 'editor'
