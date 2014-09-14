@@ -17,10 +17,12 @@ module.exports =
         throw new Error("Can only handle RemoteEditEditor!")
 
       @addClass("remote-edit-file-editor")
-      @subscribe editor, 'saved', =>
-        @save()
+
 
       super(editor)
+
+      @subscribe editor, 'saved', =>
+        @save()
 
     getIconName: ->
       "globe"
