@@ -82,7 +82,7 @@ module.exports =
             )
         )
       else
-        console.erroror 'LocalFile and host not defined. Cannot upload file!'
+        console.error 'LocalFile and host not defined. Cannot upload file!'
 
     getUri: ->
       return @editor?.getUri()
