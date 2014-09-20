@@ -34,7 +34,7 @@ module.exports =
       if atom.config.get 'remote-edit.uploadOnSave'
         @upload()
       else
-        Dialog ?= require './Dialog'
+        Dialog ?= require './dialog'
         chosen = atom.confirm
           message: "File has been saved. Do you want to upload changes to remote host?"
           detailedMessage: "The changes exists on disk and can be uploaded later."
@@ -44,7 +44,7 @@ module.exports =
           when 1 then return
 
     upload: (connectionOptions = {}) ->
-      Dialog ?= require './Dialog'
+      Dialog ?= require './dialog'
       async ?= require 'async'
       _ ?= require 'underscore-plus'
       if @editor.localFile? and @editor.host?
