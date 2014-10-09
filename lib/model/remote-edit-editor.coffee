@@ -1,6 +1,6 @@
 path = require 'path'
 resourcePath = atom.config.resourcePath
-Editor = require path.resolve resourcePath, 'src', 'editor'
+Editor = require path.resolve resourcePath, 'src', 'text-editor'
 DisplayBuffer = require path.resolve resourcePath, 'src', 'display-buffer'
 Serializable = require 'serializable'
 
