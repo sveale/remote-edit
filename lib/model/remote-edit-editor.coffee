@@ -1,6 +1,6 @@
 path = require 'path'
 resourcePath = atom.config.resourcePath
-Editor = require path.resolve resourcePath, 'src', 'editor'
+TextEditor = require path.resolve resourcePath, 'src', 'text-editor'
 DisplayBuffer = require path.resolve resourcePath, 'src', 'display-buffer'
 Serializable = require 'serializable'
 
@@ -11,11 +11,11 @@ SftpHost = null
 LocalFile = null
 
 module.exports =
-  class RemoteEditEditor extends Editor
+  class RemoteEditEditor extends TextEditor
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    Editor.registerDeserializer(RemoteEditEditor)
+    TextEditor.registerDeserializer(RemoteEditEditor)
 
     constructor: ({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini, @host, @localFile}) ->
       super({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini})
