@@ -1,4 +1,12 @@
-{$, $$$, EditorView} = require 'atom'
+{$, $$$} = require 'atom'
+path = require 'path'
+resourcePath = atom.config.resourcePath
+try
+  EditorView = require path.resolve resourcePath, 'src', 'editor-view'
+catch e
+  # Catch error
+TextEditorView = EditorView ? require path.resolve resourcePath, 'src', 'text-editor-view'
+
 RemoteEditEditor = require '../model/remote-edit-editor'
 
 # Defer requiring
@@ -11,7 +19,7 @@ Dialog = null
 _ = null
 
 module.exports =
-  class RemoteEditEditorView extends EditorView
+  class RemoteEditEditorView extends TextEditorView
     constructor: (editor) ->
       if editor not instanceof RemoteEditEditor
         throw new Error("Can only handle RemoteEditEditor!")
