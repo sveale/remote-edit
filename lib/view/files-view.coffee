@@ -48,7 +48,7 @@ module.exports =
           @populate(callback)
       ], (err, result) =>
         if err?
-          console.erroror err
+          console.error err
           if err.code == 450 or err.type == "PERMISSION_DENIED"
             @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
           else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
