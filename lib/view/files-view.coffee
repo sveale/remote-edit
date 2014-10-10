@@ -1,4 +1,4 @@
-{$, $$, SelectListView, TextEditorView} = require 'atom'
+{$, $$, SelectListView} = require 'atom'
 LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
