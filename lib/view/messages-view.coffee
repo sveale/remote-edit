@@ -2,8 +2,6 @@
 
 module.exports =
   class MessagesView
-    closeMessagesTimer: undefined
-
     constructor: (title) ->
       @messages = new MessagePanelView({title: "#{title}"})
 
@@ -11,14 +9,18 @@ module.exports =
       @messages?.attach()
       @messages?.add(new PlainMessageView(data))
 
-      closeMessages = =>
-        @messages.clear()
-        @messages.close()
+      closeCallback = =>
+        @close()
 
-      clearTimeout(closeMessagesTimer) if closeMessagesTimer?
-      closeMessagesTimer = setTimeout(closeMessages, atom.config.get('remote-edit.messagePanelTimeout'))
+      clearTimeout(@closeTimer) if @closeTimer?
+
+      @closeTimer = setTimeout(closeCallback, atom.config.get('remote-edit.messagePanelTimeout'))
+
+    close: ->
+      @messages.clear()
+      @messages.close()
 
     destroy: ->
-      clearTimeout(closeMessagesTimer) if closeMessagesTimer?
+      clearTimeout(@closeTimer) if @closeTimer?
       @messages.clear()
       @messages.close()

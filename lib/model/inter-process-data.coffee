@@ -28,13 +28,14 @@ module.exports =
 
       if atom.config.get 'remote-edit.messagePanel'
         MessagesView ?= require '../view/messages-view'
-        @messages = new MessagesView("Remote edit")
+        @messages ?= new MessagesView("Remote edit")
 
         RemoteEditEditor ?= require '../model/remote-edit-editor'
 
         atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
-            @subscribe editor.host, 'info', (info) => @messages.postMessage(info)
+            if editor.host.getSubscriptionCount() < 1
+              @subscribe editor.host, 'info', (info) => @messages.postMessage(info)
         )
 
     reset: ->
