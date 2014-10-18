@@ -13,7 +13,7 @@ module.exports =
     Subscriber.includeInto(this)
     Emitter.includeInto(this)
 
-    constructor: (@hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
+    constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
 
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")

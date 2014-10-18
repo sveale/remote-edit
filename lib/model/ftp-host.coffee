@@ -24,8 +24,8 @@ module.exports =
     connection: undefined
     protocol: "ftp"
 
-    constructor: (@hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
-      super( @hostname, @directory, @username, @port, @localFiles, @usePassword )
+    constructor: (@alias = null, @hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
+      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword )
 
     createRemoteFileFromListObj: (name, item) ->
       unless item.name?
@@ -155,6 +155,7 @@ module.exports =
 
     serializeParams: ->
       {
+        @alias
         @hostname
         @directory
         @username

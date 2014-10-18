@@ -29,7 +29,9 @@ module.exports =
 
       $$ ->
         @li class: 'two-lines', =>
-          @div class: 'primary-line', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
+          @div class: 'primary-line', =>
+            @span class: 'inline-block highlight', "#{item.alias}" if item.alias?
+            @span class: 'inline-block', "#{item.username}@#{item.hostname}:#{item.port}:#{item.directory}"
           if item instanceof SftpHost
             authType = "not set"
             if item.usePassword and (item.password == "" or item.password == '' or !item.password?)

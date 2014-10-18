@@ -1,4 +1,4 @@
-{$, View, EditorView} = require 'atom'
+{$, View, TextEditorView} = require 'atom'
 
 Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
@@ -13,16 +13,19 @@ module.exports =
     @content: ->
       @div class: 'remote-edit overlay from-top', =>
         @label 'Hostname'
-        @subview 'hostname', new EditorView(mini: true)
+        @subview 'hostname', new TextEditorView(mini: true)
 
         @label 'Default directory'
-        @subview 'directory', new EditorView(mini: true)
+        @subview 'directory', new TextEditorView(mini: true)
 
         @label 'Username'
-        @subview 'username', new EditorView(mini: true)
+        @subview 'username', new TextEditorView(mini: true)
 
         @label 'Port'
-        @subview 'port', new EditorView(mini: true)
+        @subview 'port', new TextEditorView(mini: true)
+
+        @label 'Alias (optional)'
+        @subview 'alias', new TextEditorView(mini: true)
 
         @div class: 'block', outlet: 'authenticationButtonsBlock', =>
           @div class: 'btn-group', =>
@@ -32,13 +35,13 @@ module.exports =
 
         @div class: 'block', outlet: 'passwordBlock', =>
           @label 'Password (leave empty if you want to be prompted)'
-          @subview 'password', new EditorView(mini: true)
+          @subview 'password', new TextEditorView(mini: true)
 
         @div class: 'block', outlet: 'privateKeyBlock', =>
           @label 'Private key path'
-          @subview 'privateKeyPath', new EditorView(mini: true)
+          @subview 'privateKeyPath', new TextEditorView(mini: true)
           @label 'Private key passphrase (leave blank if unencrypted)'
-          @subview 'privateKeyPassphrase', new EditorView(mini: true)
+          @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
 
         @div class: 'block', outlet: 'buttonBlock', =>
           @button class: 'inline-block btn pull-right', outlet: 'cancelButton', 'Cancel'
@@ -53,6 +56,7 @@ module.exports =
       @on 'core:cancel', => @detach()
       @cancelButton.on 'click', => @detach()
 
+      @alias.setText(@host.alias ? "")
       @hostname.setText(@host.hostname ? "")
       @directory.setText(@host.directory ? "/")
       @username.setText(@host.username ? "")
@@ -101,6 +105,7 @@ module.exports =
       else
         throw new Error("\"host\" is not valid type!", @host)
 
+      @host.alias = @alias.getText()
       @host.hostname = @hostname.getText()
       @host.directory = @directory.getText()
       @host.username = @username.getText()

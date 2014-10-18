@@ -25,8 +25,8 @@ module.exports =
     connection: undefined
     protocol: "sftp"
 
-    constructor: (@hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
-      super( @hostname, @directory, @username, @port, @localFiles, @usePassword)
+    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
+      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword)
 
     getConnectionStringUsingAgent: ->
       return {
@@ -167,6 +167,7 @@ module.exports =
 
     serializeParams: ->
       {
+        @alias
         @hostname
         @directory
         @username
