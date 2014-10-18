@@ -1,3 +1,8 @@
+## 1.6.0
+* Removed deprecations
+* Fixed buggy message panel
+* Added alias functionality, ref. issue #34
+
 ## 1.4
 * Removed ability to open up sftp:// and ftp:// style links from Atom console
 * Fixed missing "find" functionality when editing remote files
@@ -9,7 +14,7 @@
 * added capability to open up sftp:// and ftp:// style links from Atom console by issuing "atom.workspace.open('ftp://username:password@host:port/some/path')" style commands. Password, port and path can be omitted, ie. 'ftp://username@host' works just fine. If port is omitted port 21/22 will be used.
 
 ## 1.3.0
-* removed ssh2-fs from dependencies because it didn't list all directories. 
+* removed ssh2-fs from dependencies because it didn't list all directories.
 * removed "clear hosts" functionality because key-binding conflicted with copy on windows and linux, and because it is better achieved by using ctrl-d inside the select view
 * fixed bug where an issue would occur during the first time the plugin is run because the json file where hosts/files where saved didnt get created
 
