@@ -14,6 +14,9 @@ Host = null
 FtpHost = null
 SftpHost = null
 LocalFile = null
+async = null
+Dialog = null
+_ = null
 
 module.exports =
   class RemoteEditEditor extends TextEditor
@@ -55,13 +58,68 @@ module.exports =
     save: ->
       @buffer.save()
       @emit 'saved'
+      @initiateUpload()
 
     saveAs: (filePath) ->
       @buffer.saveAs(filePath)
       @localFile.path = filePath
+      @emit 'saved'
+      @initiateUpload()
 
-    getViewClass: ->
-      require '../view/remote-edit-editor-view'
+    initiateUpload: ->
+      if atom.config.get 'remote-edit.uploadOnSave'
+        @upload()
+      else
+        Dialog ?= require './dialog'
+        chosen = atom.confirm
+          message: "File has been saved. Do you want to upload changes to remote host?"
+          detailedMessage: "The changes exists on disk and can be uploaded later."
+          buttons: ["Upload", "Cancel"]
+        switch chosen
+          when 0 then @upload()
+          when 1 then return
+
+    upload: (connectionOptions = {}) ->
+      async ?= require 'async'
+      _ ?= require 'underscore-plus'
+      if @localFile? and @host?
+        async.waterfall([
+          (callback) =>
+            if @host.usePassword and !connectionOptions.password?
+              if @host.password == "" or @host.password == '' or !@host.password?
+                async.waterfall([
+                  (callback) ->
+                    Dialog ?= require '../view/dialog'
+                    passwordDialog = new Dialog({prompt: "Enter password"})
+                    passwordDialog.attach(callback)
+                ], (err, result) =>
+                  connectionOptions = _.extend({password: result}, connectionOptions)
+                  callback(null)
+                )
+              else
+                callback(null)
+            else
+              callback(null)
+          (callback) =>
+            if !@host.isConnected()
+              @host.connect(callback, connectionOptions)
+            else
+              callback(null)
+          (callback) =>
+            @host.writeFile(@localFile, @buffer.getText(), callback)
+        ], (err) =>
+          if err? and @host.usePassword
+            async.waterfall([
+              (callback) ->
+                Dialog ?= require '../view/dialog'
+                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog.attach(callback)
+            ], (err, result) =>
+              @upload({password: result})
+            )
+        )
+      else
+        console.error 'LocalFile and host not defined. Cannot upload file!'
 
     serializeParams: ->
       id: @id

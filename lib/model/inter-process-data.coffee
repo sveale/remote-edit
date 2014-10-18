@@ -32,9 +32,10 @@ module.exports =
 
         RemoteEditEditor ?= require '../model/remote-edit-editor'
 
-        @subscribe atom.workspace, 'editor-created', (editor) =>
+        atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
             @subscribe editor.host, 'info', (info) => @messages.postMessage(info)
+        )
 
     reset: ->
       for host in @hostList

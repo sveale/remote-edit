@@ -15,13 +15,32 @@ InterProcessDataWatcher = null
 fs = null
 
 module.exports =
-  configDefaults:
-    showHiddenFiles: false,
-    uploadOnSave: true,
-    messagePanel: true,
-    sshPrivateKeyPath: "~/.ssh/id_rsa",
-    defaultSerializePath: "~/.atom/remoteEdit.json",
-    messagePanelTimeout: 6000
+  config:
+    showHiddenFiles:
+      title: 'Show hidden files'
+      type: 'boolean'
+      default: false
+    uploadOnSave:
+      title: 'Upload on save'
+      description: 'When enabled, remote files will be automatically uploaded when saved'
+      type: 'boolean'
+      default: true
+    messagePanel:
+      title: 'Display message panel'
+      type: 'boolean'
+      default: true
+    sshPrivateKeyPath:
+      title: 'Path to private SSH key'
+      type: 'string'
+      default: '~/.ssh/id_rsa'
+    defaultSerializePath:
+      title: 'Default path to serialize remoteEdit data'
+      type: 'string'
+      default: '~/.atom/remoteEdit.json'
+    messagePanelTimeout:
+      title: 'Timeout for message panel'
+      type: 'integer'
+      default: 6000
 
   activate: (state) ->
     @setupOpeners()
@@ -62,7 +81,7 @@ module.exports =
   initializeIpdwIfNecessary: ->
     if atom.config.get 'remote-edit.messagePanel'
       stop = false
-      for editor in atom.workspace.getEditors() when !stop
+      for editor in atom.workspace.getTextEditors() when !stop
         if editor instanceof RemoteEditEditor
           @createIpdw()
           stop = true
@@ -75,7 +94,7 @@ module.exports =
     @ipdw
 
   setupOpeners: ->
-    atom.workspace.registerOpener (uriToOpen) ->
+    atom.workspace.addOpener (uriToOpen) ->
       url ?= require 'url'
       try
         {protocol, host, query} = url.parse(uriToOpen, true)

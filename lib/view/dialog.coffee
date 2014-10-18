@@ -1,11 +1,11 @@
-{$, $$, View, EditorView} = require 'atom'
+{$, $$, View, TextEditorView} = require 'atom'
 
 module.exports =
 class Dialog extends View
   @content: ({prompt} = {}) ->
     @div class: 'dialog overlay from-top', =>
       @label prompt, class: 'icon', outlet: 'promptText'
-      @subview 'miniEditor', new EditorView(mini: true)
+      @subview 'miniEditor', new TextEditorView(mini: true)
       @div class: 'error-message', outlet: 'errorMessage'
 
   initialize: ({prompt} = {}) ->
