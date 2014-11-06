@@ -63,7 +63,7 @@ module.exports =
 
       @port.setText(@host.port ? "")
       @password.setText(@host.password ? "")
-      @privateKeyPath.setText(@host.privateKeyPath ? "")
+      @privateKeyPath.setText(@host.privateKeyPath ? atom.config.get('remote-edit.sshPrivateKeyPath'))
       @privateKeyPassphrase.setText(@host.passphrase ? "")
 
       @userAgentButton.on 'click', =>
@@ -95,10 +95,13 @@ module.exports =
       if @host instanceof SftpHost
         @host.useAgent = @userAgentButton.hasClass('selected')
         @host.usePrivateKey = @privateKeyButton.hasClass('selected')
-        @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
-        @host.passphrase = @privateKeyPassphrase.getText()
         @host.usePassword = @passwordButton.hasClass('selected')
-        @host.password = @password.getText()
+
+        if @privateKeyButton.hasClass('selected')
+          @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
+          @host.passphrase = @privateKeyPassphrase.getText()
+        if @passwordButton.hasClass('selected')
+          @host.password = @password.getText()
       else if @host instanceof FtpHost
         @host.usePassword = true
         @host.password = @password.getText()
