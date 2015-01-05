@@ -87,6 +87,14 @@ module.exports =
       @emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
+          fs.exists(@privateKeyPath, (exists) =>
+            if exists
+              callback(null)
+            else
+              @emit 'info', {message: "Private key does not exist!", className: 'text-error'}
+              callback(new Error("Private key does not exist"))
+          )
+        (callback) =>
           @connection = new ssh2()
           @connection.on 'error', (err) =>
             @emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
