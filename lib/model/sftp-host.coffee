@@ -29,12 +29,20 @@ module.exports =
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword)
 
     getConnectionStringUsingAgent: ->
-      return {
+      connectionString =  {
         host: @hostname,
         port: @port,
         username: @username,
-        agent: process.env['SSH_AUTH_SOCK']
       }
+
+      if atom.config.get('remote-edit.agentToUse') != 'Default'
+        _.extend(connectionString, {agent: atom.config.get('remote-edit.agentToUse')})
+      else if process.platform == "win32"
+        _.extend(connectionString, {agent: 'pageant'})
+      else
+        _.extend(connectionString, {agent: process.env['SSH_AUTH_SOCK']})
+
+      connectionString
 
     getConnectionStringUsingKey: ->
       return {

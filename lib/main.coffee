@@ -41,6 +41,11 @@ module.exports =
       title: 'Timeout for message panel'
       type: 'integer'
       default: 6000
+    agentToUse:
+      title: 'SSH agent'
+      description: 'Overrides default SSH agent. See ssh2 docs for more info.'
+      type: 'string'
+      default: 'Default'
 
   activate: (state) ->
     @setupOpeners()
