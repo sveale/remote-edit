@@ -1,5 +1,5 @@
 Serializable = require 'serializable'
-{CompositeDisposable, Emitter} = require 'event-kit'
+{CompositeDisposable, Emitter} = require 'atom'
 
 # Defer requiring
 Host = null
@@ -18,8 +18,14 @@ module.exports =
 
     constructor: (@hostList) ->
       @emitter = new Emitter
-      @hostSubscriptions ?= new CompositeDisposable
+      @disposables = new CompositeDisposable
       @load(@hostList)
+
+    destroy: ->
+      @emitter.dispose()
+
+    onDidChange: (callback) ->
+      @emitter.on 'did-change', callback
 
     load: (@hostList = []) ->
       for host in @hostList
@@ -31,18 +37,16 @@ module.exports =
 
         RemoteEditEditor ?= require '../model/remote-edit-editor'
 
-        @workspaceSubscription ?= atom.workspace.observeTextEditors((editor) =>
+        @disposables.add atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
             if editor.host.getSubscriptionCount() < 1
               # If a host emits information ('info'), forward this to @messages
-              hostSubscriptions.add editor.host.onInfo (info) => @messages.postMessage(info)
+              @disposables.add editor.host.onInfo (info) => @messages.postMessage(info)
         )
 
     # Remove all subscriptions to hosts and atom.workspace
     reset: ->
-      @hostSubscriptions.dispose()
-      @workspaceSubscription.dispose()
-
+      @disposables.dispose()
       delete @hostList
 
     serializeParams: ->
@@ -61,11 +65,11 @@ module.exports =
       params
 
     addSubscriptionToHost: (host) ->
-      hostSubscriptions.add host.onDidChange => #emit
-      hostSubscriptions.add host.onDidDelete (host) =>
+      @disposables.add host.onDidChange => #emit
+      @disposables.add host.onDidDelete (host) =>
         _ ?= require 'underscore-plus'
         @hostList = _.reject(@hostList, ((val) -> val == host))
-        @emitter.emit 'did-change-contents'
+        @emitter.emit 'did-change'
 
       if atom.config.get 'remote-edit.messagePanel'
-        hostSubscriptions.add host.onInfo (info) => @messages.postMessage(info)
+        @disposables.add host.onInfo (info) => @messages.postMessage(info)
