@@ -1,5 +1,5 @@
 Serializable = require 'serializable'
-{Subscriber, Emitter} = require 'emissary'
+{CompositeDisposable, Emitter} = require 'event-kit'
 
 # Defer requiring
 Host = null
@@ -16,10 +16,9 @@ module.exports =
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    Subscriber.includeInto(this)
-    Emitter.includeInto(this)
-
     constructor: (@hostList) ->
+      @emitter = new Emitter
+      @hostSubscriptions ?= new CompositeDisposable
       @load(@hostList)
 
     load: (@hostList = []) ->
@@ -32,16 +31,18 @@ module.exports =
 
         RemoteEditEditor ?= require '../model/remote-edit-editor'
 
-        atom.workspace.observeTextEditors((editor) =>
+        @workspaceSubscription ?= atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
             if editor.host.getSubscriptionCount() < 1
-              @subscribe editor.host, 'info', (info) => @messages.postMessage(info)
+              # If a host emits information ('info'), forward this to @messages
+              hostSubscriptions.add editor.host.onInfo (info) => @messages.postMessage(info)
         )
 
+    # Remove all subscriptions to hosts and atom.workspace
     reset: ->
-      for host in @hostList
-        @unsubscribe host
-      @unsubscribe atom.workspace
+      @hostSubscriptions.dispose()
+      @workspaceSubscription.dispose()
+
       delete @hostList
 
     serializeParams: ->
@@ -60,11 +61,11 @@ module.exports =
       params
 
     addSubscriptionToHost: (host) ->
-      @subscribe host, 'changed', => @emit 'contents-changed'
-      @subscribe host, 'delete', =>
+      hostSubscriptions.add host.onDidChange => #emit
+      hostSubscriptions.add host.onDidDelete (host) =>
         _ ?= require 'underscore-plus'
         @hostList = _.reject(@hostList, ((val) -> val == host))
-        @emit 'contents-changed'
+        @emitter.emit 'did-change-contents'
 
       if atom.config.get 'remote-edit.messagePanel'
-        @subscribe host, 'info', (info) => @messages.postMessage(info)
+        hostSubscriptions.add host.onInfo (info) => @messages.postMessage(info)
