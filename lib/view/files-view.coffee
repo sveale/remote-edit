@@ -1,4 +1,4 @@
-{$, $$, SelectListView} = require 'atom'
+{$, $$, SelectListView} = require 'atom-space-pen-views'
 LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
@@ -170,7 +170,7 @@ module.exports =
         #throw new Error("Path is neither a file nor a directory!")
 
     listenForEvents: ->
-      @command 'filesview:open', =>
+      atom.commands.add 'atom-workspace', 'filesview:open', =>
         item = @getSelectedItem()
         if item.isFile
           @openFile(item)

@@ -1,4 +1,5 @@
-{$, $$, SelectListView} = require 'atom'
+{$, $$, SelectListView} = require 'atom-space-pen-views'
+CompositeDisposable = require 'atom'
 _ = require 'underscore-plus'
 
 FilesView = require './files-view'
@@ -14,7 +15,10 @@ module.exports =
       @createItemsFromIpdw()
       @addClass('overlay from-top hosts-view')
       @listenForEvents()
-      @subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
+
+      disposables = new CompositeDisposable
+      disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
+      #@subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
 
 
     attach: ->
@@ -59,14 +63,14 @@ module.exports =
       filesView.attach()
 
     listenForEvents: ->
-      @command 'hostview:delete', =>
+      atom.commands.add 'atom-workspace', 'hostview:delete', =>
         item = @getSelectedItem()
         if item?
           @items = _.reject(@items, ((val) -> val == item))
           item.delete()
           @populateList()
           @setLoading()
-      @command 'hostview:edit', =>
+      atom.commands.add 'atom-workspace', 'hostview:edit', =>
         item = @getSelectedItem()
         if item?
           @cancel()

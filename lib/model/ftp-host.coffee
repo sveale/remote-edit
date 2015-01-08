@@ -9,7 +9,7 @@ moment = require 'moment'
 ftp = require 'ftp'
 Serializable = require 'serializable'
 Path = require 'path'
-{Emitter} = require 'emissary'
+{Emitter} = require 'atom'
 _ = require 'underscore-plus'
 
 
@@ -19,13 +19,16 @@ module.exports =
     atom.deserializers.add(this)
 
     Host.registerDeserializers(FtpHost)
-    Emitter.includeInto(this)
 
     connection: undefined
     protocol: "ftp"
 
     constructor: (@alias = null, @hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
+      @emitter = new Emitter
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword )
+
+    destroy: ->
+      @emitter.dispose()
 
     createRemoteFileFromListObj: (name, item) ->
       unless item.name?

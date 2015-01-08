@@ -1,4 +1,4 @@
-{$, $$, View, TextEditorView} = require 'atom'
+{$, $$, View, TextEditorView} = require 'atom-space-pen-views'
 
 module.exports =
 class Dialog extends View
@@ -47,3 +47,15 @@ class Dialog extends View
 
   focusMiniEditor: ->
     @miniEditor.focus()
+
+  cancelled: ->
+    @hide()
+
+  show: ->
+    @panel ?= atom.workspace.addModalPanel(item: this)
+    @panel.show()
+    @storeFocusedElement()
+    @focusFilterEditor()
+
+  hide: ->
+    @panel?.hide()

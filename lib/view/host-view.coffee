@@ -1,4 +1,4 @@
-{$, View, TextEditorView} = require 'atom'
+{$, View, TextEditorView} = require 'atom-space-pen-views'
 
 Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
