@@ -65,7 +65,7 @@ module.exports =
       params
 
     addSubscriptionToHost: (host) ->
-      @disposables.add host.onDidChange => #emit
+      @disposables.add host.onDidChange => @emitter.emit 'did-change'
       @disposables.add host.onDidDelete (host) =>
         _ ?= require 'underscore-plus'
         @hostList = _.reject(@hostList, ((val) -> val == host))

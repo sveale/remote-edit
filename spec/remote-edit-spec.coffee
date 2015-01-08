@@ -1,4 +1,4 @@
-{$, $$, WorkspaceView} = require 'atom'
+{$, $$, WorkspaceView} = require 'atom-space-pen-views'
 Q = require 'q'
 
 CreateFixtures = require './create-fixtures'
@@ -26,7 +26,10 @@ describe "remote-edit:", ->
 
     beforeEach ->
       runs ->
-        atom.workspaceView.trigger('remote-edit:show-open-files')
+        workspaceView = atom.views.getView(atom.workspace)
+        atom.commands.dispatch(workspaceView, 'remote-edit:show-open-files')
+        #atom.workspaceView.trigger('remote-edit:show-open-files')
+
         openFilesView = atom.workspaceView.find(".open-files-view")
         listGroup = openFilesView.find(".list-group")
 
