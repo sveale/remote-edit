@@ -1,4 +1,4 @@
-{Subscriber, Emitter} = require 'emissary'
+{CompositeDisposable, Emitter} = require 'atom'
 Q = require 'q'
 fs = require 'fs-plus'
 
@@ -8,10 +8,9 @@ InterProcessData = null
 
 module.exports =
   class InterProcessDataWatcher
-    Subscriber.includeInto(this)
-    Emitter.includeInto(this)
-
     constructor: (@filePath) ->
+      @emitter = new Emitter
+      @disposables = new CompositeDisposable
       @data = Q.defer().promise
 
       fs.open(@filePath, 'a', "0644", =>
@@ -39,15 +38,15 @@ module.exports =
       )
 
       deferred.promise.then (data) =>
-        @subscribe data, 'contents-changed', => @commit()
-        @emit 'contents-changed'
+        @disposables.add data.onDidChange => @commit()
+        @emitter.emit 'did-change'
 
       deferred.promise
 
 
     commit: ->
       @data.then (resolvedData) =>
-        fs.writeFile(@filePath, JSON.stringify(resolvedData.serialize()), ((err) ->
-          throw err if err?
-          )
-        )
+        fs.writeFile(@filePath, JSON.stringify(resolvedData.serialize()), ((err) -> throw err if err?))
+
+    onDidChange: (callback) ->
+      @emitter.on 'did-change', callback

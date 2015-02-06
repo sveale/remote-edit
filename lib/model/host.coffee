@@ -35,7 +35,7 @@ module.exports =
       throw new Error("Must be implemented in subclass!")
 
     isConnected: ->
-      throw new Error("Must be implemented in subclass!o")
+      throw new Error("Must be implemented in subclass!")
 
     hashCode: ->
       hash(@hostname + @directory + @username + @port)
@@ -61,3 +61,6 @@ module.exports =
 
     onDidDelete: (callback) ->
       @emitter.on 'did-delete', callback
+
+    onInfo: (callback) ->
+      @emitter.on 'info', callback

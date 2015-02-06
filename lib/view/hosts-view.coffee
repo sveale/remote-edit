@@ -1,5 +1,5 @@
 {$, $$, SelectListView} = require 'atom-space-pen-views'
-CompositeDisposable = require 'atom'
+{CompositeDisposable, Emitter} = require 'atom'
 _ = require 'underscore-plus'
 
 FilesView = require './files-view'
