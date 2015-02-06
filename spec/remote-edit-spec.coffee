@@ -4,59 +4,35 @@ Q = require 'q'
 CreateFixtures = require './create-fixtures'
 
 describe "remote-edit:", ->
+  [workspaceElement, editorElement] = []
+
   beforeEach ->
     fixture = new CreateFixtures()
 
-    atom.workspaceView = new WorkspaceView
+    workspaceElement = atom.views.getView(atom.workspace)
     activationPromise = null
     atom.config.set 'remote-edit.defaultSerializePath', "#{fixture.getSerializePath()}"
 
+    waitsForPromise ->
+      atom.workspace.open()
+
     runs ->
+      editorElement = atom.views.getView(atom.workspace.getActiveTextEditor())
       activationPromise = atom.packages.activatePackage("remote-edit")
-      atom.workspaceView.attachToDom().focus()
+      jasmine.attachToDOM(workspaceElement)
 
     waitsForPromise ->
       activationPromise
 
-  afterEach ->
-    atom.workspaceView.remove()
+  # afterEach ->
+  #   atom.workspaceView.remove()
 
-  describe "show-open-files", ->
-    [openFilesView, listGroup] = []
+  # describe "when show-open-files is triggered", ->
+  #   it "shows two open files", ->
+  #
+  #
 
-    beforeEach ->
-      runs ->
-        workspaceView = atom.views.getView(atom.workspace)
-        atom.commands.dispatch(workspaceView, 'remote-edit:show-open-files')
-        #atom.workspaceView.trigger('remote-edit:show-open-files')
-
-        openFilesView = atom.workspaceView.find(".open-files-view")
-        listGroup = openFilesView.find(".list-group")
-
-      waitsFor ->
-        listGroup.children().length > 1
-
-    it "displays correct number of open files", ->
-      expect(openFilesView).toExist()
-      expect(listGroup.find(".local-file").length).toBe 2
-
-  describe "browse", ->
-    [hostsView, listGroup] = []
-
-    beforeEach ->
-      runs ->
-        atom.workspaceView.trigger('remote-edit:browse')
-        hostsView = atom.workspaceView.find(".hosts-view").view()
-        listGroup = hostsView.find(".list-group")
-
-      waitsFor ->
-        listGroup.children().length > 1
-
-    it "displays correct auth schemes", ->
-      expect(hostsView).toExist()
-      expect(hostsView.find(".two-lines").text()).toContain('agent')
-      expect(hostsView.find(".two-lines").text()).toContain('password')
-      expect(hostsView.find(".two-lines").text()).toContain('key')
+  # describe "browse", ->
 
     # it "correctly displays FTP hosts", ->
     #   expect
@@ -76,6 +52,6 @@ describe "remote-edit:", ->
     #
     # it "display correct number of open files", ->
 
-  describe "new-host-sftp", ->
-
-  describe "new-host-ftp", ->
+  # describe "new-host-sftp", ->
+  #
+  # describe "new-host-ftp", ->
