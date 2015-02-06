@@ -1,4 +1,5 @@
 {$$, SelectListView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 async = require 'async'
 Q = require 'q'
@@ -10,17 +11,38 @@ module.exports =
   class OpenFilesView extends SelectListView
     initialize: (@ipdw) ->
       super
-      @addClass('overlay from-top open-files-view')
+      @addClass('open-files-view')
       @createItemsFromIpdw()
       @listenForEvents()
 
       disposables = new CompositeDisposable
       disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
-      #@onDid @ipdw, 'contents-changed', => @createItemsFromIpdw()
 
-    attach: ->
-      atom.workspaceView.append(this)
+    attached: ->
+      # do something
+
+    detached: ->
+      # do something
+
+    cancelled: ->
+      @hide()
+
+    toggle: ->
+      if @panel?.isVisible()
+        @cancel()
+      else
+        @show()
+
+    show: ->
+      @panel ?= atom.workspace.addModalPanel(item: this)
+      @panel.show()
+
+      @storeFocusedElement()
+
       @focusFilterEditor()
+
+    hide: ->
+      @panel?.hide()
 
     getFilterKey: ->
       return "name"
@@ -53,26 +75,3 @@ module.exports =
           ), ((err) -> console.error err if err?))
         @setItems(localFiles)
       )
-
-    cancelled: ->
-      @hide()
-
-    toggle: ->
-    if @panel?.isVisible()
-      @cancel()
-    else
-      @show()
-
-  show: ->
-    @panel ?= atom.workspace.addModalPanel(item: this)
-    @panel.show()
-
-    @storeFocusedElement()
-
-    items = [] # TODO: build items
-    @setItems(items)
-
-    @focusFilterEditor()
-
-  hide: ->
-    @panel?.hide()

@@ -13,17 +13,37 @@ module.exports =
     initialize: (@ipdw) ->
       super
       @createItemsFromIpdw()
-      @addClass('overlay from-top hosts-view')
+      @addClass('hosts-view')
       @listenForEvents()
 
       disposables = new CompositeDisposable
       disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
-      #@subscribe @ipdw, 'contents-changed', => @createItemsFromIpdw()
 
+    attached: ->
+      # do something
 
-    attach: ->
-      atom.workspaceView.append(this)
+    detached: ->
+      # do something
+
+    cancelled: ->
+      @hide()
+
+    toggle: ->
+      if @panel?.isVisible()
+        @cancel()
+      else
+        @show()
+
+    show: ->
+      @panel ?= atom.workspace.addModalPanel(item: this)
+      @panel.show()
+
+      @storeFocusedElement()
+
       @focusFilterEditor()
+
+    hide: ->
+      @panel?.hide()
 
     getFilterKey: ->
       return "hostname"
@@ -60,7 +80,7 @@ module.exports =
     confirmed: (item) ->
       @cancel()
       filesView = new FilesView(item)
-      filesView.attach()
+      filesView.toggle()
 
     listenForEvents: ->
       atom.commands.add 'atom-workspace', 'hostview:delete', =>
@@ -75,7 +95,7 @@ module.exports =
         if item?
           @cancel()
           hostView = new HostView(item)
-          hostView.attach()
+          hostView.toggle()
 
     createItemsFromIpdw: ->
       @ipdw.data.then((data) => @setItems(data.hostList))

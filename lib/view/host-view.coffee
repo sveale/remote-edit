@@ -1,4 +1,5 @@
 {$, View, TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
@@ -8,10 +9,8 @@ fs = require 'fs-plus'
 
 module.exports =
   class HostView extends View
-    previouslyFocusedElement: null
-
     @content: ->
-      @div class: 'remote-edit overlay from-top', =>
+      @div class: 'host-view', =>
         @label 'Hostname'
         @subview 'hostname', new TextEditorView(mini: true)
 
@@ -29,9 +28,9 @@ module.exports =
 
         @div class: 'block', outlet: 'authenticationButtonsBlock', =>
           @div class: 'btn-group', =>
-            @button class: 'btn selected', outlet: 'userAgentButton', 'User agent'
-            @button class: 'btn', outlet: 'privateKeyButton', 'Private key'
-            @button class: 'btn', outlet: 'passwordButton', 'Password'
+            @button class: 'btn selected', outlet: 'userAgentButton', click: 'userAgentButtonClick', 'User agent'
+            @button class: 'btn', outlet: 'privateKeyButton', click: 'privateKeyButtonClick', 'Private key'
+            @button class: 'btn', outlet: 'passwordButton', click: 'passwordButtonClick', 'Password'
 
         @div class: 'block', outlet: 'passwordBlock', =>
           @label 'Password (leave empty if you want to be prompted)'
@@ -44,17 +43,18 @@ module.exports =
           @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
 
         @div class: 'block', outlet: 'buttonBlock', =>
-          @button class: 'inline-block btn pull-right', outlet: 'cancelButton', 'Cancel'
-          @button class: 'inline-block btn pull-right', outlet: 'saveButton', 'Save'
+          @button class: 'inline-block btn pull-right', outlet: 'cancelButton', click: 'cancel', 'Cancel'
+          @button class: 'inline-block btn pull-right', outlet: 'saveButton', click: 'confirm','Save'
 
     initialize: (@host, @ipdw) ->
       throw new Error("Parameter \"host\" undefined!") if !@host?
 
-      @on 'core:confirm', => @confirm()
-      @saveButton.on 'click', => @confirm()
-
-      @on 'core:cancel', => @detach()
-      @cancelButton.on 'click', => @detach()
+      @disposables = new CompositeDisposable
+      @disposables.add atom.commands.add 'atom-workspace',
+        'core:confirm': => @confirm()
+        'core:cancel': (event) =>
+          @cancel()
+          event.stopPropagation()
 
       @alias.setText(@host.alias ? "")
       @hostname.setText(@host.hostname ? "")
@@ -66,29 +66,28 @@ module.exports =
       @privateKeyPath.setText(@host.privateKeyPath ? atom.config.get('remote-edit.sshPrivateKeyPath'))
       @privateKeyPassphrase.setText(@host.passphrase ? "")
 
-      @userAgentButton.on 'click', =>
-        @privateKeyButton.toggleClass('selected', false)
-        @userAgentButton.toggleClass('selected', true)
-        @passwordButton.toggleClass('selected', false)
-        @passwordBlock.hide()
-        @privateKeyBlock.hide()
+    userAgentButtonClick: ->
+      @privateKeyButton.toggleClass('selected', false)
+      @userAgentButton.toggleClass('selected', true)
+      @passwordButton.toggleClass('selected', false)
+      @passwordBlock.hide()
+      @privateKeyBlock.hide()
 
-      @privateKeyButton.on 'click', =>
-        @privateKeyButton.toggleClass('selected', true)
-        @userAgentButton.toggleClass('selected', false)
-        @passwordButton.toggleClass('selected', false)
-        @passwordBlock.hide()
-        @privateKeyBlock.show()
-        @privateKeyPath.focus()
+    privateKeyButtonClick: ->
+      @privateKeyButton.toggleClass('selected', true)
+      @userAgentButton.toggleClass('selected', false)
+      @passwordButton.toggleClass('selected', false)
+      @passwordBlock.hide()
+      @privateKeyBlock.show()
+      @privateKeyPath.focus()
 
-      @passwordButton.on 'click', =>
-        @privateKeyButton.toggleClass('selected', false)
-        @userAgentButton.toggleClass('selected', false)
-        @passwordButton.toggleClass('selected', true)
-        @privateKeyBlock.hide()
-        @passwordBlock.show()
-        @password.focus()
-
+    passwordButtonClick: ->
+      @privateKeyButton.toggleClass('selected', false)
+      @userAgentButton.toggleClass('selected', false)
+      @passwordButton.toggleClass('selected', true)
+      @privateKeyBlock.hide()
+      @passwordBlock.show()
+      @password.focus()
 
 
     confirm: ->
@@ -121,32 +120,31 @@ module.exports =
         )
       else
         @host.invalidate()
-      @detach()
+      @cancel()
 
 
-    # Tear down any state and detach
-    destroy: ->
-      @detach()
+    attached: ->
+      # do something
 
-    detach: ->
-      return unless @hasParent()
-      @previouslyFocusedElement?.focus()
-      super
+    detached: ->
+      # do something
 
-    storeFocusedElement: ->
-      @previouslyFocusedElement = $(':focus')
+    cancel: ->
+      @cancelled()
+      @restoreFocus()
+      #@disposables.dispose()
 
-    restoreFocus: ->
-      if @previouslyFocusedElement?.isOnDom()
-        @previouslyFocusedElement.focus()
+
+    cancelled: ->
+      @hide()
+
+    toggle: ->
+      if @panel?.isVisible()
+        @cancel()
       else
-        atom.workspaceView.focus()
+        @show()
 
-    attach: ->
-      atom.workspaceView.append(this)
-      @storeFocusedElement()
-      @hostname.focus()
-
+    show: ->
       if (@host instanceof SftpHost)
         @authenticationButtonsBlock.show()
         if @host.usePassword
@@ -161,3 +159,18 @@ module.exports =
         @privateKeyBlock.hide()
       else
         throw new Error("\"host\" is unknown!", @host)
+
+      @panel ?= atom.workspace.addModalPanel(item: this)
+      @panel.show()
+
+      @storeFocusedElement()
+      @hostname.focus()
+
+    hide: ->
+      @panel?.hide()
+
+    storeFocusedElement: ->
+      @previouslyFocusedElement = $(document.activeElement)
+
+    restoreFocus: ->
+      @previouslyFocusedElement?.focus()

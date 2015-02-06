@@ -64,24 +64,24 @@ module.exports =
     SftpHost ?= require './model/sftp-host'
     host = new SftpHost()
     view = new HostView(host, @createIpdw())
-    view.attach()
+    view.toggle()
 
   newHostFtp: ->
     HostView ?= require './view/host-view'
     FtpHost ?= require './model/ftp-host'
     host = new FtpHost()
     view = new HostView(host, @createIpdw())
-    view.attach()
+    view.toggle()
 
   browse: ->
     HostsView ?= require './view/hosts-view'
     view = new HostsView(@createIpdw())
-    view.attach()
+    view.toggle()
 
   showOpenFiles: ->
     OpenFilesView ?= require './view/open-files-view'
     showOpenFilesView = new OpenFilesView(@createIpdw())
-    showOpenFilesView.attach()
+    showOpenFilesView.toggle()
 
   initializeIpdwIfNecessary: ->
     if atom.config.get 'remote-edit.messagePanel'

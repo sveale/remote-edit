@@ -15,7 +15,7 @@ module.exports =
   class FilesView extends SelectListView
     initialize: (@host) ->
       super
-      @addClass('overlay from-top filesview')
+      @addClass('filesview')
       @connect(@host)
       @listenForEvents()
 
@@ -67,9 +67,32 @@ module.exports =
     getFilterKey: ->
       return "name"
 
-    attach: ->
-      atom.workspaceView.append(this)
+    attached: ->
+      # do something
+
+    detached: ->
+      # do something
+
+    cancelled: ->
+      @hide()
+      @host?.close()
+
+    toggle: ->
+      if @panel?.isVisible()
+        @cancel()
+      else
+        @show()
+
+    show: ->
+      @panel ?= atom.workspace.addModalPanel(item: this)
+      @panel.show()
+
+      @storeFocusedElement()
+
       @focusFilterEditor()
+
+    hide: ->
+      @panel?.hide()
 
     viewForItem: (item) ->
       $$ ->
@@ -89,7 +112,6 @@ module.exports =
           @host.getFilesMetadata(@path, callback)
         (items, callback) =>
           @setItems(items)
-          @cancelled()
       ], (err, result) =>
         @setError(err) if err?
         callback?(err, result)
@@ -176,8 +198,3 @@ module.exports =
           @openFile(item)
         else if item.isDir
           @openDirectory(item)
-
-    cancel: ->
-      super
-
-      @host?.close()
