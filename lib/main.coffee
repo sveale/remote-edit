@@ -51,10 +51,10 @@ module.exports =
     @setupOpeners()
     @initializeIpdwIfNecessary()
 
-    atom.workspaceView.command "remote-edit:show-open-files", => @showOpenFiles()
-    atom.workspaceView.command "remote-edit:browse", => @browse()
-    atom.workspaceView.command "remote-edit:new-host-sftp", => @newHostSftp()
-    atom.workspaceView.command "remote-edit:new-host-ftp", => @newHostFtp()
+    atom.commands.add "atom-workspace", "remote-edit:show-open-files": => @showOpenFiles()
+    atom.commands.add "atom-workspace", "remote-edit:browse": => @browse()
+    atom.commands.add "atom-workspace", "remote-edit:new-host-sftp": => @newHostSftp()
+    atom.commands.add "atom-workspace", "remote-edit:new-host-ftp": => @newHostFtp()
 
   deactivate: ->
     @view?.destroy()
