@@ -184,12 +184,12 @@ module.exports =
       if item.isFile
         @openFile(item)
       else if item.isDir
+        @filterEditorView.setText('')
         @setItems()
         @updatePath(item.name)
         @populate()
       else
         @setError("Selected item is neither a file nor a directory!")
-        #throw new Error("Path is neither a file nor a directory!")
 
     listenForEvents: ->
       atom.commands.add 'atom-workspace', 'filesview:open', =>
