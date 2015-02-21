@@ -11,25 +11,32 @@ Atom package to browse and edit remote files using FTP and SFTP.
 * Supports password, key and agent authentication
 * Browse files through a select list
 * Automatically upload file on save
-* Multi-window support (ie. serializing of server settings and downloaded files across multiple Atom windows)
+* Multi-window support (ie. server settings and downloaded files are serialized and accessible across multiple Atom windows)
 
 
 
 ## Keyboard shortcuts
-### Windows / Linux
-**ctrl-alt-b**: Select host
+<kbd>Shift+e</kbd>
+Edit hosts. Usable when selecting hosts (_Browse_).
 
-**ctrl-alt-o**: Show downloaded files
+<kbd>Shift+d</kbd>
+Delete hosts or downloaded files. Usable when selecting hosts (_Browse_) or open files (_Show open files_).
 
-### Mac OS X
-**ctrl-cmd-b**: Select host
 
-**ctrl-cmd-o**: Show downloaded files
+### Windows / Linux specific
+<kbd>Ctrl+Alt+b</kbd>
+Select host.
 
-### Universal
-While in "select host" mode you can delete a host by pressing "shift-d" or edit a host by pressing "shift-e".
+<kbd>Ctrl+Alt+o</kbd>
+Show downloaded files.
 
-While in "show downloaded files" mode you can remove a file from the list by pressing "shift-d". The file is deleted locally but not remotely.
+### Mac OS X specific
+<kbd>Ctrl+Cmd+b</kbd>
+Select host.
+
+<kbd>Ctrl+Cmd+o</kbd>
+Show downloaded files
+
 
 ## Tips and tricks
 ### SSH auth with password fails
