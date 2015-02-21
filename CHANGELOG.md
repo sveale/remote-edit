@@ -1,3 +1,6 @@
+## 1.6.4
+* Set version of ssh2 library to 0.3.6 t combat issue #54
+
 ## 1.6.0
 * Removed deprecations
 * Fixed buggy message panel
