@@ -11,13 +11,9 @@ Atom package to browse and edit remote files using FTP and SFTP.
 * Supports password, key and agent authentication
 * Browse files through a select list
 * Automatically upload file on save
-* Multi-window support
+* Multi-window support (ie. serializing of server settings and downloaded files across multiple Atom windows)
 
-## Agent authentication when using SSH
-The package uses [ssh2](https://github.com/mscdex/ssh2) to connect to ssh servers, and also use the default construct in this package to authenticate with an agent.
-On Windows, the agent will be set to "pageant", otherwise it assumes a *nix system and uses "process.env['SSH_AUTH_SOCK']" to get the agent.
 
-This can be overriden in the settings.
 
 ## Keyboard shortcuts
 ### Windows / Linux
@@ -25,15 +21,24 @@ This can be overriden in the settings.
 
 **ctrl-alt-o**: Show downloaded files
 
-#### Mac OS X
+### Mac OS X
 **ctrl-cmd-b**: Select host
 
 **ctrl-cmd-o**: Show downloaded files
 
-#### Universal
+### Universal
 While in "select host" mode you can delete a host by pressing "shift-d" or edit a host by pressing "shift-e".
 
 While in "show downloaded files" mode you can remove a file from the list by pressing "shift-d". The file is deleted locally but not remotely.
+
+## Tips and tricks
+### SSH auth with password fails
+On some sshd configuration (Mac OS X Mavericks), if _PasswordAuthentication_ is not explicitly set to yes, ssh server will not allow non-interactive password authentication. See [this issue](https://github.com/mscdex/ssh2/issues/154) for more in-depth information.
+
+### Agent authentication when using SSH
+The package uses [ssh2](https://github.com/mscdex/ssh2) to connect to ssh servers, and also use the default construct in this package to authenticate with an agent.
+On Windows, the agent will be set to "pageant", otherwise it assumes a \ix system and uses "process.env['SSH_AUTH_SOCK']" to get the agent.
+This can be overriden in the settings.
 
 ## Screenshot
 ### Available commands
