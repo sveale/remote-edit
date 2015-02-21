@@ -26,7 +26,6 @@
     "moment": ">=2.7.0",
     "ssh2": "0.3.6",
     "serializable": ">=1.0.0",
-    "emissary": ">=1.2.1",
     "atom-message-panel": ">=1.1.1",
     "string-hash": ">=1.1.0",
     "osenv": ">=0.1.0",

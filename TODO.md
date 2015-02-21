@@ -1,1 +1,1 @@
- - [ ] fix notifications panel
+ - [x] fix notifications panel
