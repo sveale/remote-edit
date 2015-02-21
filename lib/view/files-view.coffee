@@ -28,10 +28,10 @@ module.exports =
               async.waterfall([
                 (callback) ->
                   passwordDialog = new Dialog({prompt: "Enter password"})
-                  passwordDialog.attach(callback)
+                  passwordDialog.toggle(callback)
               ], (err, result) =>
                 connectionOptions = _.extend({password: result}, connectionOptions)
-                @attach()
+                @toggle()
                 callback(null)
               )
             else
@@ -55,10 +55,10 @@ module.exports =
             async.waterfall([
               (callback) ->
                 passwordDialog = new Dialog({prompt: "Enter password"})
-                passwordDialog.attach(callback)
+                passwordDialog.toggle(callback)
             ], (err, result) =>
               @connect(@host, {password: result})
-              @attach()
+              @toggle()
             )
           else
             @setError(err)

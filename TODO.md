@@ -1,1 +1,6 @@
  - [x] fix notifications panel
+ - [ ] fix dialog.coffee
+ - [ ] submit new bug ssh2 because of EOF when using newest version
+ - [ ] create hidden input dialog and use it in dialog.coffee and elsewhere
+ - [ ] switch to https://github.com/atom/notifications instead of atom-message-panel
+ - [ ] check if serializing is broken

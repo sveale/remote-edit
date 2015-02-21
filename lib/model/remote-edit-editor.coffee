@@ -94,7 +94,7 @@ module.exports =
                   (callback) ->
                     Dialog ?= require '../view/dialog'
                     passwordDialog = new Dialog({prompt: "Enter password"})
-                    passwordDialog.attach(callback)
+                    passwordDialog.toggle(callback)
                 ], (err, result) =>
                   connectionOptions = _.extend({password: result}, connectionOptions)
                   callback(null)
@@ -116,7 +116,7 @@ module.exports =
               (callback) ->
                 Dialog ?= require '../view/dialog'
                 passwordDialog = new Dialog({prompt: "Enter password"})
-                passwordDialog.attach(callback)
+                passwordDialog.toggle(callback)
             ], (err, result) =>
               @upload({password: result})
             )

@@ -1,61 +1,61 @@
 {$, $$, View, TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 module.exports =
 class Dialog extends View
   @content: ({prompt} = {}) ->
-    @div class: 'dialog overlay from-top', =>
+    @div class: 'dialog', =>
       @label prompt, class: 'icon', outlet: 'promptText'
       @subview 'miniEditor', new TextEditorView(mini: true)
       @div class: 'error-message', outlet: 'errorMessage'
 
-  initialize: ({prompt} = {}) ->
-    @on 'core:confirm', => @onConfirm(@miniEditor.getText())
-    @on 'core:cancel', => @close()
-    @miniEditor.hiddenInput.on 'focusout', => @remove()
-    @miniEditor.getEditor().getBuffer().on 'changed', => @showError()
+  initialize: ({iconClass} = {}) ->
+    @promptText.addClass(iconClass) if iconClass
 
-  attach: (@callback) ->
-    @storeFocusedElement()
-    atom.workspaceView.append(this)
-    @focusMiniEditor()
+    @disposables = new CompositeDisposable
+    @disposables.add atom.commands.add 'atom-workspace',
+      'core:confirm', => @onConfirm(@miniEditor.getText())
+      'core:cancel', (event) =>
+        @cancel()
+        event.stopPropagation()
 
-  close: ->
-    @cancel()
-    @remove()
-
-  cancel: ->
-    miniEditorFocused = @miniEditor.isFocused
-    @restoreFocus() if miniEditorFocused
-
-  showError: (message = '') ->
-    @errorMessage.text(message)
-    @flashError() if message
+    @miniEditor.getModel().onDidChange => @showError()
+    @miniEditor.on 'blur', => @cancel()
 
   onConfirm: (value) ->
     @callback?(undefined, value)
-    @close()
+    @cancel()
     value
 
-  storeFocusedElement: ->
-    @previouslyFocusedElement = $(':focus')
+  showError: (message='') ->
+    @errorMessage.text(message)
+    @flashError() if message
 
-  restoreFocus: ->
-    if @previouslyFocusedElement?.isOnDom()
-      @previouslyFocusedElement.focus()
-    else
-      atom.workspaceView.focus()
-
-  focusMiniEditor: ->
-    @miniEditor.focus()
+  cancel: ->
+    @disposables.dispose()
+    @cancelled()
+    @restoreFocus()
 
   cancelled: ->
     @hide()
 
-  show: ->
+  toggle: (@callback) ->
+    if @panel?.isVisible()
+      @cancel()
+    else
+      @show()
+
+  show: () ->
     @panel ?= atom.workspace.addModalPanel(item: this)
     @panel.show()
     @storeFocusedElement()
-    @focusFilterEditor()
+    @miniEditor.focus()
 
   hide: ->
     @panel?.hide()
+
+  storeFocusedElement: ->
+    @previouslyFocusedElement = $(document.activeElement)
+
+  restoreFocus: ->
+    @previouslyFocusedElement?.focus()
