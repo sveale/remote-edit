@@ -13,6 +13,9 @@ module.exports =
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
       @emitter = new Emitter
 
+    destroy: ->
+      @emitter.emitter.dispose()
+
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")
 

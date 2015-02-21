@@ -55,15 +55,18 @@ module.exports =
 
       "#{fileName} - #{directory}"
 
+    onDidSaved: (callback) ->
+      @emitter.on 'did-saved', callback
+
     save: ->
       @buffer.save()
-      @emit 'saved'
+      @emitter.emit 'saved'
       @initiateUpload()
 
     saveAs: (filePath) ->
       @buffer.saveAs(filePath)
       @localFile.path = filePath
-      @emit 'saved'
+      @emitter.emit 'saved'
       @initiateUpload()
 
     initiateUpload: ->

@@ -9,7 +9,6 @@ moment = require 'moment'
 ftp = require 'ftp'
 Serializable = require 'serializable'
 Path = require 'path'
-{Emitter} = require 'atom'
 _ = require 'underscore-plus'
 
 
@@ -24,11 +23,7 @@ module.exports =
     protocol: "ftp"
 
     constructor: (@alias = null, @hostname, @directory, @username, @port = "21", @localFiles = [], @usePassword = true,  @password) ->
-      @emitter = new Emitter
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword )
-
-    destroy: ->
-      @emitter.dispose()
 
     createRemoteFileFromListObj: (name, item) ->
       unless item.name?
@@ -79,16 +74,16 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection = new ftp()
           @connection.on 'error', (err) =>
             @connection.end()
-            @emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
+            @emitter.emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             callback?(err)
           @connection.on 'ready', =>
-            @emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
+            @emitter.emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
@@ -99,16 +94,16 @@ module.exports =
       @connection? and @connection.connected
 
     writeFile: (file, text, callback) ->
-      @emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
       ], (err) =>
         if err?
-          @emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+          @emitter.emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
           console.error err if err?
         else
-          @emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+          @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
         @close()
         callback?(err)
       )
@@ -130,7 +125,7 @@ module.exports =
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
       ], (err, result) =>
         if err?
-          @emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+          @emitter.emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
           console.error err if err?
           callback?(err)
         else
@@ -138,7 +133,7 @@ module.exports =
       )
 
     getFileData: (file, callback) ->
-      @emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
       async.waterfall([
         (callback) =>
           @connection.get(file.path, callback)
@@ -149,10 +144,10 @@ module.exports =
           stream.on 'close', -> callback(null, data.join(''))
       ], (err, result) =>
         if err?
-          @emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
+          @emitter.emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
           callback(err, null)
         else
-          @emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
+          @emitter.emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
           callback?(err, result)
       )
 

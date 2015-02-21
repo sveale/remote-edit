@@ -9,7 +9,6 @@ util = require 'util'
 filesize = require 'file-size'
 moment = require 'moment'
 Serializable = require 'serializable'
-{Emitter} = require 'emissary'
 Path = require 'path'
 osenv = require 'osenv'
 _ = require 'underscore-plus'
@@ -20,7 +19,6 @@ module.exports =
     atom.deserializers.add(this)
 
     Host.registerDeserializers(SftpHost)
-    Emitter.includeInto(this)
 
     connection: undefined
     protocol: "sftp"
@@ -92,7 +90,7 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           if @usePrivateKey
@@ -100,7 +98,7 @@ module.exports =
               if exists
                 callback(null)
               else
-                @emit 'info', {message: "Private key does not exist!", className: 'text-error'}
+                @emitter.emit 'info', {message: "Private key does not exist!", className: 'text-error'}
                 callback(new Error("Private key does not exist"))
               )
             )
@@ -109,11 +107,11 @@ module.exports =
         (callback) =>
           @connection = new ssh2()
           @connection.on 'error', (err) =>
-            @emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
+            @emitter.emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
             @connection.end()
             callback(err)
           @connection.on 'ready', =>
-            @emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
+            @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
@@ -124,7 +122,7 @@ module.exports =
       @connection? and @connection._state == 'authenticated'
 
     writeFile: (file, text, callback) ->
-      @emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
@@ -132,10 +130,10 @@ module.exports =
           sftp.fastPut(file.path, file.remoteFile.path, callback)
       ], (err) =>
         if err?
-          @emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+          @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
           console.error err if err?
         else
-          @emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+          @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
         @close()
         callback?(err)
       )
@@ -158,7 +156,7 @@ module.exports =
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
       ], (err, result) =>
         if err?
-          @emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+          @emitter.emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
           console.error err if err?
           callback?(err)
         else
@@ -166,7 +164,7 @@ module.exports =
       )
 
     getFileData: (file, callback) ->
-      @emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @emitter.emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
@@ -180,8 +178,8 @@ module.exports =
           )
           s.on 'close', (-> callback(null, data.join('')))
       ], (err, result) =>
-        @emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
-        @emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
+        @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'}) if err?
+        @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'}) if !err?
         callback?(err, result)
       )
 

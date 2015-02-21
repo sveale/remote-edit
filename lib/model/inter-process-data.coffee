@@ -39,9 +39,8 @@ module.exports =
 
         @disposables.add atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
-            if editor.host.getSubscriptionCount() < 1
-              # If a host emits information ('info'), forward this to @messages
-              @disposables.add editor.host.onInfo (info) => @messages.postMessage(info)
+            # If a host emits information ('info'), forward this to @messages
+            @disposables.add editor.host.onInfo (info) => @messages.postMessage(info)
         )
 
     # Remove all subscriptions to hosts and atom.workspace
