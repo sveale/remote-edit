@@ -15,9 +15,9 @@ Atom package to browse and edit remote files using FTP and SFTP.
 
 ## Keyboard shortcuts
 ### Windows / Linux
-**ctrl-shift-b**: Select host
+**ctrl-alt-b**: Select host
 
-**ctrl-shift-o**: Show downloaded files
+**ctrl-alt-o**: Show downloaded files
 
 #### Mac OS X
 **ctrl-cmd-b**: Select host
