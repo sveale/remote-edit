@@ -16,17 +16,19 @@ module.exports =
       @addClass('hosts-view')
       @listenForEvents()
 
-      disposables = new CompositeDisposable
-      disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
+      @disposables = new CompositeDisposable
+      @disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
 
-    attached: ->
-      # do something
+    destroy: ->
+      @disposables.dispose()
 
-    detached: ->
-      # do something
+    cancel: ->
+      @cancelled()
 
     cancelled: ->
       @hide()
+      @restoreFocus()
+      @destroy()
 
     toggle: ->
       if @panel?.isVisible()
@@ -98,4 +100,4 @@ module.exports =
           hostView.toggle()
 
     createItemsFromIpdw: ->
-      @ipdw.data.then((data) => @setItems(data.hostList))
+      @ipdw.getData().then((resolved) => @setItems(resolved.hostList))

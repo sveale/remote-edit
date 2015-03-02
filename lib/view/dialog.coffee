@@ -14,8 +14,8 @@ class Dialog extends View
 
     @disposables = new CompositeDisposable
     @disposables.add atom.commands.add 'atom-workspace',
-      'core:confirm', => @onConfirm(@miniEditor.getText())
-      'core:cancel', (event) =>
+      'core:confirm': => @onConfirm(@miniEditor.getText())
+      'core:cancel': (event) =>
         @cancel()
         event.stopPropagation()
 
@@ -31,10 +31,13 @@ class Dialog extends View
     @errorMessage.text(message)
     @flashError() if message
 
-  cancel: ->
+  destroy: ->
     @disposables.dispose()
+
+  cancel: ->
     @cancelled()
     @restoreFocus()
+    @destroy()
 
   cancelled: ->
     @hide()

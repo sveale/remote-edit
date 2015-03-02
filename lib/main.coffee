@@ -57,30 +57,38 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
 
   deactivate: ->
-    @view?.destroy()
+    @ipdw?.destroy()
 
   newHostSftp: ->
     HostView ?= require './view/host-view'
     SftpHost ?= require './model/sftp-host'
     host = new SftpHost()
-    view = new HostView(host, @createIpdw())
+    view = new HostView(host, @getOrCreateIpdw())
     view.toggle()
 
   newHostFtp: ->
     HostView ?= require './view/host-view'
     FtpHost ?= require './model/ftp-host'
     host = new FtpHost()
-    view = new HostView(host, @createIpdw())
+    view = new HostView(host, @getOrCreateIpdw())
     view.toggle()
+
+    # Q ?= require 'q'
+    # @getOrCreateIpdw().then (ipdw) ->
+    #   HostView ?= require './view/host-view'
+    #   FtpHost ?= require './model/ftp-host'
+    #   host = new FtpHost()
+    #   view = new HostView(host, ipdw)
+    #   view.toggle()
 
   browse: ->
     HostsView ?= require './view/hosts-view'
-    view = new HostsView(@createIpdw())
+    view = new HostsView(@getOrCreateIpdw())
     view.toggle()
 
   showOpenFiles: ->
     OpenFilesView ?= require './view/open-files-view'
-    showOpenFilesView = new OpenFilesView(@createIpdw())
+    showOpenFilesView = new OpenFilesView(@getOrCreateIpdw())
     showOpenFilesView.toggle()
 
   initializeIpdwIfNecessary: ->
@@ -88,15 +96,16 @@ module.exports =
       stop = false
       for editor in atom.workspace.getTextEditors() when !stop
         if editor instanceof RemoteEditEditor
-          @createIpdw()
+          @getOrCreateIpdw()
           stop = true
 
-  createIpdw: ->
-    unless @ipdw?
+  getOrCreateIpdw: ->
+    if @ipdw is undefined
       InterProcessDataWatcher ?= require './model/inter-process-data-watcher'
       fs = require 'fs-plus'
       @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
-    @ipdw
+    else
+      @ipdw
 
   setupOpeners: ->
     atom.workspace.addOpener (uriToOpen) ->

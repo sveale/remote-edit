@@ -22,7 +22,11 @@ module.exports =
       @load(@hostList)
 
     destroy: ->
+      @disposables.dispose()
       @emitter.dispose()
+      for item in @hostList
+        item.destroy()
+      @hostList = []
 
     onDidChange: (callback) ->
       @emitter.on 'did-change', callback
@@ -43,11 +47,6 @@ module.exports =
             @disposables.add editor.host.onInfo (info) => @messages.postMessage(info)
         )
 
-    # Remove all subscriptions to hosts and atom.workspace
-    reset: ->
-      @disposables.dispose()
-      delete @hostList
-
     serializeParams: ->
       hostList: JSON.stringify(host.serialize() for host in @hostList)
 
@@ -64,9 +63,11 @@ module.exports =
       params
 
     addSubscriptionToHost: (host) ->
-      @disposables.add host.onDidChange => @emitter.emit 'did-change'
+      @disposables.add host.onDidChange =>
+        @emitter.emit 'did-change'
       @disposables.add host.onDidDelete (host) =>
         _ ?= require 'underscore-plus'
+        host.destroy()
         @hostList = _.reject(@hostList, ((val) -> val == host))
         @emitter.emit 'did-change'
 

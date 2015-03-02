@@ -91,6 +91,8 @@ module.exports =
 
 
     confirm: ->
+      @cancel()
+
       if @host instanceof SftpHost
         @host.useAgent = @userAgentButton.hasClass('selected')
         @host.usePrivateKey = @privateKeyButton.hasClass('selected')
@@ -114,26 +116,20 @@ module.exports =
       @host.port = @port.getText()
 
       if @ipdw?
-        @ipdw.data.then((data) =>
+        @ipdw.getData().then((data) =>
           data.hostList.push(@host)
           @ipdw.commit()
         )
       else
         @host.invalidate()
-      @cancel()
 
-
-    attached: ->
-      # do something
-
-    detached: ->
-      # do something
+    destroy: ->
+      @disposables.dispose()
 
     cancel: ->
       @cancelled()
       @restoreFocus()
-      #@disposables.dispose()
-
+      @destroy()
 
     cancelled: ->
       @hide()

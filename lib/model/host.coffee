@@ -14,7 +14,7 @@ module.exports =
       @emitter = new Emitter
 
     destroy: ->
-      @emitter.emitter.dispose()
+      @emitter.dispose()
 
     getConnectionString: ->
       throw new Error("Function getConnectionString() needs to be implemented by subclasses!")

@@ -112,6 +112,7 @@ module.exports =
           @host.getFilesMetadata(@path, callback)
         (items, callback) =>
           @setItems(items)
+          callback(undefined, undefined)
       ], (err, result) =>
         @setError(err) if err?
         callback?(err, result)

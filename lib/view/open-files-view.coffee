@@ -15,17 +15,19 @@ module.exports =
       @createItemsFromIpdw()
       @listenForEvents()
 
-      disposables = new CompositeDisposable
-      disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
+      @disposables = new CompositeDisposable
+      @disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
 
-    attached: ->
-      # do something
-
-    detached: ->
-      # do something
+    destroy: ->
+      @disposables.dispose()
 
     cancelled: ->
       @hide()
+
+    cancel: ->
+      @cancelled()
+      @restoreFocus()
+      @destroy()
 
     toggle: ->
       if @panel?.isVisible()
@@ -65,7 +67,7 @@ module.exports =
           @setLoading()
 
     createItemsFromIpdw: ->
-      @ipdw.data.then((data) =>
+      @ipdw.getData().then((data) =>
         localFiles = []
         async.each(data.hostList, ((host, callback) ->
           async.each(host.localFiles, ((file, callback) ->
