@@ -1,3 +1,6 @@
+## 1.7.0
+* Convert package to conform to Atom 1.0 API
+
 ## 1.6.4
 * Set version of ssh2 library to 0.3.6 t combat issue #54
 
