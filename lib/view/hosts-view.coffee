@@ -95,9 +95,9 @@ module.exports =
       atom.commands.add 'atom-workspace', 'hostview:edit', =>
         item = @getSelectedItem()
         if item?
-          @cancel()
           hostView = new HostView(item)
           hostView.toggle()
+          @cancel()
 
     createItemsFromIpdw: ->
       @ipdw.getData().then((resolved) => @setItems(resolved.hostList))
