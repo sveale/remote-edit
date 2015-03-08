@@ -5,7 +5,6 @@ fs = require 'fs-plus'
 # Defer requiring
 InterProcessData = null
 
-
 module.exports =
   class InterProcessDataWatcher
     constructor: (@filePath) ->
@@ -13,20 +12,30 @@ module.exports =
       @emitter = new Emitter
       @disposables = new CompositeDisposable
       @promisedData = Q.defer().promise
+      @fsTimeout = undefined
 
       fs.open(@filePath, 'a', "0644", =>
         @promisedData = @load()
+        @watcher()
+      )
 
-        fs.watch(@filePath, ((event, filename) =>
-          if event is 'change' and @justCommittedData is false
-            @data?.destroy()
-            @data = undefined
-            @promisedData = @load()
-          else if event is 'change' and @justCommittedData is true
-            @justCommittedData = false
-          )
+
+    watcher: ->
+      fs.watch(@filePath, ((event, filename) =>
+        if @fsTimeout is undefined and (event is 'changed' or event is 'rename')
+          @fsTimeout = setTimeout((() => @fsTimeout = undefined; @reloadIfNecessary(); @watcher()), 2000)
         )
       )
+
+
+    reloadIfNecessary: ->
+      if @justCommittedData isnt true
+        @data?.destroy()
+        @data = undefined
+        @promisedData = @load()
+      else if @justCommittedData is true
+        @justCommittedData = false
+
 
     # Should return InterProcessData object
     getData: ->
@@ -47,6 +56,7 @@ module.exports =
       @disposables.dispose()
       @emitter.dispose()
       @data?.destroy()
+
 
     load: ->
       deferred = Q.defer()
@@ -72,6 +82,7 @@ module.exports =
       @justCommittedData = true
       fs.writeFile(@filePath, JSON.stringify(@data.serialize()), (err) -> throw err if err?)
       @emitter.emit 'did-change'
+
 
     onDidChange: (callback) ->
       @emitter.on 'did-change', callback
