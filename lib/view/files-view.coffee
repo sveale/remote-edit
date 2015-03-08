@@ -1,4 +1,5 @@
 {$, $$, SelectListView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
@@ -17,6 +18,8 @@ module.exports =
       super
       @addClass('filesview')
       @connect(@host)
+
+      @disposables = new CompositeDisposable
       @listenForEvents()
 
     connect: (@host, connectionOptions = {}) ->
@@ -67,15 +70,13 @@ module.exports =
     getFilterKey: ->
       return "name"
 
-    attached: ->
-      # do something
-
-    detached: ->
-      # do something
+    destroy: ->
+      @disposables.dispose()
 
     cancelled: ->
       @hide()
       @host?.close()
+      @destroy()
 
     toggle: ->
       if @panel?.isVisible()
@@ -193,7 +194,7 @@ module.exports =
         @setError("Selected item is neither a file nor a directory!")
 
     listenForEvents: ->
-      atom.commands.add 'atom-workspace', 'filesview:open', =>
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
         item = @getSelectedItem()
         if item.isFile
           @openFile(item)

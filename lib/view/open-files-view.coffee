@@ -13,10 +13,11 @@ module.exports =
       super
       @addClass('open-files-view')
       @createItemsFromIpdw()
-      @listenForEvents()
 
       @disposables = new CompositeDisposable
       @disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
+
+      @listenForEvents()
 
     destroy: ->
       @disposables.dispose()
@@ -59,7 +60,7 @@ module.exports =
       @cancel()
 
     listenForEvents: ->
-      atom.commands.add 'atom-workspace', 'openfilesview:delete', =>
+      @disposables.add atom.commands.add 'atom-workspace', 'openfilesview:delete', =>
         item = @getSelectedItem()
         if item?
           @items = _.reject(@items, ((val) -> val == item))

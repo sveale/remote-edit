@@ -14,10 +14,11 @@ module.exports =
       super
       @createItemsFromIpdw()
       @addClass('hosts-view')
-      @listenForEvents()
 
       @disposables = new CompositeDisposable
       @disposables.add @ipdw.onDidChange => @createItemsFromIpdw()
+
+      @listenForEvents()
 
     destroy: ->
       @disposables.dispose()
@@ -85,14 +86,14 @@ module.exports =
       filesView.toggle()
 
     listenForEvents: ->
-      atom.commands.add 'atom-workspace', 'hostview:delete', =>
+      @disposables.add atom.commands.add 'atom-workspace', 'hostview:delete', =>
         item = @getSelectedItem()
         if item?
           @items = _.reject(@items, ((val) -> val == item))
           item.delete()
           @populateList()
           @setLoading()
-      atom.commands.add 'atom-workspace', 'hostview:edit', =>
+      @disposables.add atom.commands.add 'atom-workspace', 'hostview:edit', =>
         item = @getSelectedItem()
         if item?
           hostView = new HostView(item)
