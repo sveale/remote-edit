@@ -6,3 +6,4 @@
  - [x] check and fix serializing
  - [x] clear input when a directory is selected
  - [x] destroy all views, at least call destroy on them
+ - [ ] See issue #68
