@@ -18,8 +18,8 @@ module.exports =
 
       ftpHostNoPassword = new FtpHost("ftpHostAlias", "ftpHostNoPassword", "/", "username", "21", [], true)
 
-      remoteFile1 = new RemoteFile("/bogus/path/1", true, false, "6 byte", "0755", "22:08 30/08/2014")
-      remoteFile2 = new RemoteFile("/bogus/path/2", true, false, "6 byte", "0755", "22:08 30/08/2014")
+      remoteFile1 = new RemoteFile("/bogus/path/1", true, false, false, "6 byte", "0755", "22:08 30/08/2014")
+      remoteFile2 = new RemoteFile("/bogus/path/2", true, false, false, "6 byte", "0755", "22:08 30/08/2014")
 
       localFile1 = new LocalFile(firstLocalFile, remoteFile1, ftpHostNoPassword)
       localFile2 = new LocalFile(secondLocalFile, remoteFile2, ftpHostNoPassword)

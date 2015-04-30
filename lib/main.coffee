@@ -46,6 +46,11 @@ module.exports =
       description: 'Overrides default SSH agent. See ssh2 docs for more info.'
       type: 'string'
       default: 'Default'
+    followLinks:
+      title: 'Follow symbolic links'
+      description: 'If set to true, symbolic links are treated as directories'
+      type: 'boolean'
+      default: true
 
   activate: (state) ->
     @setupOpeners()

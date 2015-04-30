@@ -69,7 +69,7 @@ module.exports =
       )
 
     createRemoteFileFromFile: (path, file) ->
-      remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] != 'd'), (file.longname[0] == 'd'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
+      remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] == '-'), (file.longname[0] == 'd'), (file.longname[0] == 'l'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
       return remoteFile
 
 
@@ -148,8 +148,8 @@ module.exports =
         (files, callback) =>
           async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
         (objects, callback) ->
-          objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
-          objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
+          objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
+          objects.push(new RemoteFile((path + "/."), false, true, false, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else

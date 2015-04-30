@@ -100,11 +100,14 @@ module.exports =
         @li class: 'two-lines', =>
           if item.isFile
             @div class: 'primary-line icon icon-file-text', item.name
-            @div class: 'secondary-line no-icon text-subtle', "Size: #{item.size}, Mtime: #{item.lastModified}, Permissions: #{item.permissions}"
           else if item.isDir
             @div class: 'primary-line icon icon-file-directory', item.name
-            @div class: 'secondary-line no-icon text-subtle', "Size: #{item.size}, Mtime: #{item.lastModified}, Permissions: #{item.permissions}"
-          else
+          else if item.isLink
+            @div class: 'primary-line icon icon-file-symlink-file', item.name
+
+          @div class: 'secondary-line no-icon text-subtle', "Size: #{item.size}, Mtime: #{item.lastModified}, Permissions: #{item.permissions}"
+
+
 
     populate: (callback) ->
       async.waterfall([
@@ -190,8 +193,17 @@ module.exports =
         @setItems()
         @updatePath(item.name)
         @populate()
+      else if item.isLink
+        if atom.config.get('remote-edit.followLinks')
+          @filterEditorView.setText('')
+          @setItems()
+          @updatePath(item.name)
+          @populate()
+        else
+          @openFile(item)
+
       else
-        @setError("Selected item is neither a file nor a directory!")
+        @setError("Selected item is neither a file, directory or link!")
 
     listenForEvents: ->
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>

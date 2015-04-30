@@ -29,15 +29,14 @@ module.exports =
       unless item.name?
         return undefined
 
-      remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, filesize(item.size).human(), null, null)
+      remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, false, filesize(item.size).human(), null, null)
 
       if item.type == "d"
         remoteFile.isDir = true
       else if item.type == "-"
         remoteFile.isFile = true
       else if item.type == 'l'
-        # this is really a symlink but i add it as a file anyway
-        remoteFile.isFile = true
+        remoteFile.isLink = true
 
       if item.rights?
         remoteFile.permissions = (@convertRWXToNumber(item.rights.user) + @convertRWXToNumber(item.rights.group) + @convertRWXToNumber(item.rights.other))
@@ -117,8 +116,8 @@ module.exports =
         (objects, callback) ->
           async.filter(objects, ((item, callback) -> callback(item?)), ((result) -> callback(null, result)))
         (objects, callback) ->
-          objects.push(new RemoteFile((path + "/.."), false, true, null, null, null))
-          objects.push(new RemoteFile((path + "/."), false, true, null, null, null))
+          objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
+          objects.push(new RemoteFile((path + "/."), false, true, false, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else
