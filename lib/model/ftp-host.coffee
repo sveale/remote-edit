@@ -73,16 +73,16 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emitter.emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection = new ftp()
           @connection.on 'error', (err) =>
             @connection.end()
-            @emitter.emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-error'}
+            @emitter.emit 'info', {message: "Error occured when connecting to ftp://#{@username}@#{@hostname}:#{@port}", type: 'error'}
             callback?(err)
           @connection.on 'ready', =>
-            @emitter.emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", className: 'text-success'}
+            @emitter.emit 'info', {message: "Successfully connected to ftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
@@ -93,16 +93,16 @@ module.exports =
       @connection? and @connection.connected
 
     writeFile: (file, text, callback) ->
-      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-info'}
+      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection.put((new Buffer(text)), file.remoteFile.path, callback)
       ], (err) =>
         if err?
-          @emitter.emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-error'})
+          @emitter.emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'error'})
           console.error err if err?
         else
-          @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", className: 'text-success'})
+          @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'success'})
         @close()
         callback?(err)
       )
@@ -124,7 +124,7 @@ module.exports =
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
       ], (err, result) =>
         if err?
-          @emitter.emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", className: 'text-error'} )
+          @emitter.emit('info', {message: "Error occured when reading remote directory ftp://#{@username}@#{@hostname}:#{@port}:#{path}", type: 'error'} )
           console.error err if err?
           callback?(err)
         else
@@ -132,7 +132,7 @@ module.exports =
       )
 
     getFileData: (file, callback) ->
-      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-info'})
+      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'info'})
       async.waterfall([
         (callback) =>
           @connection.get(file.path, callback)
@@ -143,10 +143,10 @@ module.exports =
           stream.on 'close', -> callback(null, data.join(''))
       ], (err, result) =>
         if err?
-          @emitter.emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-error'})
+          @emitter.emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'error'})
           callback(err, null)
         else
-          @emitter.emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", className: 'text-success'})
+          @emitter.emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'success'})
           callback?(err, result)
       )
 
