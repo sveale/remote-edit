@@ -11,6 +11,7 @@ module.exports =
     atom.deserializers.add(this)
 
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
+      @localFiles = []
       @emitter = new Emitter
 
     destroy: ->
