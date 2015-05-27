@@ -26,7 +26,7 @@ module.exports =
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword )
 
     createRemoteFileFromListObj: (name, item) ->
-      unless item.name?
+      unless item.name? and item.name isnt '..' and item.name isnt '.'
         return undefined
 
       remoteFile = new RemoteFile(Path.normalize((name + '/' + item.name)).split(Path.sep).join('/'), false, false, false, filesize(item.size).human(), null, null)
