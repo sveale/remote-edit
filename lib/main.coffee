@@ -47,6 +47,16 @@ module.exports =
       description: 'If set to true, symbolic links are treated as directories'
       type: 'boolean'
       default: true
+    clearFileList:
+      title: 'Clear file list'
+      description: 'When enabled, the open files list will be cleared on initialization'
+      type: 'boolean'
+      default: false
+    rememberLastOpenDirectory:
+      title: 'Remember last open directory'
+      description: 'When enabled, browsing a host will return you to the last directory you entered'
+      type: 'boolean'
+      default: false
 
   activate: (state) ->
     @setupOpeners()

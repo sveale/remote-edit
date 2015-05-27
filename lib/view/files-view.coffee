@@ -23,7 +23,7 @@ module.exports =
       @listenForEvents()
 
     connect: (@host, connectionOptions = {}) ->
-      @path = @host.lastOpenDirectory
+      @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') then @host.lastOpenDirectory else @host.directory
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?
