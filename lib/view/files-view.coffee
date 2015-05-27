@@ -71,6 +71,7 @@ module.exports =
       return "name"
 
     destroy: ->
+      @panel.destroy()
       @disposables.dispose()
 
     cancelled: ->
