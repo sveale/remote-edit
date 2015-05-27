@@ -158,28 +158,36 @@ module.exports =
       )
 
     openFile: (file) =>
-      @setLoading("Downloading file...")
-      async.waterfall([
-        (callback) =>
-          @getDefaultSaveDirForHost(callback)
-        (savePath, callback) =>
-          savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
-          @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
-        (data, savePath, callback) ->
-          fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-      ], (err, savePath) =>
-        if err?
-          @setError(err)
-          console.error err
-        else
-          localFile = new LocalFile(savePath, file, @host)
-          @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-          atom.workspace.open(uri, split: 'left')
+      exists = _.filter @host.localFiles, (local) ->
+        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified
+      unless exists.length > 0
+        @setLoading("Downloading file...")
+        async.waterfall([
+          (callback) =>
+            @getDefaultSaveDirForHost(callback)
+          (savePath, callback) =>
+            savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
+            @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
+          (data, savePath, callback) ->
+            fs.writeFile(savePath, data, (err) -> callback(err, savePath))
+        ], (err, savePath) =>
+          if err?
+            @setError(err)
+            console.error err
+          else
+            localFile = new LocalFile(savePath, file, @host)
+            @host.addLocalFile(localFile)
+            uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+            atom.workspace.open(uri, split: 'left')
 
-          @host.close()
-          @cancel()
-      )
+            @host.close()
+            @cancel()
+        )
+      else
+        localFile = exists[0]
+        uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+        atom.workspace.open(uri, split: 'left')
+        @cancel
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")
