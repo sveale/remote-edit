@@ -12,6 +12,7 @@ module.exports =
 
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
       @localFiles = []
+      @lastOpenDirectory = @directory
       @emitter = new Emitter
 
     destroy: ->
