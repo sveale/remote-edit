@@ -187,7 +187,7 @@ module.exports =
         localFile = exists[0]
         uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
         atom.workspace.open(uri, split: 'left')
-        @cancel
+        @cancel()
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")
