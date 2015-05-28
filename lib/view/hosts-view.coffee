@@ -21,7 +21,7 @@ module.exports =
       @listenForEvents()
 
     destroy: ->
-      @panel.destroy() if @panel?
+      @panel.destroy()
       @disposables.dispose()
 
     cancel: ->
