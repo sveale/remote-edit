@@ -42,6 +42,10 @@ module.exports =
       description: 'Overrides default SSH agent. See ssh2 docs for more info.'
       type: 'string'
       default: 'Default'
+    foldersOnTop:
+      title: 'Show folders on top'
+      type: 'boolean'
+      default: false
     followLinks:
       title: 'Follow symbolic links'
       description: 'If set to true, symbolic links are treated as directories'

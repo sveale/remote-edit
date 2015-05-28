@@ -116,6 +116,7 @@ module.exports =
           @setLoading("Loading...")
           @host.getFilesMetadata(@path, callback)
         (items, callback) =>
+          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit.foldersOnTop'
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
