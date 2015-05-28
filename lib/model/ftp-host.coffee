@@ -117,7 +117,6 @@ module.exports =
           async.filter(objects, ((item, callback) -> callback(item?)), ((result) -> callback(null, result)))
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
-          objects.push(new RemoteFile((path + "/."), false, true, false, null, null, null))
           if atom.config.get 'remote-edit.showHiddenFiles'
             callback(null, objects)
           else
