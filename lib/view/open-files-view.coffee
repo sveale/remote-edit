@@ -20,7 +20,7 @@ module.exports =
       @listenForEvents()
 
     destroy: ->
-      @panel.destroy()
+      @panel.destroy() if @panel?
       @disposables.dispose()
 
     cancelled: ->

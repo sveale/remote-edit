@@ -124,7 +124,7 @@ module.exports =
         @host.invalidate()
 
     destroy: ->
-      @panel.destroy()
+      @panel.destroy() if @panel?
       @disposables.dispose()
 
     cancel: ->
