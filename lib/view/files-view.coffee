@@ -123,6 +123,10 @@ module.exports =
         callback?(err, result)
       )
 
+    populateList: ->
+      super
+      @setError path.resolve @path
+
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
         @path + next
