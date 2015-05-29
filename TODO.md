@@ -1,8 +1,8 @@
  - [x] fix notifications panel
  - [x] fix dialog.coffee
  - [ ] create hidden input dialog and use it in dialog.coffee and elsewhere
- - [ ] switch to https://github.com/atom/notifications instead of atom-message-panel
+ - [x] switch to https://github.com/atom/notifications instead of atom-message-panel
  - [x] check and fix serializing
  - [x] clear input when a directory is selected
  - [x] destroy all views, at least call destroy on them
- - [ ] See issue #68
+ - [x] See issue #68
