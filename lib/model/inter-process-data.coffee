@@ -8,7 +8,6 @@ SftpHost = null
 LocalFile = null
 RemoteFile = null
 _ = null
-MessagesView = null
 RemoteEditEditor = null
 
 module.exports =
@@ -35,16 +34,13 @@ module.exports =
       for host in @hostList
         @addSubscriptionToHost(host)
 
-      if atom.config.get 'remote-edit.messagePanel'
-        MessagesView ?= require '../view/messages-view'
-        @messages ?= new MessagesView("Remote edit")
-
+      if atom.config.get 'remote-edit.notifications'
         RemoteEditEditor ?= require '../model/remote-edit-editor'
 
         @disposables.add atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
             # If a host emits information ('info'), forward this to @messages
-            @disposables.add editor.host.onInfo (info) => @messages.postMessage(info)
+            @disposables.add editor.host.onInfo (info) => atom.notifications.add(info.type, info.message)
         )
 
     serializeParams: ->
@@ -71,5 +67,5 @@ module.exports =
         @hostList = _.reject(@hostList, ((val) -> val == host))
         @emitter.emit 'did-change'
 
-      if atom.config.get 'remote-edit.messagePanel'
-        @disposables.add host.onInfo (info) => @messages.postMessage(info)
+      if atom.config.get 'remote-edit.notifications'
+        @disposables.add host.onInfo (info) => atom.notifications.add(info.type, info.message)

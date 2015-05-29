@@ -23,7 +23,7 @@ module.exports =
       @listenForEvents()
 
     connect: (@host, connectionOptions = {}) ->
-      @path = @host.directory
+      @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') then @host.lastOpenDirectory else @host.directory
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?
@@ -71,6 +71,7 @@ module.exports =
       return "name"
 
     destroy: ->
+      @panel.destroy() if @panel?
       @disposables.dispose()
 
     cancelled: ->
@@ -115,12 +116,17 @@ module.exports =
           @setLoading("Loading...")
           @host.getFilesMetadata(@path, callback)
         (items, callback) =>
+          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit.foldersOnTop'
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
         @setError(err) if err?
         callback?(err, result)
       )
+
+    populateList: ->
+      super
+      @setError path.resolve @path
 
     getNewPath: (next) ->
       if (@path[@path.length - 1] == "/")
@@ -158,28 +164,36 @@ module.exports =
       )
 
     openFile: (file) =>
-      @setLoading("Downloading file...")
-      async.waterfall([
-        (callback) =>
-          @getDefaultSaveDirForHost(callback)
-        (savePath, callback) =>
-          savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
-          @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
-        (data, savePath, callback) ->
-          fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-      ], (err, savePath) =>
-        if err?
-          @setError(err)
-          console.error err
-        else
-          localFile = new LocalFile(savePath, file, @host)
-          @host.addLocalFile(localFile)
-          uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-          atom.workspace.open(uri, split: 'left')
+      exists = _.filter @host.localFiles, (local) ->
+        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified
+      unless exists.length > 0
+        @setLoading("Downloading file...")
+        async.waterfall([
+          (callback) =>
+            @getDefaultSaveDirForHost(callback)
+          (savePath, callback) =>
+            savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
+            @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
+          (data, savePath, callback) ->
+            fs.writeFile(savePath, data, (err) -> callback(err, savePath))
+        ], (err, savePath) =>
+          if err?
+            @setError(err)
+            console.error err
+          else
+            localFile = new LocalFile(savePath, file, @host)
+            @host.addLocalFile(localFile)
+            uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+            atom.workspace.open(uri, split: 'left')
 
-          @host.close()
-          @cancel()
-      )
+            @host.close()
+            @cancel()
+        )
+      else
+        localFile = exists[0]
+        uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+        atom.workspace.open(uri, split: 'left')
+        @cancel()
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")
@@ -192,6 +206,7 @@ module.exports =
         @filterEditorView.setText('')
         @setItems()
         @updatePath(item.name)
+        @host.lastOpenDirectory = item.path
         @populate()
       else if item.isLink
         if atom.config.get('remote-edit.followLinks')

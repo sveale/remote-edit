@@ -25,8 +25,8 @@ module.exports =
       description: 'When enabled, remote files will be automatically uploaded when saved'
       type: 'boolean'
       default: true
-    messagePanel:
-      title: 'Display message panel'
+    notifications:
+      title: 'Display notifications'
       type: 'boolean'
       default: true
     sshPrivateKeyPath:
@@ -37,20 +37,30 @@ module.exports =
       title: 'Default path to serialize remoteEdit data'
       type: 'string'
       default: '~/.atom/remoteEdit.json'
-    messagePanelTimeout:
-      title: 'Timeout for message panel'
-      type: 'integer'
-      default: 6000
     agentToUse:
       title: 'SSH agent'
       description: 'Overrides default SSH agent. See ssh2 docs for more info.'
       type: 'string'
       default: 'Default'
+    foldersOnTop:
+      title: 'Show folders on top'
+      type: 'boolean'
+      default: false
     followLinks:
       title: 'Follow symbolic links'
       description: 'If set to true, symbolic links are treated as directories'
       type: 'boolean'
       default: true
+    clearFileList:
+      title: 'Clear file list'
+      description: 'When enabled, the open files list will be cleared on initialization'
+      type: 'boolean'
+      default: false
+    rememberLastOpenDirectory:
+      title: 'Remember last open directory'
+      description: 'When enabled, browsing a host will return you to the last directory you entered'
+      type: 'boolean'
+      default: false
 
   activate: (state) ->
     @setupOpeners()
@@ -97,7 +107,7 @@ module.exports =
     showOpenFilesView.toggle()
 
   initializeIpdwIfNecessary: ->
-    if atom.config.get 'remote-edit.messagePanel'
+    if atom.config.get 'remote-edit.notifications'
       stop = false
       for editor in atom.workspace.getTextEditors() when !stop
         if editor instanceof RemoteEditEditor
