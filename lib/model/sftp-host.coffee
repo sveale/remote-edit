@@ -23,8 +23,8 @@ module.exports =
     connection: undefined
     protocol: "sftp"
 
-    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath) ->
-      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword)
+    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
+      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory)
 
     getConnectionStringUsingAgent: ->
       connectionString =  {
@@ -196,6 +196,7 @@ module.exports =
         @password
         @passphrase
         @privateKeyPath
+        @lastOpenDirectory
       }
 
     deserializeParams: (params) ->

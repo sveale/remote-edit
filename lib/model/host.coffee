@@ -10,9 +10,8 @@ module.exports =
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword) ->
+    constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory) ->
       @localFiles = [] if atom.config.get 'remote-edit.clearFileList'
-      @lastOpenDirectory = @directory
       @emitter = new Emitter
 
     destroy: ->
