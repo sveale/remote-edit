@@ -200,9 +200,6 @@ module.exports =
 
     deserializeParams: (params) ->
       tmpArray = []
-      for localFile in JSON.parse(params.localFiles)
-        localFileDeserialized = LocalFile.deserialize(localFile)
-        tmpArray.push(localFileDeserialized)
-
+      tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in JSON.parse(params.localFiles)
       params.localFiles = tmpArray
       params
