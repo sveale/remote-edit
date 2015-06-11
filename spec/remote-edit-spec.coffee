@@ -1,4 +1,4 @@
-{$, $$, WorkspaceView} = require 'atom-space-pen-views'
+{$, $$} = require 'atom-space-pen-views'
 Q = require 'q'
 
 CreateFixtures = require './create-fixtures'
@@ -25,7 +25,7 @@ describe "remote-edit:", ->
       activationPromise
 
   # afterEach ->
-  #   atom.workspaceView.remove()
+  #
 
   # describe "when show-open-files is triggered", ->
   #   it "shows two open files", ->
