@@ -44,11 +44,14 @@ module.exports =
       FtpHost ?= require './ftp-host'
       SftpHost ?= require './sftp-host'
 
+      if i = @localFile.remoteFile.path.indexOf(@host.directory) > -1
+        relativePath = @localFile.remoteFile.path[(i+@host.directory.length)..]
+
       fileName = @getTitle()
       if @host instanceof SftpHost and @host? and @localFile?
-        directory = "sftp://#{@host.username}@#{@host.hostname}:#{@host.port}#{@localFile.remoteFile.path}"
+        directory = if relativePath? then relativePath else "sftp://#{@host.username}@#{@host.hostname}:#{@host.port}#{@localFile.remoteFile.path}"
       else if @host instanceof FtpHost and @host? and @localFile?
-        directory = "ftp://#{@host.username}@#{@host.hostname}:#{@host.port}#{@localFile.remoteFile.path}"
+        directory = if relativePath? then relativePath else "ftp://#{@host.username}@#{@host.hostname}:#{@host.port}#{@localFile.remoteFile.path}"
       else
         directory = atom.project.relativize(path.dirname(sessionPath))
         directory = if directory.length > 0 then directory else path.basename(path.dirname(sessionPath))
