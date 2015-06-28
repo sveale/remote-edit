@@ -5,6 +5,7 @@ LocalFile = require '../model/local-file'
 Dialog = require './dialog'
 
 fs = require 'fs'
+mkdir = require 'mkdirp'
 os = require 'os'
 async = require 'async'
 util = require 'util'
@@ -137,12 +138,12 @@ module.exports =
     updatePath: (next) =>
       @path = @getNewPath(next)
 
-    getDefaultSaveDirForHost: (callback) ->
+    makeDir: (remotePath, callback) ->
       async.waterfall([
         (callback) ->
           fs.realpath(os.tmpDir(), callback)
         (tmpDir, callback) ->
-          tmpDir = tmpDir + path.sep + "remote-edit"
+          tmpDir = tmpDir + path.sep + "remote-edit" + "-" + (new Date()).getTime().toString()
           fs.mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
@@ -151,8 +152,8 @@ module.exports =
             )
           )
         (tmpDir, callback) =>
-          tmpDir = tmpDir + path.sep + @host.hashCode()
-          fs.mkdir(tmpDir, ((err) ->
+          tmpDir = tmpDir + path.sep + remotePath
+          mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
             else
@@ -170,9 +171,9 @@ module.exports =
         @setLoading("Downloading file...")
         async.waterfall([
           (callback) =>
-            @getDefaultSaveDirForHost(callback)
+            @makeDir(@host.username + "-" + @host.hostname + path.sep + file.path.slice(0, -file.name.length), callback)
           (savePath, callback) =>
-            savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
+            savePath = savePath + path.sep + file.name
             @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
           (data, savePath, callback) ->
             fs.writeFile(savePath, data, (err) -> callback(err, savePath))

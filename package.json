@@ -20,18 +20,19 @@
     "atom": ">=0.174.0 <2.0.0"
   },
   "dependencies": {
-    "ftp": ">=0.3.7",
     "async": ">=0.9.0",
+    "atom-space-pen-views": "^2.0.3",
     "file-size": ">=0.0.5",
-    "moment": ">=2.7.0",
-    "ssh2": "~0.4.7",
-    "serializable": ">=1.0.0",
-    "string-hash": ">=1.1.0",
-    "osenv": ">=0.1.0",
-    "underscore-plus": ">=1.5.0",
     "fs-plus": ">=2.2.3",
+    "ftp": ">=0.3.7",
+    "mkdirp": ">=0.5.1",
+    "moment": ">=2.7.0",
+    "osenv": ">=0.1.0",
     "q": ">=1.0.1",
-    "atom-space-pen-views": "^2.0.3"
+    "serializable": ">=1.0.0",
+    "ssh2": "~0.4.7",
+    "string-hash": ">=1.1.0",
+    "underscore-plus": ">=1.5.0"
   },
   "devDependencies": {
     "temp": "*"
