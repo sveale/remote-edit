@@ -143,7 +143,7 @@ module.exports =
         (callback) ->
           fs.realpath(os.tmpDir(), callback)
         (tmpDir, callback) ->
-          tmpDir = tmpDir + path.sep + (new Date()).getTime().toString() + "-" + "remote-edit" 
+          tmpDir = tmpDir + path.sep + "remote-edit" + "-" + (new Date()).getTime().toString()
           fs.mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
@@ -152,7 +152,7 @@ module.exports =
             )
           )
         (tmpDir, callback) =>
-          tmpDir = tmpDir + remotePath
+          tmpDir = tmpDir + path.sep + remotePath
           mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
@@ -171,7 +171,7 @@ module.exports =
         @setLoading("Downloading file...")
         async.waterfall([
           (callback) =>
-            @makeDir(file.path.slice(0, -file.name.length), callback)
+            @makeDir(@host.username + "-" + @host.hostname + path.sep + file.path.slice(0, -file.name.length), callback)
           (savePath, callback) =>
             savePath = savePath + path.sep + file.name
             @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
