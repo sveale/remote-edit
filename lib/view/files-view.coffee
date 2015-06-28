@@ -166,14 +166,14 @@ module.exports =
 
     openFile: (file) =>
       exists = _.filter @host.localFiles, (local) ->
-        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified and not atom.config.get('remote-edit.alwaysDownloadFileFromRemoteHost')
+        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified
       unless exists.length > 0
         @setLoading("Downloading file...")
         async.waterfall([
           (callback) =>
             @getDefaultSaveDirForHostAndFile(file, callback)
           (savePath, callback) =>
-            savePath = savePath + path.sep + (new Date()).getTime().toString() + "_" + file.name
+            savePath = savePath + path.sep + file.lastModified.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
             @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
           (data, savePath, callback) ->
             fs.writeFile(savePath, data, (err) -> callback(err, savePath))

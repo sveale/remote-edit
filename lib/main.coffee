@@ -61,11 +61,6 @@ module.exports =
       description: 'When enabled, browsing a host will return you to the last directory you entered'
       type: 'boolean'
       default: false
-    alwaysDownloadFileFromRemoteHost:
-      title: 'Always download file from remote host'
-      description: 'When disabled, if the remote file have previously been downloaded and have the same timestamp as the local file it will not be downloaded again'
-      type: 'boolean'
-      default: false
 
   activate: (state) ->
     @setupOpeners()
