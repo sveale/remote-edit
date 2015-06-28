@@ -166,7 +166,7 @@ module.exports =
 
     openFile: (file) =>
       exists = _.filter @host.localFiles, (local) ->
-        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified
+        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified and not atom.config.get('remote-edit.alwaysDownloadFileFromRemoteHost')
       unless exists.length > 0
         @setLoading("Downloading file...")
         async.waterfall([
