@@ -11,6 +11,7 @@ util = require 'util'
 path = require 'path'
 Q = require 'q'
 _ = require 'underscore-plus'
+mkdirp = require 'mkdirp'
 
 module.exports =
   class FilesView extends SelectListView
@@ -137,7 +138,7 @@ module.exports =
     updatePath: (next) =>
       @path = @getNewPath(next)
 
-    getDefaultSaveDirForHost: (callback) ->
+    getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
         (callback) ->
           fs.realpath(os.tmpDir(), callback)
@@ -151,8 +152,8 @@ module.exports =
             )
           )
         (tmpDir, callback) =>
-          tmpDir = tmpDir + path.sep + @host.hashCode()
-          fs.mkdir(tmpDir, ((err) ->
+          tmpDir = tmpDir + path.sep + @host.hashCode() + '_' + @host.username + "-" + @host.hostname +  file.dirName
+          mkdirp(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
             else
@@ -170,9 +171,9 @@ module.exports =
         @setLoading("Downloading file...")
         async.waterfall([
           (callback) =>
-            @getDefaultSaveDirForHost(callback)
+            @getDefaultSaveDirForHostAndFile(file, callback)
           (savePath, callback) =>
-            savePath = savePath + path.sep + (new Date()).getTime().toString() + "-" + file.name
+            savePath = savePath + path.sep + file.name
             @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
           (data, savePath, callback) ->
             fs.writeFile(savePath, data, (err) -> callback(err, savePath))
