@@ -173,7 +173,7 @@ module.exports =
           (callback) =>
             @getDefaultSaveDirForHostAndFile(file, callback)
           (savePath, callback) =>
-            savePath = savePath + path.sep + file.name
+            savePath = savePath + path.sep + (new Date()).getTime().toString() + "_" + file.name
             @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
           (data, savePath, callback) ->
             fs.writeFile(savePath, data, (err) -> callback(err, savePath))
