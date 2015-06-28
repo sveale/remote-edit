@@ -143,7 +143,7 @@ module.exports =
         (callback) ->
           fs.realpath(os.tmpDir(), callback)
         (tmpDir, callback) ->
-          tmpDir = tmpDir + path.sep + "remote-edit"
+          tmpDir = tmpDir + path.sep + (new Date()).getTime().toString() + "-" + "remote-edit" 
           fs.mkdir(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
