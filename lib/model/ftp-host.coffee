@@ -42,7 +42,7 @@ module.exports =
         remoteFile.permissions = (@convertRWXToNumber(item.rights.user) + @convertRWXToNumber(item.rights.group) + @convertRWXToNumber(item.rights.other))
 
       if item.date?
-        remoteFile.lastModified = moment(item.date).format("HH:MM DD/MM/YYYY")
+        remoteFile.lastModified = moment(item.date).format("HH:mm:ss DD/MM/YYYY")
 
       return remoteFile
 

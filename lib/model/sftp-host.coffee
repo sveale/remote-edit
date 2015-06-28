@@ -69,7 +69,7 @@ module.exports =
       )
 
     createRemoteFileFromFile: (path, file) ->
-      remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] == '-'), (file.longname[0] == 'd'), (file.longname[0] == 'l'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:MM DD/MM/YYYY"))
+      remoteFile = new RemoteFile(Path.normalize("#{path}/#{file.filename}").split(Path.sep).join('/'), (file.longname[0] == '-'), (file.longname[0] == 'd'), (file.longname[0] == 'l'), filesize(file.attrs.size).human(), parseInt(file.attrs.mode, 10).toString(8).substr(2, 4), moment(file.attrs.mtime * 1000).format("HH:mm:ss DD/MM/YYYY"))
       return remoteFile
 
 

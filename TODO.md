@@ -6,5 +6,5 @@
  - [x] clear input when a directory is selected
  - [x] destroy all views, at least call destroy on them
  - [x] See issue #68
- - [ ] When opening files from "downloaded files" check to see if they're updated and re-download them
  - [ ] When deserializing localFiles, check to see if the file is deleted and if so remove it.
+ - [x] Display more information in "Show downloaded files"
