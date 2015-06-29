@@ -22,7 +22,7 @@ module.exports =
 
     watcher: ->
       fs.watch(@filePath, ((event, filename) =>
-        if @fsTimeout is undefined and (event is 'changed' or event is 'rename')
+        if @fsTimeout is undefined and (event is 'change' or event is 'rename')
           @fsTimeout = setTimeout((() => @fsTimeout = undefined; @reloadIfNecessary(); @watcher()), 2000)
         )
       )
