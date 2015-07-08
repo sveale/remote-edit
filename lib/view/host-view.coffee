@@ -118,8 +118,7 @@ module.exports =
 
       if @ipdw?
         @ipdw.getData().then((data) =>
-          data.hostList.push(@host)
-          @ipdw.commit()
+          data.addNewHost(@host)
         )
       else
         @host.invalidate()

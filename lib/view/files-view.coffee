@@ -54,7 +54,6 @@ module.exports =
       ], (err, result) =>
         if err?
           console.error err
-          console.debug err.code
           if err.code == 450 or err.type == "PERMISSION_DENIED"
             @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
           else if err.code is 2 and @path is @host.lastOpenDirectory

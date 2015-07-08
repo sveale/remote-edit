@@ -69,3 +69,8 @@ module.exports =
 
       if atom.config.get 'remote-edit.notifications'
         @disposables.add host.onInfo (info) => atom.notifications.add(info.type, info.message)
+
+    addNewHost: (host) ->
+      @hostList.push(host)
+      @addSubscriptionToHost(host)
+      @emitter.emit 'did-change'

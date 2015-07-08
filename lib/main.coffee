@@ -88,14 +88,6 @@ module.exports =
     view = new HostView(host, @getOrCreateIpdw())
     view.toggle()
 
-    # Q ?= require 'q'
-    # @getOrCreateIpdw().then (ipdw) ->
-    #   HostView ?= require './view/host-view'
-    #   FtpHost ?= require './model/ftp-host'
-    #   host = new FtpHost()
-    #   view = new HostView(host, ipdw)
-    #   view.toggle()
-
   browse: ->
     HostsView ?= require './view/hosts-view'
     view = new HostsView(@getOrCreateIpdw())
