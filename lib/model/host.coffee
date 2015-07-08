@@ -4,6 +4,7 @@ async = require 'async'
 hash = require 'string-hash'
 _ = require 'underscore-plus'
 osenv = require 'osenv'
+fs = require 'fs-plus'
 
 module.exports =
   class Host
@@ -12,7 +13,15 @@ module.exports =
 
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory) ->
       @localFiles = [] if atom.config.get 'remote-edit.clearFileList'
+
       @emitter = new Emitter
+      
+      # Remove localFiles if the underlying file has been deleted on localhost
+      _.each(@localFiles, (val) =>
+        fs.exists(val.path, (exists) =>
+          @removeLocalFile(val) if not exists
+          )
+        )
 
     destroy: ->
       @emitter.dispose()

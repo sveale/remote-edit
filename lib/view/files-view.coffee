@@ -12,6 +12,7 @@ path = require 'path'
 Q = require 'q'
 _ = require 'underscore-plus'
 mkdirp = require 'mkdirp'
+moment = require 'moment'
 
 module.exports =
   class FilesView extends SelectListView
@@ -53,8 +54,13 @@ module.exports =
       ], (err, result) =>
         if err?
           console.error err
+          console.debug err.code
           if err.code == 450 or err.type == "PERMISSION_DENIED"
             @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
+          else if err.code is 2 and @path is @host.lastOpenDirectory
+            # no such file, can occur if lastOpenDirectory is used and the dir has been removed
+            @host.lastOpenDirectory = undefined
+            @connect(@host, connectionOptions)
           else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
             async.waterfall([
               (callback) ->
@@ -165,37 +171,29 @@ module.exports =
       )
 
     openFile: (file) =>
-      exists = _.filter @host.localFiles, (local) ->
-        local.remoteFile.path is file.path and local.remoteFile.lastModified is file.lastModified
-      unless exists.length > 0
-        @setLoading("Downloading file...")
-        async.waterfall([
-          (callback) =>
-            @getDefaultSaveDirForHostAndFile(file, callback)
-          (savePath, callback) =>
-            savePath = savePath + path.sep + file.lastModified.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
-            @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
-          (data, savePath, callback) ->
-            fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-        ], (err, savePath) =>
-          if err?
-            @setError(err)
-            console.error err
-          else
-            localFile = new LocalFile(savePath, file, @host)
-            @host.addLocalFile(localFile)
-            uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-            atom.workspace.open(uri, split: 'left')
+      @setLoading("Downloading file...")
+      dtime = moment().format("HH:mm:ss DD/MM/YY")
+      async.waterfall([
+        (callback) =>
+          @getDefaultSaveDirForHostAndFile(file, callback)
+        (savePath, callback) =>
+          savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
+          @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
+        (data, savePath, callback) ->
+          fs.writeFile(savePath, data, (err) -> callback(err, savePath))
+      ], (err, savePath) =>
+        if err?
+          @setError(err)
+          console.error err
+        else
+          localFile = new LocalFile(savePath, file, dtime, @host)
+          @host.addLocalFile(localFile)
+          uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+          atom.workspace.open(uri, split: 'left')
 
-            @host.close()
-            @cancel()
-        )
-      else
-        localFile = exists[0]
-        uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-        atom.workspace.open(uri, split: 'left')
-        @host.close()
-        @cancel()
+          @host.close()
+          @cancel()
+      )
 
     openDirectory: (dir) =>
       @setLoading("Opening directory...")

@@ -8,13 +8,14 @@ module.exports =
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    constructor: (@path, @remoteFile, @host = null) ->
+    constructor: (@path, @remoteFile, @dtime, @host = null) ->
       @name = @remoteFile.name
 
     serializeParams: ->
       {
         @path
         remoteFile: @remoteFile.serialize()
+        @dtime
       }
 
     deserializeParams: (params) ->

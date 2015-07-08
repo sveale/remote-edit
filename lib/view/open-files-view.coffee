@@ -57,8 +57,9 @@ module.exports =
       $$ ->
         @li class: 'two-lines', =>
           @div class: 'primary-line icon globe', "#{localFile.host.protocol}://#{localFile.host.username}@#{localFile.host.hostname}:#{localFile.host.port}#{localFile.remoteFile.path}"
-          mtime = moment(fs.statSync(localFile.path).mtime.getTime()).format("HH:mm:ss DD/MM/YY")
-          @div class: 'secondary-line no-icon text-subtle', "Downloaded: #{localFile.remoteFile.lastModified}, Mtime: #{mtime}"
+          #mtime = moment(fs.statSync(localFile.path).mtime.getTime()).format("HH:mm:ss DD/MM/YY")
+          mtime = moment(fs.stat(localFile.path, (stat) => stat?.mtime.getTime())).format("HH:mm:ss DD/MM/YY")
+          @div class: 'secondary-line no-icon text-subtle', "Downloaded: #{localFile.dtime}, Mtime: #{mtime}"
 
     confirmed: (localFile) ->
       uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"

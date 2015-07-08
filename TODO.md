@@ -6,5 +6,6 @@
  - [x] clear input when a directory is selected
  - [x] destroy all views, at least call destroy on them
  - [x] See issue #68
- - [ ] When deserializing localFiles, check to see if the file is deleted and if so remove it.
+ - [x] When deserializing localFiles, check to see if the file is deleted and if so remove it.
  - [x] Display more information in "Show downloaded files"
+ - [x] Store when files are downloaded
