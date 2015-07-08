@@ -24,12 +24,8 @@ module.exports =
       @panel.destroy() if @panel?
       @disposables.dispose()
 
-    cancel: ->
-      @cancelled()
-
     cancelled: ->
       @hide()
-      @restoreFocus()
       @destroy()
 
     toggle: ->

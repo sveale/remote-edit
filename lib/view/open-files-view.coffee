@@ -27,10 +27,6 @@ module.exports =
 
     cancelled: ->
       @hide()
-
-    cancel: ->
-      @cancelled()
-      @restoreFocus()
       @destroy()
 
     toggle: ->
