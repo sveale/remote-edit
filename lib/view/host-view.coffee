@@ -26,6 +26,7 @@ module.exports =
         @label 'Alias (optional)'
         @subview 'alias', new TextEditorView(mini: true)
 
+        @label "Authentication scheme"
         @div class: 'block', outlet: 'authenticationButtonsBlock', =>
           @div class: 'btn-group', =>
             @button class: 'btn selected', outlet: 'userAgentButton', click: 'userAgentButtonClick', 'User agent'
