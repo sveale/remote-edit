@@ -86,13 +86,7 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'hostview:delete', =>
         item = @getSelectedItem()
         if item?
-          @items = _.reject(@items, ((val) -> val == item))
           item.delete()
-          @ipdw.getData().then((data) =>
-            _.reject(data.hostList, ((val) -> val == item))
-            @ipdw.commit()
-          )
-          @populateList()
           @setLoading()
       @disposables.add atom.commands.add 'atom-workspace', 'hostview:edit', =>
         item = @getSelectedItem()
