@@ -13,7 +13,8 @@ Atom package to browse and edit remote files using FTP and SFTP.
 * Automatically upload file on save
 * Multi-window support (ie. server settings and downloaded files are serialized and accessible across multiple Atom windows)
 
-
+## Security conserns
+ * All information regarding hosts are saved in cleartext. This means that if you select the password authentication scheme and choose not to be prompted at connect, __the password will be stored in cleartext__. This also applies to passphrases if a PKEY is used. Because of this, I recommend using an User Agent with SSH hosts and leaving the passsword/passphrase field blank otherwise.
 
 ## Keyboard shortcuts
 <kbd>Shift+e</kbd>

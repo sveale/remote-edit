@@ -11,22 +11,21 @@ module.exports =
   class HostView extends View
     @content: ->
       @div class: 'host-view', =>
-        @label 'Hostname'
+        @h2 "Connection settings", class: "host-header"
+        @label 'Hostname:'
         @subview 'hostname', new TextEditorView(mini: true)
 
-        @label 'Default directory'
+        @label 'Default directory:'
         @subview 'directory', new TextEditorView(mini: true)
 
-        @label 'Username'
+        @label 'Username:'
         @subview 'username', new TextEditorView(mini: true)
 
-        @label 'Port'
+        @label 'Port:'
         @subview 'port', new TextEditorView(mini: true)
 
-        @label 'Alias (optional)'
-        @subview 'alias', new TextEditorView(mini: true)
 
-        @label "Authentication scheme"
+        @h2 "Authentication settings", class: "host-header"
         @div class: 'block', outlet: 'authenticationButtonsBlock', =>
           @div class: 'btn-group', =>
             @button class: 'btn selected', outlet: 'userAgentButton', click: 'userAgentButtonClick', 'User agent'
@@ -34,14 +33,23 @@ module.exports =
             @button class: 'btn', outlet: 'passwordButton', click: 'passwordButtonClick', 'Password'
 
         @div class: 'block', outlet: 'passwordBlock', =>
-          @label 'Password (leave empty if you want to be prompted)'
+          @label 'Password:'
           @subview 'password', new TextEditorView(mini: true)
+          @label 'Passwords are stored in cleartext! Leave password field empty if you want to be prompted.', class: 'text-warning'
 
         @div class: 'block', outlet: 'privateKeyBlock', =>
-          @label 'Private key path'
+          @label 'Private key path:'
           @subview 'privateKeyPath', new TextEditorView(mini: true)
-          @label 'Private key passphrase (leave blank if unencrypted)'
+          @label 'Private key passphrase:'
           @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
+          @label 'Passphrases are stored in cleartext! Consider using an ssh-agent instead. Leave passphrase field blank if key does not require passphrase.', class: 'text-warning'
+
+
+        @h2 "Additional settings", class: "host-header"
+        @label 'Alias:'
+        @subview 'alias', new TextEditorView(mini: true)
+
+
 
         @div class: 'block', outlet: 'buttonBlock', =>
           @button class: 'inline-block btn pull-right', outlet: 'cancelButton', click: 'cancel', 'Cancel'
