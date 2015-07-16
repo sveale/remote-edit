@@ -76,7 +76,7 @@ module.exports =
       if atom.config.get 'remote-edit.uploadOnSave'
         @upload()
       else
-        Dialog ?= require './dialog'
+        Dialog ?= require '../view/dialog'
         chosen = atom.confirm
           message: "File has been saved. Do you want to upload changes to remote host?"
           detailedMessage: "The changes exists on disk and can be uploaded later."
