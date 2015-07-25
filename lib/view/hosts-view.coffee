@@ -80,6 +80,7 @@ module.exports =
     confirmed: (item) ->
       @cancel()
       filesView = new FilesView(item)
+      filesView.connect()
       filesView.toggle()
 
     listenForEvents: ->

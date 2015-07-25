@@ -19,12 +19,11 @@ module.exports =
     initialize: (@host) ->
       super
       @addClass('filesview')
-      @connect(@host)
 
       @disposables = new CompositeDisposable
       @listenForEvents()
 
-    connect: (@host, connectionOptions = {}) ->
+    connect: (connectionOptions = {}) ->
       @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory
       async.waterfall([
         (callback) =>
@@ -59,15 +58,15 @@ module.exports =
           else if err.code is 2 and @path is @host.lastOpenDirectory
             # no such file, can occur if lastOpenDirectory is used and the dir has been removed
             @host.lastOpenDirectory = undefined
-            @connect(@host, connectionOptions)
+            @connect(connectionOptions)
           else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
             async.waterfall([
               (callback) ->
                 passwordDialog = new Dialog({prompt: "Enter password"})
                 passwordDialog.toggle(callback)
             ], (err, result) =>
-              @connect(@host, {password: result})
               @toggle()
+              @connect({password: result})
             )
           else
             @setError(err)
@@ -92,11 +91,10 @@ module.exports =
         @show()
 
     show: ->
-      @panel ?= atom.workspace.addModalPanel(item: this)
+      @panel?.destroy()
+      @panel = atom.workspace.addModalPanel(item: this)
       @panel.show()
-
       @storeFocusedElement()
-
       @focusFilterEditor()
 
     hide: ->
