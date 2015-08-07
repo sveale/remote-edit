@@ -10,6 +10,7 @@ ftp = require 'ftp'
 Serializable = require 'serializable'
 Path = require 'path'
 _ = require 'underscore-plus'
+fs = require 'fs-plus'
 
 
 module.exports =
@@ -92,21 +93,6 @@ module.exports =
     isConnected: ->
       @connection? and @connection.connected
 
-    writeFile: (file, text, callback) ->
-      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'info'}
-      async.waterfall([
-        (callback) =>
-          @connection.put((new Buffer(text)), file.remoteFile.path, callback)
-      ], (err) =>
-        if err?
-          @emitter.emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'error'})
-          console.error err if err?
-        else
-          @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'success'})
-        @close()
-        callback?(err)
-      )
-
     getFilesMetadata: (path, callback) ->
       async.waterfall([
         (callback) =>
@@ -130,23 +116,37 @@ module.exports =
           callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
-    getFileData: (file, callback) ->
-      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'info'})
+    getFile: (localFile, callback) ->
+      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
       async.waterfall([
         (callback) =>
-          @connection.get(file.path, callback)
-        (stream, callback) =>
-          data = []
-          stream.on 'data', (chunk) -> data.push(chunk.toString())
-          stream.on 'error', (error) -> callback(error)
-          stream.on 'close', -> callback(null, data.join(''))
-      ], (err, result) =>
+          @connection.get(localFile.remoteFile.path, callback)
+        (readableStream, callback) =>
+          writableStream = fs.createWriteStream(localFile.path)
+          readableStream.pipe(writableStream)
+          readableStream.on 'end', -> callback(null)
+      ], (err) =>
         if err?
-          @emitter.emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'error'})
-          callback(err, null)
+          @emitter.emit('info', {message: "Error when reading remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
+          callback?(err, localFile)
         else
-          @emitter.emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'success'})
-          callback?(err, result)
+          @emitter.emit('info', {message: "Successfully read remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
+          callback?(null, localFile)
+      )
+
+    writeFile: (localFile, callback) ->
+      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
+      async.waterfall([
+        (callback) =>
+          @connection.put(localFile.path, localFile.remoteFile.path, callback)
+      ], (err) =>
+        if err?
+          @emitter.emit('info', {message: "Error occured when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
+          console.error err if err?
+        else
+          @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
+        @close()
+        callback?(err)
       )
 
     serializeParams: ->
@@ -156,7 +156,7 @@ module.exports =
         @directory
         @username
         @port
-        localFiles: JSON.stringify(localFile.serialize() for localFile in @localFiles)
+        localFiles: JSON.stringify(localFile?.serialize() for localFile in @localFiles)
         @usePassword
         @password
         @lastOpenDirectory

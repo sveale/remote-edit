@@ -177,7 +177,7 @@ module.exports =
           savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
           localFile = new LocalFile(savePath, file, dtime, @host)
           @host.getFile(localFile, callback)
-      ], (err, localFile) => #(err, savePath) =>
+      ], (err, localFile) =>
         if err?
           @setError(err)
           console.error err
