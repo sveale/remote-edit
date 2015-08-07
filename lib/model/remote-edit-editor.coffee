@@ -112,7 +112,7 @@ module.exports =
             else
               callback(null)
           (callback) =>
-            @host.writeFile(@localFile, @buffer.getText(), callback)
+            @host.writeFile(@localFile, callback)
         ], (err) =>
           if err? and @host.usePassword
             async.waterfall([

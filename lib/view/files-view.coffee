@@ -175,15 +175,13 @@ module.exports =
           @getDefaultSaveDirForHostAndFile(file, callback)
         (savePath, callback) =>
           savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
-          @host.getFileData(file, ((err, data) -> callback(err, data, savePath)))
-        (data, savePath, callback) ->
-          fs.writeFile(savePath, data, (err) -> callback(err, savePath))
-      ], (err, savePath) =>
+          localFile = new LocalFile(savePath, file, dtime, @host)
+          @host.getFile(localFile, callback)
+      ], (err, localFile) => #(err, savePath) =>
         if err?
           @setError(err)
           console.error err
         else
-          localFile = new LocalFile(savePath, file, dtime, @host)
           @host.addLocalFile(localFile)
           uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
           atom.workspace.open(uri, split: 'left')

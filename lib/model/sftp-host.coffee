@@ -121,24 +121,6 @@ module.exports =
     isConnected: ->
       @connection? and @connection._state == 'authenticated'
 
-    writeFile: (file, text, callback) ->
-      @emitter.emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'info'}
-      async.waterfall([
-        (callback) =>
-          @connection.sftp(callback)
-        (sftp, callback) ->
-          sftp.fastPut(file.path, file.remoteFile.path, callback)
-      ], (err) =>
-        if err?
-          @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'error'})
-          console.error err if err?
-        else
-          @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.remoteFile.path}", type: 'success'})
-        @close()
-        callback?(err)
-      )
-
-
     getFilesMetadata: (path, callback) ->
       async.waterfall([
         (callback) =>
@@ -162,24 +144,35 @@ module.exports =
           callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
-    getFileData: (file, callback) ->
-      @emitter.emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'info'})
+    getFile: (localFile, callback) ->
+      @emitter.emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          sftp.fastGet(localFile.remoteFile.path, localFile.path, (err) => callback(err, sftp))
+      ], (err, sftp) =>
+        sftp.end()
+        @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'}) if err?
+        @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'}) if !err?
+        callback?(err, localFile)
+      )
+
+    writeFile: (localFile, callback) ->
+      @emitter.emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
         (sftp, callback) ->
-          s = sftp.createReadStream(file.path)
-          data = []
-          s.on 'data', ((d) -> data.push(d.toString()))
-          s.on 'error', ((error) ->
-            e = new Error("ENOENT, open #{file.path}")
-            callback?(e)
-          )
-          s.on 'close', (-> callback(null, data.join('')))
-      ], (err, result) =>
-        @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'error'}) if err?
-        @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{file.path}", type: 'success'}) if !err?
-        callback?(err, result)
+          sftp.fastPut(localFile.path, localFile.remoteFile.path, callback)
+      ], (err) =>
+        if err?
+          @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
+          console.error err if err?
+        else
+          @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
+        @close()
+        callback?(err)
       )
 
     serializeParams: ->
