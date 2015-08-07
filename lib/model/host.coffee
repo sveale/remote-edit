@@ -41,13 +41,13 @@ module.exports =
     getFilesMetadata: (path, callback) ->
       throw new Error("Function getFiles(Callback) needs to be implemented by subclasses!")
 
-    getFileData: (file, callback) ->
-      throw new Error("see subclass")
-
-    serializeParams: ->
+    getFile: (localFile, callback) ->
       throw new Error("Must be implemented in subclass!")
 
-    writeFile: (file, text, callback) ->
+    writeFile: (localFile, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    serializeParams: ->
       throw new Error("Must be implemented in subclass!")
 
     isConnected: ->
