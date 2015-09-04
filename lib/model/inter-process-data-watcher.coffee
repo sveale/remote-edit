@@ -64,14 +64,20 @@ module.exports =
       fs.readFile(@filePath, 'utf8', ((err, data) =>
         InterProcessData ?= require './inter-process-data'
         throw err if err?
+        interProcessData = undefined
         if data.length > 0
-          data = InterProcessData.deserialize(JSON.parse(data))
-          @emitter.emit 'did-change'
-          deferred.resolve(data)
+          try
+            interProcessData = InterProcessData.deserialize(JSON.parse(data))
+          catch e
+            console.debug 'Could not parse serialized remote-edit data! Creating an empty InterProcessData object!'
+            console.debug e
+            interProcessData = new InterProcessData([])
+          finally
+            @emitter.emit 'did-change'
+            deferred.resolve(interProcessData)
         else
-          data = new InterProcessData([])
+          deferred.resolve(new InterProcessData([]))
           @emitter.emit 'did-change'
-          deferred.resolve(data)
         )
       )
 

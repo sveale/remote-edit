@@ -156,7 +156,7 @@ module.exports =
         @directory
         @username
         @port
-        localFiles: JSON.stringify(localFile?.serialize() for localFile in @localFiles)
+        localFiles: localFile.serialize() for localFile in @localFiles
         @usePassword
         @password
         @lastOpenDirectory
@@ -164,6 +164,6 @@ module.exports =
 
     deserializeParams: (params) ->
       tmpArray = []
-      tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in JSON.parse(params.localFiles)
+      tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in params.localFiles
       params.localFiles = tmpArray
       params

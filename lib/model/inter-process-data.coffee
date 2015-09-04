@@ -44,17 +44,19 @@ module.exports =
         )
 
     serializeParams: ->
-      hostList: JSON.stringify(host.serialize() for host in @hostList)
+      {
+        hostList: host.serialize() for host in @hostList
+      }
 
     deserializeParams: (params) ->
       tmpArray = []
-      if params.hostList?
+      if params.hostList
         Host ?= require './host'
         FtpHost ?= require './ftp-host'
         SftpHost ?= require './sftp-host'
         LocalFile ?= require './local-file'
         RemoteFile ?= require './remote-file'
-        tmpArray.push(Host.deserialize(host)) for host in JSON.parse(params.hostList)
+        tmpArray.push(Host.deserialize(host)) for host in params.hostList
       params.hostList = tmpArray
       params
 
