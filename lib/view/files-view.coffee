@@ -139,7 +139,7 @@ module.exports =
         @path + "/" + next
 
     updatePath: (next) =>
-      @path = @getNewPath(next)
+      @path = path.normalize(@getNewPath(next))
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
@@ -201,7 +201,7 @@ module.exports =
         @filterEditorView.setText('')
         @setItems()
         @updatePath(item.name)
-        @host.lastOpenDirectory = item.path
+        @host.lastOpenDirectory = path.normalize(item.path)
         @host.invalidate()
         @populate()
       else if item.isLink
