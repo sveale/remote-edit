@@ -13,6 +13,7 @@ Q = require 'q'
 _ = require 'underscore-plus'
 mkdirp = require 'mkdirp'
 moment = require 'moment'
+upath = require 'upath'
 
 module.exports =
   class FilesView extends SelectListView
@@ -139,7 +140,7 @@ module.exports =
         @path + "/" + next
 
     updatePath: (next) =>
-      @path = path.normalize(@getNewPath(next))
+      @path = upath.normalize(@getNewPath(next))
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
@@ -201,7 +202,7 @@ module.exports =
         @filterEditorView.setText('')
         @setItems()
         @updatePath(item.name)
-        @host.lastOpenDirectory = path.normalize(item.path)
+        @host.lastOpenDirectory = upath.normalize(item.path)
         @host.invalidate()
         @populate()
       else if item.isLink
