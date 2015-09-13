@@ -152,7 +152,6 @@ module.exports =
         (sftp, callback) =>
           sftp.fastGet(localFile.remoteFile.path, localFile.path, (err) => callback(err, sftp))
       ], (err, sftp) =>
-        sftp.end()
         @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'}) if err?
         @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'}) if !err?
         callback?(err, localFile)
