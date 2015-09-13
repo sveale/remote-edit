@@ -1,7 +1,7 @@
 {
   "name": "remote-edit",
   "main": "./lib/main.coffee",
-  "version": "1.8.18",
+  "version": "1.8.19",
   "description": "Browse and edit remote files using SFTP and FTP",
   "homepage": "https://github.com/sveale/remote-edit",
   "repository": {
