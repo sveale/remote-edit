@@ -6,6 +6,7 @@ SftpHost = require '../model/sftp-host'
 FtpHost = require '../model/ftp-host'
 
 fs = require 'fs-plus'
+keytar = require 'keytar'
 
 module.exports =
   class HostView extends View
@@ -35,15 +36,16 @@ module.exports =
         @div class: 'block', outlet: 'passwordBlock', =>
           @label 'Password:'
           @subview 'password', new TextEditorView(mini: true)
-          @label 'Passwords are stored in cleartext! Leave password field empty if you want to be prompted.', class: 'text-warning'
+          @label 'Passwords are by default stored in cleartext! Leave password field empty if you want to be prompted.', class: 'text-warning'
+          @label 'Passwords can be saved to default system keychain by enabling option in settings.', class: 'text-warning'
 
         @div class: 'block', outlet: 'privateKeyBlock', =>
           @label 'Private key path:'
           @subview 'privateKeyPath', new TextEditorView(mini: true)
           @label 'Private key passphrase:'
           @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
-          @label 'Passphrases are stored in cleartext! Consider using an ssh-agent instead. Leave passphrase field blank if key does not require passphrase.', class: 'text-warning'
-
+          @label 'Passphrases are by default stored in cleartext! Leave Passphrases field empty if you want to be prompted.', class: 'text-warning'
+          @label 'Passphrases can be saved to default system keychain by enabling option in settings.', class: 'text-warning'
 
         @h2 "Additional settings", class: "host-header"
         @label 'Alias:'
@@ -71,9 +73,19 @@ module.exports =
       @username.setText(@host.username ? "")
 
       @port.setText(@host.port ? "")
-      @password.setText(@host.password ? "")
+
+      if atom.config.get 'remote-edit.storePasswordsUsingKeytar'
+        keytarPassword = keytar.getPassword(@host.getServiceNamePassword(), @host.getServiceAccount())
+        @password.setText(keytarPassword ? "")
+      else
+        @password.setText(@host.password ? "")
+
       @privateKeyPath.setText(@host.privateKeyPath ? atom.config.get('remote-edit.sshPrivateKeyPath'))
-      @privateKeyPassphrase.setText(@host.passphrase ? "")
+      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@host instanceof SftpHost)
+        keytarPassphrase = keytar.getPassword(@host.getServiceNamePassphrase(), @host.getServiceAccount())
+        @privateKeyPassphrase.setText(keytarPassphrase ? "")
+      else
+        @privateKeyPassphrase.setText(@host.passphrase ? "")
 
     userAgentButtonClick: ->
       @privateKeyButton.toggleClass('selected', false)
@@ -109,12 +121,24 @@ module.exports =
 
         if @privateKeyButton.hasClass('selected')
           @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
-          @host.passphrase = @privateKeyPassphrase.getText()
+          if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@privateKeyPassphrase.getText().length > 0)
+            keytar.replacePassword(@host.getServiceNamePassphrase(), @host.getServiceAccount(), @privateKeyPassphrase.getText())
+            @host.passphrase = "***** keytar *****"
+          else
+            @host.passphrase = @privateKeyPassphrase.getText()
         if @passwordButton.hasClass('selected')
-          @host.password = @password.getText()
+          if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length > 0)
+            keytarResult = keytar.replacePassword(@host.getServiceNamePassword(), @host.getServiceAccount(), @password.getText())
+            @host.password = "***** keytar *****"
+          else
+            @host.password = @password.getText()
       else if @host instanceof FtpHost
         @host.usePassword = true
-        @host.password = @password.getText()
+        if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length > 0)
+          keytarResult = keytar.replacePassword(@host.getServiceNamePassword(), @host.getServiceAccount(), @password.getText())
+          @host.password = "***** keytar *****"
+        else
+          @host.password = @password.getText()
       else
         throw new Error("\"host\" is not valid type!", @host)
 

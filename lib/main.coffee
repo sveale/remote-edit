@@ -61,6 +61,11 @@ module.exports =
       description: 'When enabled, browsing a host will return you to the last directory you entered'
       type: 'boolean'
       default: false
+    storePasswordsUsingKeytar:
+      title: 'Store passwords using node-keytar'
+      description: 'When enabled, passwords and passphrases will be stored in system\'s keychain'
+      type: 'boolean'
+      default: false
 
   activate: (state) ->
     @setupOpeners()

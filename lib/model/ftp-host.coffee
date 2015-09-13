@@ -11,7 +11,7 @@ Serializable = require 'serializable'
 Path = require 'path'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-
+keytar = require 'keytar'
 
 module.exports =
   class FtpHost extends Host
@@ -58,16 +58,18 @@ module.exports =
           toreturn += 1
       return toreturn.toString()
 
+    getServiceNamePassword: ->
+      "atom.remote-edit.ftp.password"
 
     ####################
     # Overridden methods
     getConnectionString: (connectionOptions) ->
-      _.extend({
-        host: @hostname,
-        port: @port,
-        user: @username,
-        password: @password
-      }, connectionOptions)
+      if atom.config.get 'remote-edit.storePasswordsUsingKeytar'
+        keytarPassword = keytar.getPassword(@getServiceNamePassword(), @getServiceAccount())
+        _.extend({host: @hostname, port: @port, user: @username, password: keytarPassword}, connectionOptions)
+      else
+        _.extend({host: @hostname, port: @port, user: @username, password: @password}, connectionOptions)
+
 
     close: (callback) ->
       @connection?.end()

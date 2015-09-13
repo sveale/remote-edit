@@ -14,7 +14,8 @@ Atom package to browse and edit remote files using FTP and SFTP.
 * Multi-window support (ie. server settings and downloaded files are serialized and accessible across multiple Atom windows)
 
 ## Security concerns
- * All information regarding hosts are saved in cleartext. This means that if you select the password authentication scheme and choose not to be prompted at connect, __the password will be stored in cleartext__. This also applies to passphrases if a PKEY is used. Because of this, I recommend using an User Agent with SSH hosts and leaving the passsword/passphrase field blank otherwise.
+ * By default, __all information is stored in cleartext to disk__. This includes passwords and passphrases.
+ * Passwords and passphrases can alternatively be stored in the systems __default keychain__ by enabling it in the settings page for remote-edit. This is achieved using [node-keytar](https://github.com/atom/node-keytar) and might not work on all systems.
 
 ## Keyboard shortcuts
 <kbd>Shift+e</kbd>

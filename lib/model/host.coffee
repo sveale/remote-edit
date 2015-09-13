@@ -26,6 +26,9 @@ module.exports =
             )
           )
 
+    getServiceAccount: ->
+      "#{@username}@#{@hostname}:#{@port}"
+
     destroy: ->
       @emitter.dispose()
 
