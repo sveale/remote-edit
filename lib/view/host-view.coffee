@@ -124,12 +124,18 @@ module.exports =
           if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@privateKeyPassphrase.getText().length > 0)
             keytar.replacePassword(@host.getServiceNamePassphrase(), @host.getServiceAccount(), @privateKeyPassphrase.getText())
             @host.passphrase = "***** keytar *****"
+          else if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@privateKeyPassphrase.getText().length is 0)
+            keytar.deletePassword(@host.getServiceNamePassphrase(), @host.getServiceAccount())
+            @host.passphrase = ""
           else
             @host.passphrase = @privateKeyPassphrase.getText()
         if @passwordButton.hasClass('selected')
           if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length > 0)
             keytarResult = keytar.replacePassword(@host.getServiceNamePassword(), @host.getServiceAccount(), @password.getText())
             @host.password = "***** keytar *****"
+          else if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length is 0)
+            keytar.deletePassword(@host.getServiceNamePassword(), @host.getServiceAccount())
+            @host.password = ""
           else
             @host.password = @password.getText()
       else if @host instanceof FtpHost
@@ -137,6 +143,9 @@ module.exports =
         if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length > 0)
           keytarResult = keytar.replacePassword(@host.getServiceNamePassword(), @host.getServiceAccount(), @password.getText())
           @host.password = "***** keytar *****"
+        else if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (@password.getText().length is 0)
+          keytar.deletePassword(@host.getServiceNamePassword(), @host.getServiceAccount())
+          @host.password = ""
         else
           @host.password = @password.getText()
       else
