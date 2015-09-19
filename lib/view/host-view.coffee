@@ -114,6 +114,12 @@ module.exports =
     confirm: ->
       @cancel()
 
+      @host.alias = @alias.getText()
+      @host.hostname = @hostname.getText()
+      @host.directory = @directory.getText()
+      @host.username = @username.getText()
+      @host.port = @port.getText()
+
       if @host instanceof SftpHost
         @host.useAgent = @userAgentButton.hasClass('selected')
         @host.usePrivateKey = @privateKeyButton.hasClass('selected')
@@ -151,11 +157,7 @@ module.exports =
       else
         throw new Error("\"host\" is not valid type!", @host)
 
-      @host.alias = @alias.getText()
-      @host.hostname = @hostname.getText()
-      @host.directory = @directory.getText()
-      @host.username = @username.getText()
-      @host.port = @port.getText()
+
 
       if @ipdw?
         @ipdw.getData().then((data) =>
