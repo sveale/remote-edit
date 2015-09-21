@@ -33,7 +33,9 @@
     "q": ">=1.0.1",
     "atom-space-pen-views": "^2.0.3",
     "mkdirp": "~0.5.1",
-    "upath": "~0.1.6",
+    "upath": "~0.1.6"
+  },
+  "optionalDependencies": {
     "keytar": "~3.0.0"
   },
   "devDependencies": {

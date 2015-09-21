@@ -11,7 +11,12 @@ Serializable = require 'serializable'
 Path = require 'path'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-keytar = require 'keytar'
+
+try
+  keytar = require 'keytar'
+catch err
+  console.debug 'Keytar could not be loaded! Passwords will be stored in cleartext to remoteEdit.json!'
+  keytar = undefined
 
 module.exports =
   class FtpHost extends Host
@@ -64,7 +69,7 @@ module.exports =
     ####################
     # Overridden methods
     getConnectionString: (connectionOptions) ->
-      if atom.config.get 'remote-edit.storePasswordsUsingKeytar'
+      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
         keytarPassword = keytar.getPassword(@getServiceNamePassword(), @getServiceAccount())
         _.extend({host: @hostname, port: @port, user: @username, password: keytarPassword}, connectionOptions)
       else

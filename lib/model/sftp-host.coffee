@@ -12,7 +12,11 @@ Serializable = require 'serializable'
 Path = require 'path'
 osenv = require 'osenv'
 _ = require 'underscore-plus'
-keytar = require 'keytar'
+try
+  keytar = require 'keytar'
+catch err
+  console.debug 'Keytar could not be loaded! Passwords will be stored in cleartext to remoteEdit.json!'
+  keytar = undefined
 
 module.exports =
   class SftpHost extends Host
@@ -44,7 +48,7 @@ module.exports =
       connectionString
 
     getConnectionStringUsingKey: ->
-      if atom.config.get 'remote-edit.storePasswordsUsingKeytar'
+      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
         keytarPassphrase = keytar.getPassword(@getServiceNamePassphrase(), @getServiceAccount())
         {host: @hostname, port: @port, username: @username, privateKey: @getPrivateKey(@privateKeyPath), passphrase: keytarPassphrase}
       else
@@ -52,7 +56,7 @@ module.exports =
 
 
     getConnectionStringUsingPassword: ->
-      if atom.config.get 'remote-edit.storePasswordsUsingKeytar'
+      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
         keytarPassword = keytar.getPassword(@getServiceNamePassword(), @getServiceAccount())
         {host: @hostname, port: @port, username: @username, password: keytarPassword}
       else
