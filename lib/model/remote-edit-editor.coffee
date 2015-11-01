@@ -7,7 +7,6 @@ catch e
 TextEditor = Editor ? require path.resolve resourcePath, 'src', 'text-editor'
 
 DisplayBuffer = require path.resolve resourcePath, 'src', 'display-buffer'
-Serializable = require 'serializable'
 
 # Defer requiring
 Host = null
@@ -20,10 +19,7 @@ _ = null
 
 module.exports =
   class RemoteEditEditor extends TextEditor
-    Serializable.includeInto(this)
     atom.deserializers.add(this)
-
-    TextEditor.registerDeserializer(RemoteEditEditor)
 
     constructor: ({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini, @host, @localFile}) ->
       super({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini})
@@ -127,7 +123,8 @@ module.exports =
       else
         console.error 'LocalFile and host not defined. Cannot upload file!'
 
-    serializeParams: ->
+    serialize: ->
+      deserializer: 'RemoteEditEditor'
       id: @id
       softTabs: @softTabs
       scrollTop: @scrollTop
@@ -137,15 +134,22 @@ module.exports =
       localFile: @localFile?.serialize()
       host: @host?.serialize()
 
-    deserializeParams: (params) ->
-      params.displayBuffer = DisplayBuffer.deserialize(params.displayBuffer)
-      params.registerEditor = true
-      if params.localFile?
+    @deserialize: (state) ->
+      try
+        displayBuffer = DisplayBuffer.deserialize(state.displayBuffer)
+      catch error
+        if error.syscall is 'read'
+          return # error reading the file, dont deserialize an editor for it
+        else
+          throw error
+      state.displayBuffer = displayBuffer
+      state.registerEditor = true
+      if state.localFile?
         LocalFile = require '../model/local-file'
-        params.localFile = LocalFile.deserialize(params.localFile)
-      if params.host?
+        state.localFile = LocalFile.deserialize(state.localFile)
+      if state.host?
         Host = require '../model/host'
         FtpHost = require '../model/ftp-host'
         SftpHost = require '../model/sftp-host'
-        params.host = Host.deserialize(params.host)
-      params
+        state.host = Host.deserialize(state.host)
+      new this(state)
