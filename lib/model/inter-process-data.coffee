@@ -8,7 +8,6 @@ SftpHost = null
 LocalFile = null
 RemoteFile = null
 _ = null
-RemoteEditEditor = null
 
 module.exports =
   class InterProcessData
@@ -35,10 +34,9 @@ module.exports =
         @addSubscriptionToHost(host)
 
       if atom.config.get 'remote-edit.notifications'
-        RemoteEditEditor ?= require '../model/remote-edit-editor'
 
         @disposables.add atom.workspace.observeTextEditors((editor) =>
-          if editor instanceof RemoteEditEditor
+          if editor.remoteEdit
             # If a host emits information ('info'), forward this to @messages
             @disposables.add editor.host.onInfo (info) => atom.notifications.add(info.type, info.message)
         )

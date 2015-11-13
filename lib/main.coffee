@@ -1,5 +1,5 @@
 # Import needed to register deserializer
-RemoteEditEditor = require './model/remote-edit-editor'
+makeRemoteEditor = require('./model/remote-edit-editor').makeRemoteEditor
 
 # Deferred requirements
 OpenFilesView = null
@@ -107,7 +107,7 @@ module.exports =
     if atom.config.get 'remote-edit.notifications'
       stop = false
       for editor in atom.workspace.getTextEditors() when !stop
-        if editor instanceof RemoteEditEditor
+        if editor.remoteEdit
           @getOrCreateIpdw()
           stop = true
 
@@ -138,4 +138,13 @@ module.exports =
         host = Host.deserialize(JSON.parse(decodeURIComponent(query.host)))
 
         atom.project.bufferForPath(localFile.path).then (buffer) ->
-          editor = new RemoteEditEditor({buffer: buffer, registerEditor: true, host: host, localFile: localFile})
+          textEditorParams = {buffer: buffer, registerEditor: true, host: host, localFile: localFile}
+          if (atom.workspace.buildTextEditor)
+            textEditor = atom.workspace.buildTextEditor(textEditorParams);
+          else
+            TextEditor = require 'atom';
+            textEditor = new TextEditor(textEditorParams);
+          textEditor.host = host
+          textEditor.localFile = localFile
+          # since inheriting from TextEditor is deprecated we hack around that
+          makeRemoteEditor(textEditor)
