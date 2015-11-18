@@ -21,8 +21,13 @@ module.exports =
   class RemoteEditEditor extends TextEditor
     atom.deserializers.add(this)
 
-    constructor: ({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini, @host, @localFile}) ->
-      super({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini})
+    constructor: (params = {}) ->
+      console.log(params)
+      super(params)
+      if params.host
+        @host = params.host
+      if params.localFile
+        @localFile = params.localFile
 
     getIconName: ->
       "globe"
@@ -124,15 +129,11 @@ module.exports =
         console.error 'LocalFile and host not defined. Cannot upload file!'
 
     serialize: ->
-      deserializer: 'RemoteEditEditor'
-      id: @id
-      softTabs: @softTabs
-      scrollTop: @scrollTop
-      scrollLeft: @scrollLeft
-      displayBuffer: @displayBuffer.serialize()
-      title: @title
-      localFile: @localFile?.serialize()
-      host: @host?.serialize()
+      data = super
+      data.deserializer = 'RemoteEditEditor'
+      data.localFile = @localFile?.serialize()
+      data.host = @host?.serialize()
+      return data
 
     @deserialize: (state) ->
       try
