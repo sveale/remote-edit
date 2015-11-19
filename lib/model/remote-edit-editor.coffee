@@ -22,7 +22,6 @@ module.exports =
     atom.deserializers.add(this)
 
     constructor: (params = {}) ->
-      console.log(params)
       super(params)
       if params.host
         @host = params.host
@@ -135,14 +134,16 @@ module.exports =
       data.host = @host?.serialize()
       return data
 
-    @deserialize: (state) ->
+    # mostly copied from TextEditor.deserialize
+    @deserialize: (state, atomEnvironment) ->
       try
-        displayBuffer = DisplayBuffer.deserialize(state.displayBuffer)
+        displayBuffer = DisplayBuffer.deserialize(state.displayBuffer, atomEnvironment)
       catch error
         if error.syscall is 'read'
           return # error reading the file, dont deserialize an editor for it
         else
           throw error
+
       state.displayBuffer = displayBuffer
       state.registerEditor = true
       if state.localFile?
@@ -153,4 +154,16 @@ module.exports =
         FtpHost = require '../model/ftp-host'
         SftpHost = require '../model/sftp-host'
         state.host = Host.deserialize(state.host)
+      # displayBuffer has no getMarkerLayer
+      #state.selectionsMarkerLayer = displayBuffer.getMarkerLayer(state.selectionsMarkerLayerId)
+      state.config = atomEnvironment.config
+      state.notificationManager = atomEnvironment.notifications
+      state.packageManager = atomEnvironment.packages
+      state.clipboard = atomEnvironment.clipboard
+      state.viewRegistry = atomEnvironment.views
+      state.grammarRegistry = atomEnvironment.grammars
+      state.project = atomEnvironment.project
+      state.assert = atomEnvironment.assert.bind(atomEnvironment)
+      state.applicationDelegate = atomEnvironment.applicationDelegate
       new this(state)
+
