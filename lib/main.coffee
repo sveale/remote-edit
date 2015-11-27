@@ -29,6 +29,10 @@ module.exports =
       title: 'Display notifications'
       type: 'boolean'
       default: true
+    displayConnectionActivities:
+      title: 'Display connection activities'
+      type: 'boolean'
+      default: false
     sshPrivateKeyPath:
       title: 'Path to private SSH key'
       type: 'string'
@@ -138,4 +142,8 @@ module.exports =
         host = Host.deserialize(JSON.parse(decodeURIComponent(query.host)))
 
         atom.project.bufferForPath(localFile.path).then (buffer) ->
-          editor = new RemoteEditEditor({buffer: buffer, registerEditor: true, host: host, localFile: localFile})
+          editor = new RemoteEditEditor({buffer: buffer, registerEditor: true, host: host, localFile: localFile, \
+            config: atom.config, notificationManager: atom.notifications, \
+            packageManager: atom.packages, clipboard: atom.clipboard, \
+            viewRegistry: atom.views, grammarRegistry: atom.grammars, \
+            project: atom.project, assert: atom.assert })

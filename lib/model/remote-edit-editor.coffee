@@ -21,8 +21,17 @@ module.exports =
   class RemoteEditEditor extends TextEditor
     atom.deserializers.add(this)
 
-    constructor: ({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini, @host, @localFile}) ->
-      super({@softTabs, initialLine, initialColumn, tabLength, softWrap, @displayBuffer, buffer, registerEditor, suppressCursorCreation, @mini})
+    constructor: ({@softTabs, @firstVisibleScreenRow, @firstVisibleScreenColumn, initialLine, initialColumn, tabLength,
+      softWrapped, @displayBuffer, @selectionsMarkerLayer, buffer, suppressCursorCreation,
+      @mini, @placeholderText, lineNumberGutterVisible, largeFileMode, @config,
+      @notificationManager, @packageManager, @clipboard, @viewRegistry, @grammarRegistry,
+      @project, @assert, @applicationDelegate, @host, @localFile}) ->
+      super({@softTabs, @firstVisibleScreenRow, @firstVisibleScreenColumn, initialLine, initialColumn, tabLength,
+      softWrapped, @displayBuffer, @selectionsMarkerLayer, buffer, suppressCursorCreation,
+      @mini, @placeholderText, lineNumberGutterVisible, largeFileMode, @config,
+      @notificationManager, @packageManager, @clipboard, @viewRegistry, @grammarRegistry,
+      @project, @assert, @applicationDelegate})
+      console.log @project
 
     getIconName: ->
       "globe"
