@@ -98,7 +98,8 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
       async.waterfall([
         (callback) =>
           if @usePrivateKey
@@ -119,7 +120,8 @@ module.exports =
             @connection.end()
             callback(err)
           @connection.on 'ready', =>
-            @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
+            if atom.config.get 'remote-edit.displayConnectionActivities'
+              @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
             callback(null)
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
@@ -146,27 +148,33 @@ module.exports =
       ], (err, result) =>
         if err?
           @emitter.emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", type: 'error'} )
-          console.error err if err?
+          console.error err
           callback?(err)
         else
           callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
       )
 
     getFile: (localFile, callback) ->
-      @emitter.emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit('info', {message: "Getting remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
         (sftp, callback) =>
           sftp.fastGet(localFile.remoteFile.path, localFile.path, (err) => callback(err, sftp))
       ], (err, sftp) =>
-        @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'}) if err?
-        @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'}) if !err?
+        if err?
+          @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
+          console.error err
+        else
+          if atom.config.get 'remote-edit.displayConnectionActivities'
+            @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
         callback?(err, localFile)
       )
 
     writeFile: (localFile, callback) ->
-      @emitter.emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit 'info', {message: "Writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
@@ -175,7 +183,7 @@ module.exports =
       ], (err) =>
         if err?
           @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
-          console.error err if err?
+          console.error err
         else
           @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
         @close()

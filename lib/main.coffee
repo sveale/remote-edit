@@ -29,6 +29,10 @@ module.exports =
       title: 'Display notifications'
       type: 'boolean'
       default: true
+    displayConnectionActivities:
+      title: 'Display connection activities'
+      type: 'boolean'
+      default: false
     sshPrivateKeyPath:
       title: 'Path to private SSH key'
       type: 'string'

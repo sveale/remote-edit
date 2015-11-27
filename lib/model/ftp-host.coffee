@@ -81,7 +81,8 @@ module.exports =
       callback?(null)
 
     connect: (callback, connectionOptions = {}) ->
-      @emitter.emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit 'info', {message: "Connecting to ftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection = new ftp()
@@ -124,7 +125,8 @@ module.exports =
       )
 
     getFile: (localFile, callback) ->
-      @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit('info', {message: "Getting remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'})
       async.waterfall([
         (callback) =>
           @connection.get(localFile.remoteFile.path, callback)
@@ -142,7 +144,8 @@ module.exports =
       )
 
     writeFile: (localFile, callback) ->
-      @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
+      if atom.config.get 'remote-edit.displayConnectionActivities'
+        @emitter.emit 'info', {message: "Writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'info'}
       async.waterfall([
         (callback) =>
           @connection.put(localFile.path, localFile.remoteFile.path, callback)
