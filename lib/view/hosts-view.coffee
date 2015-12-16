@@ -46,7 +46,7 @@ module.exports =
       @panel?.hide()
 
     getFilterKey: ->
-      return "hostname"
+      return "searchKey"
 
     viewForItem: (item) ->
       keyBindings = @keyBindings
