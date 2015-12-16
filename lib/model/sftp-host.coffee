@@ -29,7 +29,7 @@ module.exports =
     protocol: "sftp"
 
     constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
-      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory)
+      super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory, @alias + @hostname + @username + @port)
 
     getConnectionStringUsingAgent: ->
       connectionString =  {
