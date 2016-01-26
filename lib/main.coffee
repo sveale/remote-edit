@@ -67,6 +67,22 @@ module.exports =
       description: 'When enabled, passwords and passphrases will be stored in system\'s keychain'
       type: 'boolean'
       default: false
+    filterHostsUsing:
+      type: 'object'
+      properties:
+        hostname:
+          type: 'boolean'
+          default: true
+        alias:
+          type: 'boolean'
+          default: false
+        username:
+          type: 'boolean'
+          default: false
+        port:
+          type: 'boolean'
+          default: false
+
 
   activate: (state) ->
     @setupOpeners()

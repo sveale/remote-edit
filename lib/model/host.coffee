@@ -13,6 +13,9 @@ module.exports =
 
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory) ->
       @emitter = new Emitter
+      @searchKey = @hostname
+      atom.config.observe "remote-edit.filterHostsUsing", (settings) =>
+        @searchKey = @getSearchKey(settings) ? @searchKey
 
       if atom.config.get 'remote-edit.clearFileList'
         _.each(@localFiles, (val) =>
@@ -25,6 +28,14 @@ module.exports =
             @removeLocalFile(val) if not exists
             )
           )
+
+    getSearchKey: (searchKeySettings) ->
+      toReturn = ""
+      toReturn = "#{toReturn} #{@alias}" if searchKeySettings["alias"]
+      toReturn = "#{toReturn} #{@hostname}" if searchKeySettings["hostname"]
+      toReturn = "#{toReturn} #{@username}" if searchKeySettings["username"]
+      toReturn = "#{toReturn} #{@port}" if searchKeySettings["port"]
+      return toReturn
 
     getServiceAccount: ->
       "#{@username}@#{@hostname}:#{@port}"
