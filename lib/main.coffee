@@ -6,6 +6,7 @@ RemoteEditEditor = require './model/remote-edit-editor'
 OpenFilesView = null
 HostView = null
 HostsView = null
+FilesView = null
 Host = null
 SftpHost = null
 FtpHost = null
@@ -92,6 +93,12 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:browse', => @browse())
     atom.commands.add('atom-workspace', 'remote-edit:new-host-sftp', => @newHostSftp())
     atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
+    atom.commands.add('atom-workspace', 'remote-edit:toggle-files-view', => @createFilesView().toggle())
+    atom.commands.add('atom-workspace', 'remote-edit:reload-folder', => @createFilesView().reloadFolder())
+    atom.commands.add('atom-workspace', 'remote-edit:create-folder', => @createFilesView().createFolder())
+    atom.commands.add('atom-workspace', 'remote-edit:create-file', => @createFilesView().createFile())
+    atom.commands.add('atom-workspace', 'remote-edit:rename-folder-file', => @createFilesView().renameFolderFile())
+    atom.commands.add('atom-workspace', 'remote-edit:remove-folder-file', => @createFilesView().deleteFolderFile())
 
   deactivate: ->
     @ipdw?.destroy()
@@ -119,6 +126,12 @@ module.exports =
     OpenFilesView ?= require './view/open-files-view'
     showOpenFilesView = new OpenFilesView(@getOrCreateIpdw())
     showOpenFilesView.toggle()
+
+  createFilesView: ->
+    unless @filesView?
+      FilesView = require './view/files-view'
+      @filesView = new FilesView(@state)
+    @filesView
 
   initializeIpdwIfNecessary: ->
     if atom.config.get 'remote-edit.notifications'
