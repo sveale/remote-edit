@@ -128,7 +128,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.get(localFile.remoteFile.path, callback)
-        (readableStream, callback) =>
+        (readableStream, callback) ->
           writableStream = fs.createWriteStream(localFile.path)
           readableStream.pipe(writableStream)
           readableStream.on 'end', -> callback(null)
