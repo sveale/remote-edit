@@ -128,7 +128,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.get(localFile.remoteFile.path, callback)
-        (readableStream, callback) =>
+        (readableStream, callback) ->
           writableStream = fs.createWriteStream(localFile.path)
           readableStream.pipe(writableStream)
           readableStream.on 'end', -> callback(null)
@@ -174,3 +174,86 @@ module.exports =
       tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in params.localFiles
       params.localFiles = tmpArray
       params
+
+    createFolder: (folderpath, callback) ->
+      async.waterfall([
+        (callback) =>
+          @connection.mkdir(folderpath, callback)
+      ], (err) =>
+        if err?
+          @emitter.emit('info', {message: "Error occurred when creating remote folder ftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'error'})
+          console.error err if err?
+        else
+          @emitter.emit('info', {message: "Successfully created remote folder ftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'success'})
+        callback?(err)
+      )
+
+    createFile: (filepath, callback) ->
+      if filepath.indexOf(".") == -1
+        @emitter.emit('info', {message: "Invalid file name", type: 'error'})
+      else
+        @connection.get(filepath, (err, result) =>
+          if result
+            @emitter.emit('info', {message: "File already exists", type: 'error'})
+          else
+            async.waterfall([
+              (callback) =>
+                @connection.put(new Buffer(''), filepath, callback)
+            ], (err) =>
+              if err?
+                @emitter.emit('info', {message: "Error occurred when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'error'})
+                console.error err if err?
+              else
+                @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'success'})
+              callback?(err)
+            )
+        )
+
+    renameFolderFile: (path, oldName, newName, isFolder, callback) ->
+      if oldName == newName
+        @emitter.emit('info', {message: "The new name is same as the old", type: 'error'})
+      else
+        oldPath = path + "/" + oldName
+        newPath = path + "/" + newName
+        async.waterfall([
+          (callback) =>
+            if(isFolder)
+              @connection.list(newPath, callback)
+            else
+              @connection.get(newPath, callback)
+        ], (err, result) =>
+          if (isFolder and result.length > 0) or (!isFolder and result)
+            @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
+          else
+            async.waterfall([
+              (callback) =>
+                @connection.rename(oldPath, newPath, callback)
+            ], (err) =>
+              if err?
+                @emitter.emit('info', {message: "Error occurred when renaming remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
+                console.error err if err?
+              else
+                @emitter.emit('info', {message: "Successfully renamed remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
+              callback?(err)
+            )
+        )
+
+    deleteFolderFile: (deletepath, isFolder, callback) ->
+      if isFolder
+        @connection.rmdir(deletepath, (err) =>
+          if err?
+            @emitter.emit('info', {message: "Error occurred when deleting remote folder ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            console.error err if err?
+          else
+            @emitter.emit('info', {message: "Successfully deleted remote folder ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+          callback?(err)
+        )
+      else
+        @connection.delete(deletepath, (err) =>
+          if err?
+            @emitter.emit('info', {message: "Error occurred when deleting remote file ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            console.error err if err?
+          else
+            @emitter.emit('info', {message: "Successfully deleted remote file ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+          callback?(err)
+        )

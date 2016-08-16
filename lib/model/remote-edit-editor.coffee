@@ -6,8 +6,6 @@ catch e
   # Catch error
 TextEditor = Editor ? require path.resolve resourcePath, 'src', 'text-editor'
 
-DisplayBuffer = require path.resolve resourcePath, 'src', 'display-buffer'
-
 # Defer requiring
 Host = null
 FtpHost = null
@@ -137,7 +135,7 @@ module.exports =
     # mostly copied from TextEditor.deserialize
     @deserialize: (state, atomEnvironment) ->
       try
-        displayBuffer = DisplayBuffer.deserialize(state.displayBuffer, atomEnvironment)
+        displayBuffer = TextEditor.deserialize(state.displayBuffer, atomEnvironment)
       catch error
         if error.syscall is 'read'
           return # error reading the file, dont deserialize an editor for it
@@ -166,4 +164,3 @@ module.exports =
       state.assert = atomEnvironment.assert.bind(atomEnvironment)
       state.applicationDelegate = atomEnvironment.applicationDelegate
       new this(state)
-
