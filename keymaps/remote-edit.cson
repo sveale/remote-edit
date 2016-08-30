@@ -24,3 +24,6 @@
 
 '.files-view.select-list':
   'shift-o': 'filesview:open'
+
+'.remote-edit-tree-view':
+  'backspace': 'filesview:previous-folder'
