@@ -6,7 +6,7 @@ catch e
   # Catch error
 TextEditor = Editor ? require path.resolve resourcePath, 'src', 'text-editor'
 
-DisplayBuffer = require path.resolve resourcePath, 'src', 'display-buffer'
+DisplayBuffer = TextEditor.prototype.displayBuffer
 
 # Defer requiring
 Host = null
@@ -166,4 +166,3 @@ module.exports =
       state.assert = atomEnvironment.assert.bind(atomEnvironment)
       state.applicationDelegate = atomEnvironment.applicationDelegate
       new this(state)
-
