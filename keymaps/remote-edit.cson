@@ -24,3 +24,7 @@
 
 '.files-view.select-list':
   'shift-o': 'filesview:open'
+
+'.host-view':
+  'tab': 'host-view:focus-next'
+  'shift-tab': 'host-view:focus-previous'

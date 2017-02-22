@@ -1,6 +1,7 @@
 {$, View, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
+_ = require 'underscore-plus'
 Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
 FtpHost = require '../model/ftp-host'
@@ -56,11 +57,11 @@ module.exports =
         @label 'Alias:'
         @subview 'alias', new TextEditorView(mini: true)
 
-
-
         @div class: 'block', outlet: 'buttonBlock', =>
           @button class: 'inline-block btn pull-right', outlet: 'cancelButton', click: 'cancel', 'Cancel'
           @button class: 'inline-block btn pull-right', outlet: 'saveButton', click: 'confirm','Save'
+
+        @div class: 'clear'
 
     initialize: (@host, @ipdw) ->
       throw new Error("Parameter \"host\" undefined!") if !@host?
@@ -71,6 +72,11 @@ module.exports =
         'core:cancel': (event) =>
           @cancel()
           event.stopPropagation()
+
+      @subscriptions = new CompositeDisposable
+      @subscriptions.add atom.commands.add @element,
+        'host-view:focus-next': @focusNext
+        'host-view:focus-previous': @focusPrev
 
       @alias.setText(@host.alias ? "")
       @hostname.setText(@host.hostname ? "")
@@ -91,6 +97,24 @@ module.exports =
         @privateKeyPassphrase.setText(keytarPassphrase ? "")
       else
         @privateKeyPassphrase.setText(@host.passphrase ? "")
+
+    focusNext: =>
+      elements = [@hostname, @directory, @username, @port, @alias, @saveButton]
+      focusedElement = _.find elements, (el) -> el.hasClass('is-focused')
+      focusedIndex = elements.indexOf focusedElement
+
+      focusedIndex = focusedIndex + 1
+      focusedIndex = 0 if focusedIndex > elements.length
+      elements[focusedIndex].focus()
+
+    focusPrev: =>
+      elements = [@hostname, @directory, @username, @port, @alias, @saveButton]
+      focusedElement = _.find elements, (el) -> el.hasClass('is-focused')
+      focusedIndex = elements.indexOf focusedElement
+
+      focusedIndex = focusedIndex - 1
+      focusedIndex = elements.length - 1 if focusedIndex < 0
+      elements[focusedIndex].focus()
 
     userAgentButtonClick: ->
       @privateKeyButton.toggleClass('selected', false)
