@@ -11,7 +11,7 @@ module.exports =
     Serializable.includeInto(this)
     atom.deserializers.add(this)
 
-    constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory) ->
+    constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory, @searchKey) ->
       @emitter = new Emitter
       @searchKey = @hostname
       atom.config.observe "remote-edit.filterHostsUsing", (settings) =>
