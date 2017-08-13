@@ -160,6 +160,6 @@ module.exports =
           ws = atom.workspace
           params = _.extend({
             config: ws.config, notificationManager: ws.notificationManager, packageManager: ws.packageManager, clipboard: ws.clipboard, viewRegistry: ws.viewRegistry,
-            grammarRegistry: ws.grammarRegistry, project: ws.project, assert: ws.assert, applicationDelegate: ws.applicationDelegate
+            grammarRegistry: ws.grammarRegistry, project: ws.project, assert: ws.assert, applicationDelegate: ws.applicationDelegate, autoHeight: false
           }, params)
           editor = new RemoteEditEditor(params)

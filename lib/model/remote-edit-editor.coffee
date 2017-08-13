@@ -164,5 +164,5 @@ module.exports =
       state.project = atomEnvironment.project
       state.assert = atomEnvironment.assert.bind(atomEnvironment)
       state.applicationDelegate = atomEnvironment.applicationDelegate
+      state.autoHeight = false
       new this(state)
-
