@@ -1,7 +1,7 @@
 {
   "name": "remote-edit",
-  "main": "./lib/main.coffee",
-  "version": "1.9.0",
+  "main": "./lib/main.js",
+  "version": "1.9.1",
   "description": "Browse and edit remote files using SFTP and FTP",
   "homepage": "https://github.com/sveale/remote-edit",
   "repository": {
@@ -37,10 +37,13 @@
     "temp": ">=0.8.3"
   },
   "optionalDependencies": {
-    "keytar": "~3.0.0"
+    "keytar": "~4.1.0"
   },
   "devDependencies": {
     "temp": "*"
+  },
+  "deserializers": {
+    "RemoteEditEditor": "deserializeRemoteEditor"
   },
   "keywords": [
     "atom",

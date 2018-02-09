@@ -1,3 +1,6 @@
+## 1.9.1
+* Started to convert package to Java Script
+
 ## 1.7.0
 * Convert package to conform to Atom 1.0 API
 
