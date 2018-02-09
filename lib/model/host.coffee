@@ -31,6 +31,7 @@ module.exports =
 
     getSearchKey: (searchKeySettings) ->
       toReturn = ""
+      return toReturn unless searchKeySettings
       toReturn = "#{toReturn} #{@alias}" if searchKeySettings["alias"]
       toReturn = "#{toReturn} #{@hostname}" if searchKeySettings["hostname"]
       toReturn = "#{toReturn} #{@username}" if searchKeySettings["username"]
