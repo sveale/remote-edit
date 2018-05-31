@@ -1,5 +1,5 @@
 path = require 'path'
-resourcePath = atom.config.resourcePath
+resourcePath = atom.getLoadSettings().resourcePath
 try
   Editor = require path.resolve resourcePath, 'src', 'editor'
 catch e
